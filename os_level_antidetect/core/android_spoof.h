@@ -22,6 +22,7 @@ namespace AntiDetect {
 struct AndroidDeviceInfo {
     // Hardware Identifiers
     std::string android_id;          // Settings.Secure.ANDROID_ID
+    std::string gsf_id;               // Google Services Framework ID
     std::string serial_number;       // ro.serialno
     std::string build_fingerprint;   // ro.build.fingerprint
     std::string board_serial;        // ro.serialno
@@ -74,6 +75,7 @@ public:
     
     // System Spoofing (requires root)
     bool spoofAndroidId(const std::string& new_id);
+    bool spoofGSFId(const std::string& new_gsf_id);
     bool spoofSerialNumber(const std::string& new_serial);
     bool spoofBuildFingerprint(const std::string& new_fingerprint);
     bool spoofDeviceModel(const std::string& manufacturer, 
@@ -169,6 +171,7 @@ private:
 
 namespace AndroidUtils {
     std::string generateAndroidId();
+    std::string generateGSFId();
     std::string generateSerialNumber();
     std::string generateBuildFingerprint(const std::string& manufacturer,
                                         const std::string& brand,
@@ -176,6 +179,7 @@ namespace AndroidUtils {
                                         const std::string& android_version);
     std::string generateRandomMAC(const std::string& prefix = "");
     std::string getDeviceFingerprint();
+    std::string getGSFId();
     bool isSafetyNetPassed();
     bool isPlayIntegrityPassed();
     std::string getAttestationStatus();

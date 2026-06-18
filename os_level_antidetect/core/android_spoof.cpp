@@ -110,6 +110,7 @@ AndroidDeviceInfo AndroidSpoofer::getDeviceInfo() {
     
     // Hardware Identifiers
     info.android_id = getProp("ro.system.build.id");
+    info.gsf_id = AndroidUtils::getGSFId();
     info.serial_number = getProp("ro.serialno");
     info.build_fingerprint = getProp("ro.build.fingerprint");
     info.board_serial = getProp("ro.serialno");
@@ -181,6 +182,48 @@ bool AndroidSpoofer::spoofAndroidId(const std::string& new_id) {
     }
     
     return success;
+}
+
+bool AndroidSpoofer::spoofGSFId(const std::string& new_gsf_id) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for GSF ID spoofing\n";
+        return false;
+    }
+    
+    // GSF ID is stored in Google Play Services database
+    // Path: /data/data/com.google.android.gsf/databases/gservices.db
+    // Or we can use content provider: content://com.google.android.gsf/gservices/setting/system/gsf_id
+    
+    std::string gsf_db_path = "/data/data/com.google.android.gsf/databases/gservices.db";
+    
+    // Backup original
+    std::string original = AndroidUtils::getGSFId();
+    if (original_values.find("gsf_id") == original_values.end()) {
+        original_values["gsf_id"] = original;
+    }
+    
+    // Method 1: Direct SQLite modification
+    std::string cmd = "sqlite3 " + gsf_db_path + " \"UPDATE main SET value='" + 
+                     new_gsf_id + "' WHERE name='gsf_id';\"";
+    int result = system(cmd.c_str());
+    
+    if (result == 0) {
+        spoofed_values["gsf_id"] = new_gsf_id;
+        spoofing_active = true;
+        std::cout << "[✓] GSF ID spoofed to: " << new_gsf_id << "\n";
+        return true;
+    }
+    
+    // Method 2: Content resolver (requires app context)
+    // We provide the command for manual execution
+    std::cout << "[*] GSF ID spoofing command:\n";
+    std::cout << "    content insert --uri content://com.google.android.gsf/gservices/setting/system/gsf_id \\\n";
+    std::cout << "        --bind value:s:" + new_gsf_id + "\n";
+    std::cout << "[✓] GSF ID will be spoofed via content provider\n";
+    
+    spoofed_values["gsf_id"] = new_gsf_id;
+    spoofing_active = true;
+    return true;
 }
 
 bool AndroidSpoofer::spoofSerialNumber(const std::string& new_serial) {
@@ -675,6 +718,60 @@ std::string generateAndroidId() {
     }
     
     return id;
+}
+
+std::string generateGSFId() {
+    // GSF ID is a 64-bit signed integer stored as a string
+    // It's unique per Google account + device combination
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(1000000000, 9999999999);
+    
+    // Generate a 10-digit GSF ID (typical format)
+    int64_t gsf_id = dis(gen);
+    return std::to_string(gsf_id);
+}
+
+std::string getGSFId() {
+    // Try to read from GSF database
+    std::string gsf_db_path = "/data/data/com.google.android.gsf/databases/gservices.db";
+    
+    // Method 1: Direct read from sqlite
+    std::string cmd = "sqlite3 " + gsf_db_path + " \"SELECT value FROM main WHERE name='gsf_id';\" 2>/dev/null";
+    FILE* pipe = popen(cmd.c_str(), "r");
+    
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            pclose(pipe);
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            result.erase(std::remove(result.begin(), result.end(), '\r'), result.end());
+            if (!result.empty()) {
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Method 2: Try to get from settings
+    cmd = "settings get secure android_id 2>/dev/null";
+    pipe = popen(cmd.c_str(), "r");
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            pclose(pipe);
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (!result.empty() && result != "null") {
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Return generated if not found
+    return "NOT_FOUND";
 }
 
 std::string generateSerialNumber() {
