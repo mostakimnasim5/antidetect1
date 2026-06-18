@@ -54,6 +54,8 @@ struct AndroidDeviceInfo {
 struct AndroidFingerprint {
     std::string device_serial;
     std::string android_id;
+    std::string gsf_id;
+    std::string imei;
     std::string google_ad_id;
     std::string build_fingerprint;
     std::string model_brand;
@@ -76,6 +78,7 @@ public:
     // System Spoofing (requires root)
     bool spoofAndroidId(const std::string& new_id);
     bool spoofGSFId(const std::string& new_gsf_id);
+    bool spoofIMEI(const std::string& sim_slot, const std::string& new_imei);
     bool spoofSerialNumber(const std::string& new_serial);
     bool spoofBuildFingerprint(const std::string& new_fingerprint);
     bool spoofDeviceModel(const std::string& manufacturer, 
@@ -172,6 +175,7 @@ private:
 namespace AndroidUtils {
     std::string generateAndroidId();
     std::string generateGSFId();
+    std::string generateIMEI(const std::string& tac_prefix = "");
     std::string generateSerialNumber();
     std::string generateBuildFingerprint(const std::string& manufacturer,
                                         const std::string& brand,
@@ -180,6 +184,9 @@ namespace AndroidUtils {
     std::string generateRandomMAC(const std::string& prefix = "");
     std::string getDeviceFingerprint();
     std::string getGSFId();
+    std::string getIMEI(const std::string& sim_slot = "0");
+    int calculateLuhnChecksum(const std::string& number);
+    bool isValidIMEI(const std::string& imei);
     bool isSafetyNetPassed();
     bool isPlayIntegrityPassed();
     std::string getAttestationStatus();

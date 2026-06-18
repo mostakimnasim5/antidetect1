@@ -152,6 +152,8 @@ AndroidFingerprint AndroidSpoofer::getCurrentFingerprint() {
     
     fp.device_serial = info.serial_number;
     fp.android_id = info.android_id;
+    fp.gsf_id = info.gsf_id;
+    fp.imei = AndroidUtils::getIMEI("0");
     fp.build_fingerprint = info.build_fingerprint;
     fp.model_brand = info.manufacturer + "/" + info.model;
     fp.mac_address = info.mac_address;
@@ -223,6 +225,56 @@ bool AndroidSpoofer::spoofGSFId(const std::string& new_gsf_id) {
     
     spoofed_values["gsf_id"] = new_gsf_id;
     spoofing_active = true;
+    return true;
+}
+
+bool AndroidSpoofer::spoofIMEI(const std::string& sim_slot, const std::string& new_imei) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for IMEI spoofing\n";
+        return false;
+    }
+    
+    // Validate IMEI first
+    if (!AndroidUtils::isValidIMEI(new_imei)) {
+        std::cerr << "[ERROR] Invalid IMEI format. IMEI must be 15 digits with valid Luhn checksum.\n";
+        return false;
+    }
+    
+    // Backup original
+    std::string original = AndroidUtils::getIMEI(sim_slot);
+    if (original_values.find("imei_" + sim_slot) == original_values.end()) {
+        original_values["imei_" + sim_slot] = original;
+    }
+    
+    std::cout << "[*] Spoofing IMEI for SIM slot: " << sim_slot << "\n";
+    
+    // Method 1: Write to NVRAM via AT commands (requires radio interface)
+    std::cout << "[*] Method 1: AT Command via radio\n";
+    std::cout << "    echo 'AT+CRSM=214,28423,,,0A" << new_imei << "' | atinout - /dev/smd11 -\n";
+    
+    // Method 2: Write to persist partition (recommended for persistence)
+    std::string nvram_path = "/mnt/vendor/persist/sns/sns_fingerprint";
+    std::string alt_path = "/persist/sensors/sns_fingerprint";
+    
+    std::cout << "[*] Method 2: Write to persist partition\n";
+    std::cout << "    dd if=" << new_imei << " of=" << alt_path << " bs=1 count=15 seek=0\n";
+    
+    // Method 3: Use SQLite to update Telephony database
+    std::cout << "[*] Method 3: Update Telephony database\n";
+    std::cout << "    sqlite3 /data/data/com.android.providers.telephony/databases/telephony.db \\\n";
+    std::cout << "    \"UPDATE siminfo SET icc_id='" << new_imei << "' WHERE sim_slot=" << sim_slot << ";\"\n";
+    
+    // Method 4: Service Manager via setprop (Magisk/Xposed)
+    std::cout << "[*] Method 4: Via Magisk props or Xposed module\n";
+    std::cout << "    magisk props set telephony.imei." << sim_slot << " " << new_imei << "\n";
+    
+    // Mark as spoofed
+    spoofed_values["imei_" + sim_slot] = new_imei;
+    spoofing_active = true;
+    
+    std::cout << "[✓] IMEI spoofing configured for slot " << sim_slot << " to: " << new_imei << "\n";
+    std::cout << "[!] Note: Full spoofing requires Magisk module or custom ROM support\n";
+    
     return true;
 }
 
@@ -787,6 +839,156 @@ std::string generateSerialNumber() {
     }
     
     return serial;
+}
+
+std::string generateIMEI(const std::string& tac_prefix) {
+    // IMEI format: TAC (8 digits) + SNR (6 digits) + CD (1 digit) = 15 digits
+    // Last digit is Luhn checksum
+    
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 9);
+    
+    // TAC (Type Allocation Code) - first 8 digits
+    std::string tac;
+    if (!tac_prefix.empty() && tac_prefix.length() == 8) {
+        tac = tac_prefix;
+    } else {
+        // Common TAC prefixes for major manufacturers
+        const std::vector<std::string> common_tacs = {
+            "35054209",  // Samsung
+            "35440309",  // Apple
+            "35869509",  // Nokia
+            "35780509",  // Sony
+            "35619509",  // Huawei
+            "35571809",  // Motorola
+            "35281409",  // LG
+            "35932609",  // Xiaomi
+        };
+        std::uniform_int_distribution<> tac_dis(0, (int)common_tacs.size() - 1);
+        tac = common_tacs[tac_dis(gen)];
+    }
+    
+    // SNR (Serial Number) - next 6 digits
+    std::string snr;
+    for (int i = 0; i < 6; ++i) {
+        snr += std::to_string(dis(gen));
+    }
+    
+    // Calculate Luhn checksum for first 14 digits
+    std::string partial_imei = tac + snr;
+    int checksum = calculateLuhnChecksum(partial_imei);
+    
+    return partial_imei + std::to_string(checksum);
+}
+
+int calculateLuhnChecksum(const std::string& number) {
+    int sum = 0;
+    bool alternate = true;
+    
+    for (int i = (int)number.length() - 1; i >= 0; --i) {
+        int digit = number[i] - '0';
+        
+        if (alternate) {
+            digit *= 2;
+            if (digit > 9) {
+                digit -= 9;
+            }
+        }
+        
+        sum += digit;
+        alternate = !alternate;
+    }
+    
+    return (10 - (sum % 10)) % 10;
+}
+
+bool isValidIMEI(const std::string& imei) {
+    if (imei.length() != 15) {
+        return false;
+    }
+    
+    for (char c : imei) {
+        if (!std::isdigit(c)) {
+            return false;
+        }
+    }
+    
+    int calculated = calculateLuhnChecksum(imei.substr(0, 14));
+    int actual = imei[14] - '0';
+    
+    return (calculated == actual);
+}
+
+std::string getIMEI(const std::string& sim_slot) {
+    // Try to read IMEI from various sources
+    
+    // Method 1: Read from telephony service
+    std::string cmd = "service call iphonesubinfo " + sim_slot + " | grep -o '[0-9a-f]\\{8\\}' | tail -n+3 | head -4 | xargs -printf '%d' 2>/dev/null";
+    FILE* pipe = popen(cmd.c_str(), "r");
+    
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (result.length() == 15 && isValidIMEI(result)) {
+                pclose(pipe);
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Method 2: Read from /proc/cmdline
+    cmd = "cat /proc/cmdline 2>/dev/null | grep -o 'androidboot.serialno=[0-9]*' | cut -d= -f2";
+    pipe = popen(cmd.c_str(), "r");
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (result.length() == 15 && isValidIMEI(result)) {
+                pclose(pipe);
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Method 3: Read from persist partition
+    cmd = "cat /mnt/vendor/persist/sns/sns_fingerprint 2>/dev/null || cat /persist/sns/sns_fingerprint 2>/dev/null";
+    pipe = popen(cmd.c_str(), "r");
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (result.length() == 15 && isValidIMEI(result)) {
+                pclose(pipe);
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Method 4: Via dumpsys
+    cmd = "dumpsys telephony | grep -A1 'Phone Id=" + sim_slot + "' | grep 'Serial Number' | awk '{print $NF}' 2>/dev/null";
+    pipe = popen(cmd.c_str(), "r");
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (result.length() == 15 && isValidIMEI(result)) {
+                pclose(pipe);
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    return "NOT_FOUND";
 }
 
 std::string generateBuildFingerprint(const std::string& manufacturer,
