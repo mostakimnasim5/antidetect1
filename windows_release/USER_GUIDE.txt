@@ -1,0 +1,170 @@
+================================================================================
+              OS-LEVEL ANTI-DETECT SYSTEM v2.0
+              Professional Fingerprint Manipulation Tool
+================================================================================
+
+INTRODUCTION
+------------
+This is a professional-grade anti-detection system written in C++ that operates
+at the OS level. It provides comprehensive fingerprint spoofing for browsers,
+Android devices, and system identifiers.
+
+FILES INCLUDED
+--------------
+1. main.cpp                      - Main CLI interface
+2. system_fingerprint.cpp/h      - OS-level system spoofing
+3. advanced_fingerprint.cpp/h    - Browser fingerprint generation
+4. android_spoof.cpp/h          - Android device spoofing
+5. COMPILE_WINDOWS.bat          - Windows build script
+6. COMPILE_LINUX.sh             - Linux build script
+7. README.md                     - Full documentation
+
+================================================================================
+                        HOW TO COMPILE & RUN
+================================================================================
+
+METHOD 1: WINDOWS (Recommended)
+--------------------------------
+1. Install MSYS2 from: https://www.msys2.org/
+2. Open "MSYS2 MinGW x64" terminal
+3. Install compiler:
+   pacman -S mingw-w64-gcc
+
+4. Copy all source files to a folder
+5. Double-click COMPILE_WINDOWS.bat
+   OR run in terminal:
+   g++ -std=c++17 -O2 -static main.cpp system_fingerprint.cpp 
+           advanced_fingerprint.cpp android_spoof.cpp -o antidetect.exe
+
+6. antidetect.exe will be created!
+
+METHOD 2: LINUX
+---------------
+1. Install compiler:
+   sudo apt install build-essential
+
+2. Compile:
+   chmod +x COMPILE_LINUX.sh
+   ./COMPILE_LINUX.sh
+   
+   OR manually:
+   g++ -std=c++17 -O2 -pthread main.cpp system_fingerprint.cpp 
+           advanced_fingerprint.cpp android_spoof.cpp -o antidetect
+
+3. Run:
+   ./antidetect --info
+
+METHOD 3: ANDROID (Termux)
+--------------------------
+1. Install Termux from F-Droid
+2. In Termux:
+   pkg update && pkg upgrade
+   pkg install clang make
+   
+3. Compile:
+   g++ -std=c++17 -O2 main.cpp system_fingerprint.cpp 
+           advanced_fingerprint.cpp android_spoof.cpp -o antidetect
+
+4. Run:
+   ./antidetect --info
+
+================================================================================
+                            USAGE COMMANDS
+================================================================================
+
+BASIC COMMANDS:
+---------------
+antidetect --info          : Show current system fingerprint
+antidetect --list          : List all available presets
+antidetect --generate      : Generate a new browser profile
+antidetect --check         : Check fingerprint status
+antidetect --help          : Show all commands
+
+SAVE/LOAD:
+-----------
+antidetect --generate -o profile.txt   : Save profile to file
+antidetect --load profile.txt          : Load profile from file
+
+PRESETS (Root Required):
+-------------------------
+antidetect --preset samsung_s24_ultra    : Samsung Galaxy S24 Ultra
+antidetect --preset google_pixel_8_pro    : Google Pixel 8 Pro
+antidetect --preset oneplus_12            : OnePlus 12
+antidetect --preset xiaomi_14_pro         : Xiaomi 14 Pro
+antidetect --preset windows_dell_xps       : Windows Dell XPS 15
+antidetect --preset macos_macbook_pro      : macOS MacBook Pro M3
+
+RESET:
+-------
+antidetect --reset          : Reset to real system fingerprint
+
+================================================================================
+                      ANDROID DEVICE SPOOFING
+================================================================================
+
+This software supports spoofing of:
+
+1. Android ID        - Settings.Secure.ANDROID_ID
+2. GSF ID           - Google Services Framework ID
+3. IMEI             - Device IMEI (15 digits with Luhn checksum)
+4. Serial Number    - ro.serialno
+5. Build Fingerprint - ro.build.fingerprint
+6. Device Model     - Manufacturer/Brand/Model
+7. MAC Address      - WiFi/Bluetooth
+8. GPS Location     - Mock location
+
+ROOT REQUIREMENTS:
+------------------
+Most Android spoofing features require:
+- Root access (su)
+- Magisk (recommended)
+- Xposed framework (optional)
+
+SPOOFING METHODS:
+-----------------
+1. SQLite Database Edit:
+   sqlite3 /data/data/com.google.android.gsf/databases/gservices.db
+   "UPDATE main SET value='NEW_ID' WHERE name='gsf_id';"
+
+2. Content Provider:
+   content insert --uri content://com.google.android.gsf/gservices/...
+   --bind value:s:NEW_ID
+
+3. Magisk Props:
+   magisk props set gsf.id NEW_VALUE
+
+================================================================================
+                          BROWSER FINGERPRINTS
+================================================================================
+
+This software can generate unique browser fingerprints with:
+
+- User Agents (50+ variants)
+- Platforms: Win32, MacIntel, Linux, Android
+- Screen Resolutions (7 types)
+- Timezones (7 global zones)
+- Languages (10 languages)
+- Canvas Hashes (randomized)
+- WebGL Vendors/Renderers
+- Audio Fingerprints
+- Font Fingerprints
+
+UNIQUE COMBINATIONS: 980,000+
+
+================================================================================
+                            DISCLAIMER
+================================================================================
+
+This software is for EDUCATIONAL and SECURITY RESEARCH purposes only.
+
+Usage for:
+- Account fraud
+- Illegal activities
+- Privacy violations
+- Any malicious purposes
+
+is STRICTLY PROHIBITED and may be ILLEGAL in your jurisdiction.
+
+The developers are NOT RESPONSIBLE for any misuse of this software.
+
+================================================================================
