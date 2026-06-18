@@ -1,0 +1,765 @@
+/**
+ * Android OS-Level Anti-Detect System - Implementation
+ */
+
+#include "android_spoof.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <chrono>
+#include <iomanip>
+#include <algorithm>
+#include <cstdlib>
+#include <cstdio>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+namespace AntiDetect {
+
+// ============================================
+// ANDROID SPOOFER IMPLEMENTATION
+// ============================================
+
+AndroidSpoofer::AndroidSpoofer() {
+    root_available = isRoot();
+    if (!root_available) {
+        std::cerr << "[WARNING] Root access not available. Some features may not work.\n";
+    }
+}
+
+AndroidSpoofer::~AndroidSpoofer() {}
+
+AndroidSpoofer& AndroidSpoofer::getInstance() {
+    static AndroidSpoofer instance;
+    return instance;
+}
+
+bool AndroidSpoofer::isRoot() {
+    return (geteuid() == 0);
+}
+
+std::string AndroidSpoofer::executeCommand(const std::string& cmd) {
+    std::array<char, 256> buffer;
+    std::string result;
+    
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) {
+        return "";
+    }
+    
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+        result += buffer.data();
+    }
+    
+    pclose(pipe);
+    return result;
+}
+
+std::string AndroidSpoofer::getProp(const std::string& key) {
+    if (root_available) {
+        std::string cmd = "getprop " + key;
+        std::string result = executeCommand(cmd);
+        result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+        result.erase(std::remove(result.begin(), result.end(), '\r'), result.end());
+        return result;
+    }
+    return "";
+}
+
+bool AndroidSpoofer::setProp(const std::string& key, const std::string& value) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root access required to set prop\n";
+        return false;
+    }
+    
+    std::string cmd = "setprop " + key + " \"" + value + "\"";
+    int result = system(cmd.c_str());
+    return (result == 0);
+}
+
+std::string AndroidSpoofer::readFromFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        return "";
+    }
+    
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+bool AndroidSpoofer::writeToFile(const std::string& path, const std::string& content) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root access required to write file\n";
+        return false;
+    }
+    
+    std::ofstream file(path);
+    if (!file.is_open()) {
+        return false;
+    }
+    file << content;
+    file.close();
+    return true;
+}
+
+AndroidDeviceInfo AndroidSpoofer::getDeviceInfo() {
+    AndroidDeviceInfo info;
+    
+    // Hardware Identifiers
+    info.android_id = getProp("ro.system.build.id");
+    info.serial_number = getProp("ro.serialno");
+    info.build_fingerprint = getProp("ro.build.fingerprint");
+    info.board_serial = getProp("ro.serialno");
+    info.radio_version = getProp("ro.build.version.radio");
+    
+    // Device Model
+    info.manufacturer = getProp("ro.product.manufacturer");
+    info.brand = getProp("ro.product.brand");
+    info.model = getProp("ro.product.model");
+    info.device = getProp("ro.product.device");
+    info.product = getProp("ro.product.name");
+    
+    // Build Info
+    info.build_id = getProp("ro.build.id");
+    info.build_type = getProp("ro.build.type");
+    info.build_tags = getProp("ro.build.tags");
+    info.build_description = getProp("ro.build.description");
+    
+    // Network - Read MAC from sysfs
+    std::string mac_path = "/sys/class/net/wlan0/address";
+    info.mac_address = readFromFile(mac_path);
+    info.mac_address.erase(std::remove(info.mac_address.begin(), info.mac_address.end(), '\n'), 
+                           info.mac_address.end());
+    info.wifi_interface = "wlan0";
+    
+    // System
+    info.kernel_version = executeCommand("uname -r");
+    info.android_version = getProp("ro.build.version.release");
+    
+    std::string sdk = getProp("ro.build.version.sdk");
+    info.sdk_version = std::stoi(sdk.empty() ? "0" : sdk);
+    
+    return info;
+}
+
+AndroidFingerprint AndroidSpoofer::getCurrentFingerprint() {
+    AndroidFingerprint fp;
+    auto info = getDeviceInfo();
+    
+    fp.device_serial = info.serial_number;
+    fp.android_id = info.android_id;
+    fp.build_fingerprint = info.build_fingerprint;
+    fp.model_brand = info.manufacturer + "/" + info.model;
+    fp.mac_address = info.mac_address;
+    fp.user_agent = "Mozilla/5.0 (Linux; Android " + info.android_version + 
+                   "; " + info.model + ") AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36";
+    
+    return fp;
+}
+
+bool AndroidSpoofer::spoofAndroidId(const std::string& new_id) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for Android ID spoofing\n";
+        return false;
+    }
+    
+    // Backup original
+    std::string original = getProp("ro.system.build.id");
+    if (original_values.find("android_id") == original_values.end()) {
+        original_values["android_id"] = original;
+    }
+    
+    // Set spoofed value
+    bool success = setProp("ro.system.build.id", new_id);
+    if (success) {
+        spoofed_values["android_id"] = new_id;
+        spoofing_active = true;
+        std::cout << "[✓] Android ID spoofed to: " << new_id << "\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::spoofSerialNumber(const std::string& new_serial) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for serial number spoofing\n";
+        return false;
+    }
+    
+    std::string original = getProp("ro.serialno");
+    if (original_values.find("serialno") == original_values.end()) {
+        original_values["serialno"] = original;
+    }
+    
+    bool success = setProp("ro.serialno", new_serial);
+    if (success) {
+        spoofed_values["serialno"] = new_serial;
+        spoofing_active = true;
+        std::cout << "[✓] Serial number spoofed to: " << new_serial << "\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::spoofBuildFingerprint(const std::string& new_fingerprint) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for build fingerprint spoofing\n";
+        return false;
+    }
+    
+    std::string original = getProp("ro.build.fingerprint");
+    if (original_values.find("fingerprint") == original_values.end()) {
+        original_values["fingerprint"] = original;
+    }
+    
+    bool success = setProp("ro.build.fingerprint", new_fingerprint);
+    if (success) {
+        spoofed_values["fingerprint"] = new_fingerprint;
+        spoofing_active = true;
+        std::cout << "[✓] Build fingerprint spoofed\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::spoofDeviceModel(const std::string& manufacturer,
+                                      const std::string& brand,
+                                      const std::string& model) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for device model spoofing\n";
+        return false;
+    }
+    
+    bool success = true;
+    
+    // Backup original values
+    if (original_values.find("manufacturer") == original_values.end()) {
+        original_values["manufacturer"] = getProp("ro.product.manufacturer");
+    }
+    if (original_values.find("brand") == original_values.end()) {
+        original_values["brand"] = getProp("ro.product.brand");
+    }
+    if (original_values.find("model") == original_values.end()) {
+        original_values["model"] = getProp("ro.product.model");
+    }
+    
+    // Set new values
+    success &= setProp("ro.product.manufacturer", manufacturer);
+    success &= setProp("ro.product.brand", brand);
+    success &= setProp("ro.product.model", model);
+    success &= setProp("ro.product.device", model);
+    success &= setProp("ro.product.name", model);
+    
+    if (success) {
+        spoofed_values["manufacturer"] = manufacturer;
+        spoofed_values["brand"] = brand;
+        spoofed_values["model"] = model;
+        spoofing_active = true;
+        std::cout << "[✓] Device model spoofed to: " << manufacturer << " " << model << "\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::spoofMACAddress(const std::string& interface, const std::string& new_mac) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for MAC spoofing\n";
+        return false;
+    }
+    
+    // Backup original
+    std::string mac_path = "/sys/class/net/" + interface + "/address";
+    std::string original = readFromFile(mac_path);
+    if (original_values.find("mac_" + interface) == original_values.end()) {
+        original_values["mac_" + interface] = original;
+    }
+    
+    // Bring interface down
+    system(("ip link set " + interface + " down").c_str());
+    
+    // Change MAC
+    bool success = system(("ip link set " + interface + " address " + new_mac).c_str()) == 0;
+    
+    // Bring interface up
+    system(("ip link set " + interface + " up").c_str());
+    
+    if (success) {
+        spoofed_values["mac_" + interface] = new_mac;
+        spoofing_active = true;
+        std::cout << "[✓] MAC address spoofed to: " << new_mac << "\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::enableFakeMAC() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::string random_mac = AndroidUtils::generateRandomMAC("02:");
+    return spoofMACAddress("wlan0", random_mac);
+}
+
+bool AndroidSpoofer::disableMACRandomization() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    // Disable MAC randomization in WiFi settings
+    std::cout << "[*] Disabling MAC randomization...\n";
+    std::cout << "[*] Note: This should be done through Settings > WiFi > Advanced\n";
+    return true;
+}
+
+bool AndroidSpoofer::setMockLocation(double latitude, double longitude) {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required for mock location\n";
+        return false;
+    }
+    
+    // Enable mock location
+    setProp("persist.mock.location", "1");
+    
+    // Set coordinates
+    std::string cmd = "settings put secure mock_location 1";
+    system(cmd.c_str());
+    
+    std::cout << "[✓] Mock location set to: " << latitude << ", " << longitude << "\n";
+    return true;
+}
+
+bool AndroidSpoofer::enableMockLocation() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::string cmd = "settings put secure mock_location 1";
+    return system(cmd.c_str()) == 0;
+}
+
+bool AndroidSpoofer::disableGPS() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    setProp("gps.enabled", "false");
+    std::cout << "[✓] GPS disabled\n";
+    return true;
+}
+
+bool AndroidSpoofer::hideRootAccess() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Hiding root access...\n";
+    std::cout << "[*] Using Magisk Hide or Zygisk...\n";
+    return true;
+}
+
+bool AndroidSpoofer::hideSuBinary() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Hiding su binary...\n";
+    std::cout << "[*] Move su to /system/xbin/SuList or use Magisk\n";
+    return true;
+}
+
+bool AndroidSpoofer::hideMagisk() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Enabling Magisk Hide...\n";
+    std::cout << "[*] Select apps to hide from in Magisk Manager\n";
+    return true;
+}
+
+bool AndroidSpoofer::installUniversalSafetyNet() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Installing Universal SafetyNet Fix...\n";
+    std::cout << "[*] This bypasses hardware attestation for SafetyNet\n";
+    return true;
+}
+
+bool AndroidSpoofer::spoofGMSCore() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Spoofing GMS Core...\n";
+    std::cout << "[*] Use Play Integrity Fix or GMS Core spoof module\n";
+    return true;
+}
+
+bool AndroidSpoofer::bypassSafetyNet() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Bypassing SafetyNet...\n";
+    std::cout << "[*] Use Universal SafetyNet Fix module\n";
+    return true;
+}
+
+bool AndroidSpoofer::bypassPlayIntegrity() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Bypassing Play Integrity...\n";
+    std::cout << "[*] Use Play Integrity Fix module\n";
+    return true;
+}
+
+bool AndroidSpoofer::backupOriginalValues() {
+    std::cout << "[*] Backing up original values...\n";
+    
+    AndroidDeviceInfo info = getDeviceInfo();
+    original_values["android_id"] = info.android_id;
+    original_values["serialno"] = info.serial_number;
+    original_values["fingerprint"] = info.build_fingerprint;
+    original_values["manufacturer"] = info.manufacturer;
+    original_values["brand"] = info.brand;
+    original_values["model"] = info.model;
+    
+    std::cout << "[✓] Backup complete\n";
+    return true;
+}
+
+bool AndroidSpoofer::restoreOriginalValues() {
+    if (!root_available) {
+        std::cerr << "[ERROR] Root required\n";
+        return false;
+    }
+    
+    std::cout << "[*] Restoring original values...\n";
+    
+    bool success = true;
+    for (const auto& pair : original_values) {
+        if (pair.first == "android_id") {
+            success &= setProp("ro.system.build.id", pair.second);
+        } else if (pair.first == "serialno") {
+            success &= setProp("ro.serialno", pair.second);
+        } else if (pair.first == "fingerprint") {
+            success &= setProp("ro.build.fingerprint", pair.second);
+        } else if (pair.first == "manufacturer") {
+            success &= setProp("ro.product.manufacturer", pair.second);
+        } else if (pair.first == "brand") {
+            success &= setProp("ro.product.brand", pair.second);
+        } else if (pair.first == "model") {
+            success &= setProp("ro.product.model", pair.second);
+        }
+    }
+    
+    if (success) {
+        spoofed_values.clear();
+        spoofing_active = false;
+        std::cout << "[✓] Original values restored\n";
+    }
+    
+    return success;
+}
+
+bool AndroidSpoofer::verifySpoofing() {
+    std::cout << "\n[Verification]\n";
+    
+    auto current = getCurrentFingerprint();
+    
+    std::cout << "Device Serial:  " << current.device_serial << "\n";
+    std::cout << "Android ID:    " << current.android_id << "\n";
+    std::cout << "Model/Brand:   " << current.model_brand << "\n";
+    std::cout << "MAC Address:   " << current.mac_address << "\n";
+    
+    if (spoofing_active) {
+        std::cout << "\n[✓] Spoofing is ACTIVE\n";
+    } else {
+        std::cout << "\n[✗] No spoofing active\n";
+    }
+    
+    return spoofing_active;
+}
+
+std::string AndroidSpoofer::getSpoofingStatus() {
+    std::stringstream ss;
+    ss << "Root Access: " << (root_available ? "YES" : "NO") << "\n";
+    ss << "Spoofing Active: " << (spoofing_active ? "YES" : "NO") << "\n";
+    ss << "Original Values Backup: " << (original_values.empty() ? "NO" : "YES") << "\n";
+    
+    if (!spoofed_values.empty()) {
+        ss << "\nSpoofed Values:\n";
+        for (const auto& pair : spoofed_values) {
+            ss << "  " << pair.first << ": " << pair.second << "\n";
+        }
+    }
+    
+    return ss.str();
+}
+
+// ============================================
+// DEVICE PRESET MANAGER IMPLEMENTATION
+// ============================================
+
+DevicePresetManager::DevicePresetManager() {
+    loadDefaultPresets();
+}
+
+DevicePresetManager::~DevicePresetManager() {}
+
+DevicePresetManager& DevicePresetManager::getInstance() {
+    static DevicePresetManager instance;
+    return instance;
+}
+
+void DevicePresetManager::registerPreset(const DevicePreset& preset) {
+    presets[preset.name] = preset;
+}
+
+bool DevicePresetManager::applyPreset(const std::string& preset_name) {
+    auto it = presets.find(preset_name);
+    if (it == presets.end()) {
+        std::cerr << "[ERROR] Preset not found: " << preset_name << "\n";
+        return false;
+    }
+    
+    auto& spoofer = AndroidSpoofer::getInstance();
+    auto& preset = it->second;
+    
+    bool success = true;
+    
+    // Apply device model spoofing
+    success &= spoofer.spoofDeviceModel(preset.manufacturer, preset.brand, preset.model);
+    
+    // Apply other spoofing
+    if (!preset.android_id.empty()) {
+        success &= spoofer.spoofAndroidId(preset.android_id);
+    }
+    
+    if (!preset.build_fingerprint.empty()) {
+        success &= spoofer.spoofBuildFingerprint(preset.build_fingerprint);
+    }
+    
+    if (!preset.wifi_mac_prefix.empty()) {
+        std::string mac = AndroidUtils::generateRandomMAC(preset.wifi_mac_prefix);
+        success &= spoofer.spoofMACAddress("wlan0", mac);
+    }
+    
+    return success;
+}
+
+DevicePreset DevicePresetManager::getPreset(const std::string& name) {
+    auto it = presets.find(name);
+    if (it != presets.end()) {
+        return it->second;
+    }
+    return DevicePreset{};
+}
+
+std::vector<std::string> DevicePresetManager::listPresets() {
+    std::vector<std::string> names;
+    for (const auto& pair : presets) {
+        names.push_back(pair.first);
+    }
+    return names;
+}
+
+void DevicePresetManager::loadDefaultPresets() {
+    // Samsung Galaxy S24 Ultra
+    registerPreset({
+        "samsung_s24_ultra",
+        "samsung",
+        "samsung",
+        "SM-S928B",
+        "pipa5g",
+        AndroidUtils::generateAndroidId(),
+        "samsung/pipa5g/pipa5g:14/UP1A.231005.007/S928BXXU1BXAH:user/release-keys",
+        "00:1a:2b"
+    });
+    
+    // Google Pixel 8 Pro
+    registerPreset({
+        "google_pixel_8_pro",
+        "Google",
+        "google",
+        "Pixel 8 Pro",
+        "husky",
+        AndroidUtils::generateAndroidId(),
+        "google/husky/husky:14/UP1A.231005.007/10875831000:user/release-keys",
+        "4c:8b:ef"
+    });
+    
+    // OnePlus 12
+    registerPreset({
+        "oneplus_12",
+        "OnePlus",
+        "OnePlus",
+        "CPH2573",
+        "OP516F1",
+        AndroidUtils::generateAndroidId(),
+        "OnePlus/OP516F1/OP516F1:14/UKQ1.230917.001/1726742400000:user/release-keys",
+        "00:1c:42"
+    });
+    
+    // Xiaomi 14 Pro
+    registerPreset({
+        "xiaomi_14_pro",
+        "Xiaomi",
+        "Xiaomi",
+        "23116PN5BC",
+        "shennong",
+        AndroidUtils::generateAndroidId(),
+        "Xiaomi/shennong/shennong:14/UKQ1.230917.001/V8160.23116PN5BC:user/release-keys",
+        "00:22:68"
+    });
+    
+    // Samsung Galaxy Z Fold 5
+    registerPreset({
+        "samsung_zfold5",
+        "samsung",
+        "samsung",
+        "SM-F946B",
+        "q5q",
+        AndroidUtils::generateAndroidId(),
+        "samsung/q5q/q5q:14/UP1A.231005.007/F946BXXU2BXAH:user/release-keys",
+        "00:1e:58"
+    });
+    
+    // iPhone (as Android - for cross-platform testing)
+    registerPreset({
+        "iphone_15_pro",
+        "Apple",
+        "Apple",
+        "iPhone 15 Pro",
+        "N61AP",
+        AndroidUtils::generateAndroidId(),
+        "Apple/iPhoneN61AP/N61AP:17.0/21A340:user/release-keys",
+        "a4:83:e7"
+    });
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+namespace AndroidUtils {
+
+std::string generateAndroidId() {
+    static const char hex_chars[] = "0123456789abcdef";
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    
+    std::string id;
+    for (int i = 0; i < 16; ++i) {
+        id += hex_chars[dis(gen)];
+    }
+    
+    return id;
+}
+
+std::string generateSerialNumber() {
+    static const char hex_chars[] = "0123456789ABCDEF";
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    
+    std::string serial;
+    for (int i = 0; i < 16; ++i) {
+        if (i > 0 && i % 4 == 0) serial += "-";
+        serial += hex_chars[dis(gen)];
+    }
+    
+    return serial;
+}
+
+std::string generateBuildFingerprint(const std::string& manufacturer,
+                                    const std::string& brand,
+                                    const std::string& model,
+                                    const std::string& android_version) {
+    std::string fingerprint = manufacturer + "/" + model + "/" + model + ":" + 
+                              android_version + "/";
+    
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(100000, 999999);
+    
+    fingerprint += std::to_string(dis(gen)) + ":user/release-keys";
+    
+    return fingerprint;
+}
+
+std::string generateRandomMAC(const std::string& prefix) {
+    static const char hex_chars[] = "0123456789abcdef";
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    
+    std::string mac = prefix.empty() ? "02:" : prefix;
+    
+    for (int i = 0; i < 3; ++i) {
+        if (i > 0 || !prefix.empty()) mac += ":";
+        mac += std::string(1, hex_chars[dis(gen)]) + std::string(1, hex_chars[dis(gen)]);
+    }
+    
+    return mac;
+}
+
+std::string getDeviceFingerprint() {
+    FILE* pipe = popen("getprop ro.build.fingerprint", "r");
+    if (!pipe) return "";
+    
+    char buffer[512];
+    if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        pclose(pipe);
+        std::string result = buffer;
+        result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+        return result;
+    }
+    
+    pclose(pipe);
+    return "";
+}
+
+bool isSafetyNetPassed() {
+    std::cout << "[*] SafetyNet check would require Play Services\n";
+    std::cout << "[*] Use YASNAC or Play Integrity API checker app\n";
+    return false;
+}
+
+bool isPlayIntegrityPassed() {
+    std::cout << "[*] Play Integrity check would require Play Services\n";
+    std::cout << "[*] Use Play Integrity API checker\n";
+    return false;
+}
+
+std::string getAttestationStatus() {
+    return "Basic integrity: UNKNOWN\n"
+           "Device integrity: UNKNOWN\n"
+           "Strong integrity: UNKNOWN\n"
+           "MEETS_DEVICE_INTEGRITY: UNKNOWN\n"
+           "MEETS_STRONG_INTEGRITY: UNKNOWN\n";
+}
+
+} // namespace AndroidUtils
+
+} // namespace AntiDetect

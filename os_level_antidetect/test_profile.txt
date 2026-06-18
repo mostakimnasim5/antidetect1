@@ -1,0 +1,9 @@
+[BrowserProfile]
+profile_id=280839c2dc081c95
+user_agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+platform=Win32
+screen_resolution=1920x1080
+timezone=-300
+webgl_vendor=Intel Inc.
+webgl_renderer=Intel Iris OpenGL Engine
+canvas_fingerprint=122c8817a06b8b09
