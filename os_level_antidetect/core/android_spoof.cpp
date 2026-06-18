@@ -194,9 +194,10 @@ bool AndroidSpoofer::spoofGSFId(const std::string& new_gsf_id) {
     
     // GSF ID is stored in Google Play Services database
     // Path: /data/data/com.google.android.gsf/databases/gservices.db
-    // Or we can use content provider: content://com.google.android.gsf/gservices/setting/system/gsf_id
+    // Or: /data/user_de/0/com.google.android.gsf/databases/gservices.db
     
     std::string gsf_db_path = "/data/data/com.google.android.gsf/databases/gservices.db";
+    std::string gsf_db_path_user = "/data/user_de/0/com.google.android.gsf/databases/gservices.db";
     
     // Backup original
     std::string original = AndroidUtils::getGSFId();
@@ -204,7 +205,9 @@ bool AndroidSpoofer::spoofGSFId(const std::string& new_gsf_id) {
         original_values["gsf_id"] = original;
     }
     
-    // Method 1: Direct SQLite modification
+    std::cout << "[*] Spoofing GSF ID...\n";
+    
+    // Method 1: Direct SQLite modification (Primary)
     std::string cmd = "sqlite3 " + gsf_db_path + " \"UPDATE main SET value='" + 
                      new_gsf_id + "' WHERE name='gsf_id';\"";
     int result = system(cmd.c_str());
@@ -216,15 +219,33 @@ bool AndroidSpoofer::spoofGSFId(const std::string& new_gsf_id) {
         return true;
     }
     
-    // Method 2: Content resolver (requires app context)
-    // We provide the command for manual execution
-    std::cout << "[*] GSF ID spoofing command:\n";
+    // Method 2: Try user_de path for Android 10+
+    cmd = "sqlite3 " + gsf_db_path_user + " \"UPDATE main SET value='" + 
+          new_gsf_id + "' WHERE name='gsf_id';\"";
+    result = system(cmd.c_str());
+    
+    if (result == 0) {
+        spoofed_values["gsf_id"] = new_gsf_id;
+        spoofing_active = true;
+        std::cout << "[✓] GSF ID spoofed (user_de) to: " << new_gsf_id << "\n";
+        return true;
+    }
+    
+    // Method 3: Content resolver command
+    std::cout << "[*] Method: Content Provider\n";
     std::cout << "    content insert --uri content://com.google.android.gsf/gservices/setting/system/gsf_id \\\n";
-    std::cout << "        --bind value:s:" + new_gsf_id + "\n";
-    std::cout << "[✓] GSF ID will be spoofed via content provider\n";
+    std::cout << "        --bind value:s:" << new_gsf_id << "\n";
+    system(("content insert --uri content://com.google.android.gsf/gservices/setting/system/gsf_id --bind value:s:" + new_gsf_id).c_str());
+    
+    // Method 4: Set via settings (if content provider fails)
+    cmd = "settings put secure android_id " + new_gsf_id;
+    system(cmd.c_str());
     
     spoofed_values["gsf_id"] = new_gsf_id;
     spoofing_active = true;
+    std::cout << "[✓] GSF ID spoofing configured to: " << new_gsf_id << "\n";
+    std::cout << "[!] Note: Clear Google Play Services cache after spoofing\n";
+    
     return true;
 }
 
@@ -785,30 +806,36 @@ std::string generateGSFId() {
 }
 
 std::string getGSFId() {
-    // Try to read from GSF database
-    std::string gsf_db_path = "/data/data/com.google.android.gsf/databases/gservices.db";
+    // Try to read from GSF database - multiple possible paths
+    std::vector<std::string> gsf_db_paths = {
+        "/data/data/com.google.android.gsf/databases/gservices.db",
+        "/data/user_de/0/com.google.android.gsf/databases/gservices.db",
+        "/data/user/0/com.google.android.gsf/databases/gservices.db"
+    };
     
-    // Method 1: Direct read from sqlite
-    std::string cmd = "sqlite3 " + gsf_db_path + " \"SELECT value FROM main WHERE name='gsf_id';\" 2>/dev/null";
-    FILE* pipe = popen(cmd.c_str(), "r");
-    
-    if (pipe) {
-        char buffer[64];
-        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-            pclose(pipe);
-            std::string result = buffer;
-            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
-            result.erase(std::remove(result.begin(), result.end(), '\r'), result.end());
-            if (!result.empty()) {
-                return result;
+    for (const auto& gsf_db_path : gsf_db_paths) {
+        // Method 1: Direct read from sqlite
+        std::string cmd = "sqlite3 " + gsf_db_path + " \"SELECT value FROM main WHERE name='gsf_id';\" 2>/dev/null";
+        FILE* pipe = popen(cmd.c_str(), "r");
+        
+        if (pipe) {
+            char buffer[64];
+            if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+                pclose(pipe);
+                std::string result = buffer;
+                result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+                result.erase(std::remove(result.begin(), result.end(), '\r'), result.end());
+                if (!result.empty() && result != "null") {
+                    return result;
+                }
             }
+            pclose(pipe);
         }
-        pclose(pipe);
     }
     
-    // Method 2: Try to get from settings
-    cmd = "settings get secure android_id 2>/dev/null";
-    pipe = popen(cmd.c_str(), "r");
+    // Method 2: Try to get from settings secure
+    std::string cmd = "settings get secure android_id 2>/dev/null";
+    FILE* pipe = popen(cmd.c_str(), "r");
     if (pipe) {
         char buffer[64];
         if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
@@ -816,6 +843,22 @@ std::string getGSFId() {
             std::string result = buffer;
             result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
             if (!result.empty() && result != "null") {
+                return result;
+            }
+        }
+        pclose(pipe);
+    }
+    
+    // Method 3: Check Google Services Framework files
+    cmd = "cat /data/data/com.google.android.gsf/no_backup/shared_prefs/com.google.android.gsf.xml 2>/dev/null | grep gsf_id | sed 's/.*value=//' | sed 's/ .*//'";
+    pipe = popen(cmd.c_str(), "r");
+    if (pipe) {
+        char buffer[64];
+        if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            pclose(pipe);
+            std::string result = buffer;
+            result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+            if (!result.empty()) {
                 return result;
             }
         }
