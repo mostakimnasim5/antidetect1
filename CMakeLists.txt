@@ -59,6 +59,7 @@ set(CORE_HEADERS
     include/ProxyManager.hpp
     include/ScreenMirror.hpp
     include/RealPhoneHardening.hpp
+    include/DetectionBypass.hpp
     include/HttpClient.hpp
     include/CryptoUtils.hpp
 )
@@ -78,6 +79,7 @@ set(CORE_SOURCES
     src/ProxyManager.cpp
     src/ScreenMirror.cpp
     src/RealPhoneHardening.cpp
+    src/DetectionBypass.cpp
     src/HttpClient.cpp
     src/CryptoUtils.cpp
 )
