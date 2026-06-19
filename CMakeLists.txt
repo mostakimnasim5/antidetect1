@@ -55,6 +55,7 @@ set(CORE_HEADERS
     include/Config.hpp
     include/AdvancedSpoofing.hpp
     include/AntiDetectEngine.hpp
+    include/AndroidSpoofManager.hpp
     include/HttpClient.hpp
     include/CryptoUtils.hpp
 )
@@ -70,6 +71,7 @@ set(CORE_SOURCES
     src/Config.cpp
     src/AdvancedSpoofing.cpp
     src/AntiDetectEngine.cpp
+    src/AndroidSpoofManager.cpp
     src/HttpClient.cpp
     src/CryptoUtils.cpp
 )
