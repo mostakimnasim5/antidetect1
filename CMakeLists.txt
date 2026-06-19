@@ -15,15 +15,36 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
+# Find required packages
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+
+# Qt6 configuration (optional - for GUI)
+option(BUILD_GUI "Build Qt6 GUI application" OFF)
+if(BUILD_GUI)
+    find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
+    if(Qt6_FOUND)
+        message(STATUS "Qt6 found - GUI support enabled")
+        set(QT6_GUI ON)
+    else()
+        find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
+        if(Qt5_FOUND)
+            message(STATUS "Qt5 found - GUI support enabled")
+            set(QT6_GUI OFF)
+        else()
+            message(WARNING "Qt not found - GUI support disabled")
+            set(BUILD_GUI OFF)
+        endif()
+    endif()
+endif()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${OPENSSL_INCLUDE_DIR}
 )
 
-set(HEADERS
+# Core library sources
+set(CORE_HEADERS
     include/AntiDetectCore.hpp
     include/ADBManager.hpp
     include/DeviceFingerprint.hpp
@@ -32,10 +53,13 @@ set(HEADERS
     include/ProfileManager.hpp
     include/Logger.hpp
     include/Config.hpp
+    include/AdvancedSpoofing.hpp
+    include/AntiDetectEngine.hpp
+    include/HttpClient.hpp
+    include/CryptoUtils.hpp
 )
 
-set(SOURCES
-    src/main.cpp
+set(CORE_SOURCES
     src/AntiDetectCore.cpp
     src/ADBManager.cpp
     src/DeviceFingerprint.cpp
@@ -44,10 +68,71 @@ set(SOURCES
     src/ProfileManager.cpp
     src/Logger.cpp
     src/Config.cpp
+    src/AdvancedSpoofing.cpp
+    src/AntiDetectEngine.cpp
+    src/HttpClient.cpp
+    src/CryptoUtils.cpp
 )
 
-add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} Threads::Threads OpenSSL::SSL OpenSSL::Crypto)
-target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION="${PROJECT_VERSION}")
+# CLI executable
+add_executable(AntiDetectPro 
+    src/main.cpp 
+    ${CORE_HEADERS} 
+    ${CORE_SOURCES}
+)
+target_link_libraries(AntiDetectPro 
+    Threads::Threads 
+    OpenSSL::SSL 
+    OpenSSL::Crypto
+)
+target_compile_definitions(AntiDetectPro PRIVATE VERSION="${PROJECT_VERSION}")
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+# Qt GUI executable
+if(BUILD_GUI AND (QT6_GUI OR Qt5_FOUND))
+    if(QT6_GUI)
+        set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+        set(QT_MOC_ARGS "")
+    else()
+        set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    endif()
+    
+    set(GUI_HEADERS
+        gui/mainwindow.h
+    )
+    
+    set(GUI_SOURCES
+        gui/mainwindow.cpp
+        gui/main.cpp
+    )
+    
+    qt6_wrap_cpp(GUI_MOC ${GUI_HEADERS})
+    
+    add_executable(AntiDetectProGUI 
+        ${GUI_SOURCES}
+        ${GUI_HEADERS}
+        ${GUI_MOC}
+        ${CORE_HEADERS}
+        ${CORE_SOURCES}
+    )
+    
+    target_link_libraries(AntiDetectProGUI
+        ${QT_LIBRARIES}
+        Threads::Threads
+        OpenSSL::SSL
+        OpenSSL::Crypto
+    )
+    
+    target_compile_definitions(AntiDetectProGUI PRIVATE VERSION="${PROJECT_VERSION}")
+    
+    if(ANDROID)
+        set_target_properties(AntiDetectProGUI PROPERTIES QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/android")
+    endif()
+    
+    message(STATUS "GUI executable: AntiDetectProGUI")
+endif()
+
+# Installation
+install(TARGETS AntiDetectPro DESTINATION bin)
+if(BUILD_GUI AND (QT6_GUI OR Qt5_FOUND))
+    install(TARGETS AntiDetectProGUI DESTINATION bin)
+endif()
