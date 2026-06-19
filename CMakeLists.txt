@@ -56,6 +56,9 @@ set(CORE_HEADERS
     include/AdvancedSpoofing.hpp
     include/AntiDetectEngine.hpp
     include/AndroidSpoofManager.hpp
+    include/ProxyManager.hpp
+    include/ScreenMirror.hpp
+    include/RealPhoneHardening.hpp
     include/HttpClient.hpp
     include/CryptoUtils.hpp
 )
@@ -72,6 +75,9 @@ set(CORE_SOURCES
     src/AdvancedSpoofing.cpp
     src/AntiDetectEngine.cpp
     src/AndroidSpoofManager.cpp
+    src/ProxyManager.cpp
+    src/ScreenMirror.cpp
+    src/RealPhoneHardening.cpp
     src/HttpClient.cpp
     src/CryptoUtils.cpp
 )
