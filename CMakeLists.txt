@@ -64,6 +64,7 @@ set(CORE_HEADERS
     include/CryptoUtils.hpp
     include/HumanTouchEmulator.hpp
     include/BatteryMaskingManager.hpp
+    include/KernelLevelHardener.hpp
 )
 
 set(CORE_SOURCES
@@ -86,6 +87,7 @@ set(CORE_SOURCES
     src/CryptoUtils.cpp
     src/HumanTouchEmulator.cpp
     src/BatteryMaskingManager.cpp
+    src/KernelLevelHardener.cpp
 )
 
 # CLI executable
