@@ -62,6 +62,8 @@ set(CORE_HEADERS
     include/DetectionBypass.hpp
     include/HttpClient.hpp
     include/CryptoUtils.hpp
+    include/HumanTouchEmulator.hpp
+    include/BatteryMaskingManager.hpp
 )
 
 set(CORE_SOURCES
@@ -82,6 +84,8 @@ set(CORE_SOURCES
     src/DetectionBypass.cpp
     src/HttpClient.cpp
     src/CryptoUtils.cpp
+    src/HumanTouchEmulator.cpp
+    src/BatteryMaskingManager.cpp
 )
 
 # CLI executable
