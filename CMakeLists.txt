@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(AntiDetectPro VERSION 1.5.0 LANGUAGES CXX)
+project(AntiDetectPro VERSION 1.7.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,6 +8,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# Enable testing
+include(CTest)
 
 if(MSVC)
     add_compile_options(/W4 /WX-)
@@ -168,3 +171,6 @@ install(TARGETS AntiDetectPro DESTINATION bin)
 if(BUILD_GUI AND (QT6_GUI OR Qt5_FOUND))
     install(TARGETS AntiDetectProGUI DESTINATION bin)
 endif()
+
+# Add tests subdirectory
+add_subdirectory(tests)
