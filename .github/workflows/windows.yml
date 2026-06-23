@@ -1,0 +1,30 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v5
+    
+    - name: Configure CMake
+      shell: cmd
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      shell: cmd
+      run: cmake --build build --parallel 2

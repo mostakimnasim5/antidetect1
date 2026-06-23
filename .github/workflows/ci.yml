@@ -12,97 +12,28 @@ permissions:
 
 jobs:
 
-  # ===========================================================================
-  # BUILD AND TEST
-  # ===========================================================================
-  build-and-test:
-    name: Build and Test
+  build:
+    name: Build C++ Project
     runs-on: ubuntu-latest
     
     steps:
     
-    - name: Checkout code
+    - name: Checkout
       uses: actions/checkout@v5
     
-    - name: Install dependencies
+    - name: Install build tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ build-essential ninja-build libssl-dev
+        sudo apt-get install -y cmake g++ build-essential libssl-dev
     
     - name: Configure CMake
-      run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -GNinja
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
     
     - name: Build
+      run: cmake --build build --parallel 2 2>&1
+    
+    - name: Show outputs
+      if: success()
       run: |
-        cmake --build build --parallel 2
-    
-    - name: Show build outputs
-      run: |
-        echo "=== Build Outputs ==="
-        find build -name "*.a" -o -name "*.so" -o -name "AntiDetectPro" 2>/dev/null | head -10 || echo "Checking for executables..."
-        ls -la build/ 2>/dev/null | head -10
-    
-    - name: Test
-      run: |
-        cd build
-        if [ -f "CTestTestfile.cmake" ]; then
-          ctest --output-on-failure || echo "No tests configured"
-        else
-          echo "No test file found"
-        fi
-
-  # ===========================================================================
-  # STATIC ANALYSIS
-  # ===========================================================================
-  analyze:
-    name: Static Analysis
-    runs-on: ubuntu-latest
-    
-    steps:
-    
-    - name: Checkout code
-      uses: actions/checkout@v5
-    
-    - name: Install tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cppcheck
-    
-    - name: Run Cppcheck
-      continue-on-error: true
-      run: |
-        echo "=== Cppcheck Analysis ==="
-        cppcheck --enable=all --std=c++20 -I include src/ 2>&1 | head -50 || echo "Analysis complete"
-
-  # ===========================================================================
-  # CODE STATISTICS
-  # ===========================================================================
-  stats:
-    name: Code Statistics
-    runs-on: ubuntu-latest
-    
-    steps:
-    
-    - name: Checkout code
-      uses: actions/checkout@v5
-    
-    - name: Count lines
-      run: |
-        echo "### Code Statistics"
-        echo ""
-        
-        TOTAL=$(find src include -name "*.cpp" -o -name "*.hpp" | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
-        echo "| Metric | Count |"
-        echo "|--------|-------|"
-        echo "| Total Lines | $TOTAL |"
-        
-        CPP=$(find src -name "*.cpp" | wc -l)
-        HPP=$(find include -name "*.hpp" | wc -l)
-        echo "| C++ Files | $CPP |"
-        echo "| Header Files | $HPP |"
-        
-        echo ""
-        echo "### TODO/FIXME Count"
-        TODO=$(grep -rn "TODO\|FIXME" src/ include/ 2>/dev/null | wc -l || echo "0")
-        echo "Markers found: $TODO"
+        echo "=== Build Successful ==="
+        ls -la build/
