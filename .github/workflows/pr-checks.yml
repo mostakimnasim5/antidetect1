@@ -1,16 +1,8 @@
-# ==============================================================================
-# AntiDetectPro - PR Specific Checks
-# ==============================================================================
-
 name: PR Checks
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-
-concurrency:
-  group: pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -19,104 +11,65 @@ permissions:
 jobs:
 
   # ===========================================================================
-  # QUICK CHECKS
-  # ===========================================================================
-  quick-checks:
-    name: Quick Checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Check Changes
-        run: |
-          echo "=== Files Changed ==="
-          git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD
-      
-      - name: Recent Commits
-        run: |
-          echo "=== Recent Commits ==="
-          git log --oneline -5
-
-  # ===========================================================================
-  # COMPILE TEST
+  # QUICK COMPILE CHECK
   # ===========================================================================
   compile-check:
-    name: Compile Test
+    name: Compile Check
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Build Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ ninja-build build-essential
-      
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -GNinja
-      
-      - name: Compile
-        run: |
-          cmake --build build --parallel 2 2>&1 | tee build.log
-          
-          if grep -q "error:" build.log; then
-            echo ""
-            echo "=== ERRORS DETECTED ==="
-            grep -A2 "error:" build.log | head -30
-            exit 1
-          fi
-          
+    
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ build-essential ninja-build
+    
+    - name: Configure
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -GNinja
+    
+    - name: Compile
+      run: |
+        echo "=== Compiling ==="
+        cmake --build build --parallel 2 2>&1 | tee build.log
+        
+        if grep -q "error:" build.log; then
           echo ""
-          echo "✅ Compilation successful!"
-      
-      - name: Upload Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          retention-days: 7
+          echo "=== ERRORS FOUND ==="
+          grep "error:" build.log | head -20
+          exit 1
+        fi
+        
+        echo ""
+        echo "✅ Compilation successful!"
+
+    - name: Upload Log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log
+        path: build.log
 
   # ===========================================================================
   # LINT CHECK
   # ===========================================================================
-  lint-check:
+  lint:
     name: Lint Check
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Linters
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy cppcheck
-      
-      - name: Basic Lint
-        run: |
-          echo "=== Lint Check ==="
-          
-          # Check for common issues
-          if grep -rn "using namespace std" src/ include/ 2>/dev/null; then
-            echo "⚠️ Found 'using namespace std'"
-          fi
-          
-          echo "✅ Basic lint check complete"
-
-  # ===========================================================================
-  # PR SIZE CHECK
-  # ===========================================================================
-  pr-size:
-    name: PR Size
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Calculate Size
-        run: |
-          git fetch origin ${{ github.event.pull_request.base.sha }}
-          
-          CHANGED=$(git diff --name-only origin/${{ github.event.pull_request.base.sha }} HEAD | wc -l)
-          
-          echo "### PR Size"
-          echo "| Metric | Value |"
-          echo "|--------|-------|"
-          echo "| Files Changed | $CHANGED |"
+    
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install linters
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck
+    
+    - name: Run lint
+      run: |
+        echo "=== Lint Check ==="
+        cppcheck --enable=all --std=c++20 -I include src/ 2>&1 | head -30 || echo "Lint complete"
