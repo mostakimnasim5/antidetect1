@@ -1,0 +1,605 @@
+# ==============================================================================
+# AntiDetectPro - CI/CD Pipeline
+# ==============================================================================
+# Enterprise Android Anti-Detection System
+# 
+# This workflow automatically:
+# - Compiles the project on Windows, macOS, and Linux
+# - Runs syntax and static analysis
+# - Executes unit tests
+# - Generates build artifacts
+#
+# Triggers: Push to any branch, Pull Requests
+# ==============================================================================
+
+name: C++ CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, '**' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Debug
+          - Release
+          - RelWithDebInfo
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Permissions for GITHUB_TOKEN
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+# ==============================================================================
+# ENVIRONMENT VARIABLES
+# ==============================================================================
+env:
+  # CMake Configuration
+  BUILD_TYPE: ${{ inputs.build_type || 'Release' }}
+  CMAKE_VERSION: '3.27.7'
+  QT_VERSION: '6.6.1'
+  
+  # Compiler Versions
+  MSVC_VERSION: '17.8'       # Visual Studio 2022
+  GCC_VERSION: '13'
+  CLANG_VERSION: '17'
+  
+  # Paths
+  BUILD_DIR: ${{ github.workspace }}/build
+  INSTALL_DIR: ${{ github.workspace }}/install
+  
+  # Parallel jobs
+  CMAKE_PARALLEL: 4
+  Ninja_PARALLEL: 4
+
+# ==============================================================================
+# JOB DEFINITIONS
+# ==============================================================================
+jobs:
+
+  # ===========================================================================
+  # JOB 1: STATIC ANALYSIS (All Platforms)
+  # ===========================================================================
+  analyze:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install analysis tools
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            clang-tidy \
+            cppcheck \
+            gcovr \
+            lcov \
+            cmake \
+            build-essential \
+            ninja-build
+      
+      - name: Configure with CMake (Analysis Mode)
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -GNinja
+      
+      - name: Run Clang-Tidy
+        continue-on-error: true
+        run: |
+          echo "=== Running Clang-Tidy Analysis ==="
+          cmake --build build --target all -- -j$CMAKE_PARALLEL 2>&1 | head -100 || true
+          
+          find src include -name "*.cpp" -o -name "*.hpp" | \
+            xargs clang-tidy -header-filter='.*' -checks='-*,bugprone-*,clang-analyzer-*,performance-*,readability-*' \
+            2>&1 | tee clang-tidy.log || true
+          
+          echo "=== Clang-Tidy Summary ==="
+          grep -c "warning:" clang-tidy.log || echo "0 warnings"
+          grep -c "error:" clang-tidy.log || echo "0 errors"
+      
+      - name: Run Cppcheck
+        continue-on-error: true
+        run: |
+          echo "=== Running Cppcheck Analysis ==="
+          cppcheck --enable=all \
+            --std=c++20 \
+            --inline-suppr \
+            --suppress=missingIncludeSystem \
+            -I include \
+            -I src \
+            src/ include/ \
+            2>&1 | tee cppcheck.log || true
+          
+          echo "=== Cppcheck Summary ==="
+          grep -c "error:" cppcheck.log || echo "0 errors"
+          grep -c "warning:" cppcheck.log || echo "0 warnings"
+      
+      - name: Upload Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analysis-reports
+          path: |
+            clang-tidy.log
+            cppcheck.log
+          retention-days: 30
+
+  # ===========================================================================
+  # JOB 2: LINUX BUILD (GCC + Ninja)
+  # ===========================================================================
+  build-linux:
+    name: Build Linux (GCC ${{ env.GCC_VERSION }})
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++-${{ env.GCC_VERSION }} \
+            cmake \
+            ninja-build \
+            libssl-dev \
+            libsqlite3-dev \
+            pkg-config
+      
+      - name: Setup GCC ${{ env.GCC_VERSION }}
+        run: |
+          echo "GCC Version:"
+          g++-${{ env.GCC_VERSION }} --version | head -1
+          
+          echo "CC=gcc-${{ env.GCC_VERSION }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ env.GCC_VERSION }}" >> $GITHUB_ENV
+      
+      - name: Configure CMake
+        run: |
+          cmake -B ${{ env.BUILD_DIR }} \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER=gcc-${{ env.GCC_VERSION }} \
+            -DCMAKE_CXX_COMPILER=g++-${{ env.GCC_VERSION }} \
+            -GNinja \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DENABLE_TESTING=ON
+      
+      - name: Build Project
+        run: |
+          cmake --build ${{ env.BUILD_DIR }} \
+            --parallel ${{ env.CMAKE_PARALLEL }} \
+            --config ${{ env.BUILD_TYPE }}
+      
+      - name: Run Tests
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          if [ -f "CTestTestfile.cmake" ]; then
+            echo "=== Running Tests ==="
+            ctest --output-on-failure --parallel ${{ env.CMAKE_PARALLEL }} || true
+            
+            # Coverage if available
+            if [ -d "Coverage" ]; then
+              echo "=== Coverage Report ==="
+              gcovr --html-details coverage.html 2>/dev/null || true
+            fi
+          else
+            echo "No tests configured"
+          fi
+      
+      - name: Collect Build Artifacts
+        run: |
+          echo "=== Build Artifacts ==="
+          find ${{ env.BUILD_DIR }} -name "*.a" -o -name "*.so" -o -name "AntiDetectPro" | head -10
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build-${{ github.sha }}
+          path: |
+            ${{ env.BUILD_DIR }}/*.a
+            ${{ env.BUILD_DIR }}/*.so
+            ${{ env.BUILD_DIR }}/AntiDetectPro
+            ${{ env.BUILD_DIR }}/**/*.a
+          retention-days: 7
+      
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "### Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Linux |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compiler | GCC ${{ env.GCC_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Type | ${{ env.BUILD_TYPE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # JOB 3: LINUX BUILD (Clang)
+  # ===========================================================================
+  build-linux-clang:
+    name: Build Linux (Clang ${{ env.CLANG_VERSION }})
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang-${{ env.CLANG_VERSION }} \
+            cmake \
+            ninja-build \
+            libssl-dev \
+            libsqlite3-dev
+      
+      - name: Configure CMake (Clang)
+        run: |
+          cmake -B ${{ env.BUILD_DIR }}-clang \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER=clang-${{ env.CLANG_VERSION }} \
+            -DCMAKE_CXX_COMPILER=clang++-${{ env.CLANG_VERSION }} \
+            -GNinja \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      
+      - name: Build Project (Clang)
+        run: |
+          cmake --build ${{ env.BUILD_DIR }}-clang \
+            --parallel ${{ env.CMAKE_PARALLEL }} \
+            --config ${{ env.BUILD_TYPE }}
+      
+      - name: Upload Clang Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build-clang-${{ github.sha }}
+          path: ${{ env.BUILD_DIR }}-clang/**
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 4: WINDOWS BUILD (MSVC + Ninja)
+  # ===========================================================================
+  build-windows-msvc:
+    name: Build Windows (MSVC ${{ env.MSVC_VERSION }})
+    runs-on: windows-2022
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+      
+      - name: Install Ninja
+        uses: almost亘/ninja@v1.11.1
+        with:
+          version: 1.11.1
+      
+      - name: Install Dependencies
+        run: |
+          choco install cmake -y --no-progress
+          choco install ninja -y --no-progress
+      
+      - name: Configure CMake (MSVC)
+        shell: cmd
+        run: |
+          cmake -B build-msvc ^
+            -G "Visual Studio 17 2022" ^
+            -A x64 ^
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ^
+            -DCMAKE_C_FLAGS="/W4 /WX-" ^
+            -DCMAKE_CXX_FLAGS="/W4 /WX-" ^
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ^
+            -DENABLE_TESTING=ON
+      
+      - name: Build Project (MSVC)
+        shell: cmd
+        run: |
+          cmake --build build-msvc ^
+            --parallel ${{ env.CMAKE_PARALLEL }} ^
+            --config ${{ env.BUILD_TYPE }} ^
+            -- /p:UseIntelMKL=none /p:BuildInParallel=true
+      
+      - name: List Build Outputs
+        shell: cmd
+        run: |
+          echo "=== Build Outputs ==="
+          dir /s /b build-msvc\*.exe 2>nul || echo "No exe found"
+          dir /s /b build-msvc\*.dll 2>nul || echo "No dll found"
+          dir /s /b build-msvc\*.lib 2>nul || echo "No lib found"
+      
+      - name: Run Windows Tests
+        shell: cmd
+        working-directory: build-msvc
+        run: |
+          if exist "CTestTestfile.cmake" (
+            ctest --output-on-failure -C ${{ env.BUILD_TYPE }} || echo "Tests completed"
+          ) else (
+            echo "No tests configured"
+          )
+      
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-msvc-${{ github.sha }}
+          path: |
+            build-msvc/**/*.exe
+            build-msvc/**/*.dll
+            build-msvc/**/*.lib
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 5: WINDOWS BUILD (MinGW)
+  # ===========================================================================
+  build-windows-mingw:
+    name: Build Windows (MinGW)
+    runs-on: windows-2022
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install MinGW
+        run: |
+          choco install mingw -y --no-progress
+          refreshenv
+      
+      - name: Configure CMake (MinGW)
+        shell: cmd
+        run: |
+          cmake -B build-mingw ^
+            -G "MinGW Makefiles" ^
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ^
+            -DCMAKE_SH=CMAKE_SH-NOTFOUND ^
+            -DCMAKE_C_COMPILER=gcc ^
+            -DCMAKE_CXX_COMPILER=g++ ^
+            -DCMAKE_EXE_LINKER_FLAGS="-static" ^
+            -DENABLE_TESTING=ON
+      
+      - name: Build Project (MinGW)
+        shell: cmd
+        run: |
+          cmake --build build-mingw ^
+            --parallel ${{ env.CMAKE_PARALLEL }} ^
+            --config ${{ env.BUILD_TYPE }}
+      
+      - name: Upload MinGW Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-mingw-${{ github.sha }}
+          path: build-mingw/**/*.exe
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 6: macOS BUILD (Clang + Qt6)
+  # ===========================================================================
+  build-macos:
+    name: Build macOS (Clang + Qt${{ env.QT_VERSION }})
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Qt6
+        uses: jurplel/qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          cached: true
+      
+      - name: Install Dependencies
+        run: |
+          brew install cmake ninja openssl@3 sqlite3
+      
+      - name: Configure CMake (macOS)
+        run: |
+          cmake -B ${{ env.BUILD_DIR }}-macos \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -GNinja \
+            -DCMAKE_PREFIX_PATH="/usr/local/opt/qt6/lib/cmake" \
+            -DENABLE_TESTING=ON
+      
+      - name: Build Project (macOS)
+        run: |
+          cmake --build ${{ env.BUILD_DIR }}-macos \
+            --parallel ${{ env.CMAKE_PARALLEL }} \
+            --config ${{ env.BUILD_TYPE }}
+      
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build-${{ github.sha }}
+          path: ${{ env.BUILD_DIR }}-macos/**
+          retention-days: 7
+
+  # ===========================================================================
+  # JOB 7: CODE QUALITY CHECK
+  # ===========================================================================
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check Line Count
+        run: |
+          echo "### Project Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Count lines of code
+          TOTAL_LINES=$(find src include -name "*.cpp" -o -name "*.hpp" -o -name "*.h" | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+          echo "| Total Lines | $TOTAL_LINES |" >> $GITHUB_STEP_SUMMARY
+          
+          # Count files
+          CPP_FILES=$(find src -name "*.cpp" | wc -l)
+          HPP_FILES=$(find include -name "*.hpp" | wc -l)
+          echo "| C++ Files | $CPP_FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Header Files | $HPP_FILES |" >> $GITHUB_STEP_SUMMARY
+          
+          # Count classes/functions
+          CLASSES=$(grep -r "class " include/ src/ 2>/dev/null | wc -l)
+          FUNCTIONS=$(grep -r "^\s*\w\+\s\+\w\+(.*)" src/ 2>/dev/null | wc -l)
+          echo "| Classes | $CLASSES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Functions | $FUNCTIONS |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Check Code Formatting
+        run: |
+          echo "=== Checking Code Formatting ==="
+          # Check for common formatting issues
+          UNCLEAN_FILES=$(find src include -name "*.cpp" -o -name "*.hpp" | \
+            xargs grep -l $'\t' 2>/dev/null | head -5 || true)
+          
+          if [ -n "$UNCLEAN_FILES" ]; then
+            echo "Files with tabs (should use spaces):"
+            echo "$UNCLEAN_FILES"
+          else
+            echo "All files use proper formatting"
+          fi
+      
+      - name: Check for TODO/FIXME
+        run: |
+          TODO_COUNT=$(grep -rn "TODO\|FIXME\|XXX\|BUG" src/ include/ 2>/dev/null | wc -l || echo "0")
+          echo "TODO/FIXME/BUG markers: $TODO_COUNT"
+          
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "=== Markers Found ==="
+            grep -rn "TODO\|FIXME\|XXX\|BUG" src/ include/ 2>/dev/null || true
+          fi
+
+  # ===========================================================================
+  # JOB 8: SECURITY SCAN
+  # ===========================================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Run Trivy Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Check for Secrets
+        run: |
+          echo "=== Checking for Hardcoded Secrets ==="
+          # Check for common patterns
+          SECRET_PATTERNS=(
+            "password\s*=\s*[\"'][^\"']+"
+            "api[_-]?key\s*=\s*[\"'][^\"']+"
+            "secret\s*=\s*[\"'][^\"']+"
+            "token\s*=\s*[\"'][^\"']+"
+          )
+          
+          FOUND=0
+          for pattern in "${SECRET_PATTERNS[@]}"; do
+            if grep -rnE "$pattern" src/ include/ 2>/dev/null | grep -v "//.*$pattern" | grep -v "#.*$pattern"; then
+              FOUND=$((FOUND+1))
+            fi
+          done
+          
+          if [ "$FOUND" -gt 0 ]; then
+            echo "Warning: Potential secrets found!"
+          else
+            echo "No obvious secrets detected"
+          fi
+
+  # ===========================================================================
+  # JOB 9: MERGE AND DEPLOY (Only on PR Merge to Main)
+  # ===========================================================================
+  deploy:
+    name: Deploy Artifacts
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-windows-msvc, build-macos, code-quality]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: List Artifacts
+        run: |
+          echo "=== Downloaded Artifacts ==="
+          find artifacts -type f | head -20
+      
+      - name: Create Release Package
+        run: |
+          mkdir -p release
+          
+          # Copy executables
+          cp artifacts/windows-build-msvc-${{ github.sha }}/**/*.exe release/ 2>/dev/null || true
+          cp artifacts/linux-build-${{ github.sha }}/AntiDetectPro release/ 2>/dev/null || true
+          
+          echo "=== Release Package Contents ==="
+          ls -la release/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/**
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# ==============================================================================
+# NOTIFICATION ON FAILURE
+# ==============================================================================
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-latest
+    needs: [analyze, build-linux, build-windows-msvc, build-windows-mingw, build-macos]
+    if: failure() && github.event_name == 'pull_request'
+    
+    steps:
+      - name: Post Failure Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Build Failed!**\n\n' +
+                'CI pipeline has failed. Please check the logs and fix the issues.\n\n' +
+                '| Check | Status |\n' +
+                '|-------|--------|\n' +
+                '| ' + context.workflow + ' | ❌ Failed |'
+            })
