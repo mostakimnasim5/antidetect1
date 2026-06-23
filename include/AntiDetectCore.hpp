@@ -18,6 +18,9 @@ class SensorSpoofer;
 class PlayIntegrityBypass;
 class HypervisorBypass;
 class TimingAttackPrevention;
+class HardwareFingerprintSpoofer;
+class NetworkStackSpoofer;
+class SafetyNetAdvancedBypass;
 
 enum class AntiDetectStatus {
     UNINITIALIZED,
@@ -119,6 +122,29 @@ public:
     AntiDetectResult setTimingProfile(const std::string& profile);
     AntiDetectResult addExecutionNoise();
     
+    // Hardware Fingerprint Spoofing (v1.6)
+    AntiDetectResult enableHardwareSpoofing();
+    AntiDetectResult setSamsungProfile();
+    AntiDetectResult setGoogleProfile();
+    AntiDetectResult setXiaomiProfile();
+    AntiDetectResult spoofCPU(const std::string& cpu, int cores);
+    AntiDetectResult spoofGPU(const std::string& gpu);
+    
+    // Network Stack Spoofing (v1.6)
+    AntiDetectResult enableNetworkSpoofing();
+    AntiDetectResult setDeviceTTL();
+    AntiDetectResult spoofMAC(const std::string& mac);
+    AntiDetectResult setGoogleDNS();
+    AntiDetectResult setChromeUA();
+    
+    // SafetyNet Advanced Bypass (v1.6)
+    AntiDetectResult performFullSafetyNetBypass();
+    AntiDetectResult bypassRootDetection();
+    AntiDetectResult setGreenBoot();
+    AntiDetectResult enforceSELinux();
+    AntiDetectResult setReleaseKeys();
+    AntiDetectResult setCertifiedIntegrity();
+    
     // Status
     std::map<std::string, std::string> getDeviceInfo();
     std::map<std::string, std::string> getCurrentFingerprint();
@@ -149,7 +175,12 @@ private:
     std::unique_ptr<HypervisorBypass> m_hypervisorBypass;
     std::unique_ptr<TimingAttackPrevention> m_timingPrevention;
     
-    static constexpr const char* VERSION = "1.5.0";
+    // Ultra Advanced Modules (v1.6)
+    std::unique_ptr<HardwareFingerprintSpoofer> m_hardwareSpoofer;
+    std::unique_ptr<NetworkStackSpoofer> m_networkStackSpoofer;
+    std::unique_ptr<SafetyNetAdvancedBypass> m_safetyNetBypass;
+    
+    static constexpr const char* VERSION = "1.6.0";
     static constexpr const char* BUILD_DATE = __DATE__;
 };
 

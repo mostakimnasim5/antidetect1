@@ -10,6 +10,9 @@
 #include "PlayIntegrityBypass.hpp"
 #include "HypervisorBypass.hpp"
 #include "TimingAttackPrevention.hpp"
+#include "HardwareFingerprintSpoofer.hpp"
+#include "NetworkStackSpoofer.hpp"
+#include "SafetyNetAdvancedBypass.hpp"
 #include <iostream>
 
 namespace AntiDetect {
@@ -61,11 +64,16 @@ void AntiDetectCore::initializeComponents() {
     m_systemManager = std::make_unique<SystemManager>();
     m_profileManager = std::make_unique<ProfileManager>();
     
-    // Advanced Anti-Detection Modules
+    // Advanced Anti-Detection Modules (v1.5)
     m_sensorSpoofer = std::make_unique<SensorSpoofer>();
     m_playIntegrity = std::make_unique<PlayIntegrityBypass>();
     m_hypervisorBypass = std::make_unique<HypervisorBypass>();
     m_timingPrevention = std::make_unique<TimingAttackPrevention>();
+    
+    // Ultra Advanced Modules (v1.6)
+    m_hardwareSpoofer = std::make_unique<HardwareFingerprintSpoofer>();
+    m_networkStackSpoofer = std::make_unique<NetworkStackSpoofer>();
+    m_safetyNetBypass = std::make_unique<SafetyNetAdvancedBypass>();
     
     Logger::getInstance().info("Initializing ADB Manager...");
     if (!m_adbManager->initialize()) {
@@ -82,7 +90,7 @@ void AntiDetectCore::initializeComponents() {
         Logger::getInstance().info("Initializing System Manager...");
         m_systemManager->initialize();
         
-        // Initialize Advanced Modules
+        // Initialize Advanced Modules (v1.5)
         Logger::getInstance().info("Initializing Sensor Spoofer...");
         m_sensorSpoofer->initialize();
         
@@ -94,6 +102,16 @@ void AntiDetectCore::initializeComponents() {
         
         Logger::getInstance().info("Initializing Timing Attack Prevention...");
         m_timingPrevention->initialize();
+        
+        // Initialize Ultra Advanced Modules (v1.6)
+        Logger::getInstance().info("Initializing Hardware Fingerprint Spoofer...");
+        m_hardwareSpoofer->initialize();
+        
+        Logger::getInstance().info("Initializing Network Stack Spoofer...");
+        m_networkStackSpoofer->initialize();
+        
+        Logger::getInstance().info("Initializing SafetyNet Advanced Bypass...");
+        m_safetyNetBypass->initialize();
     }
     
     Logger::getInstance().info("Initializing Profile Manager...");
@@ -101,7 +119,16 @@ void AntiDetectCore::initializeComponents() {
 }
 
 void AntiDetectCore::cleanupComponents() {
-    // Cleanup Advanced Modules first
+    // Cleanup Ultra Advanced Modules (v1.6) first
+    if (m_safetyNetBypass) m_safetyNetBypass->shutdown();
+    if (m_networkStackSpoofer) m_networkStackSpoofer->shutdown();
+    if (m_hardwareSpoofer) m_hardwareSpoofer->shutdown();
+    
+    m_safetyNetBypass.reset();
+    m_networkStackSpoofer.reset();
+    m_hardwareSpoofer.reset();
+    
+    // Cleanup Advanced Modules (v1.5)
     if (m_timingPrevention) m_timingPrevention->shutdown();
     if (m_hypervisorBypass) m_hypervisorBypass->shutdown();
     if (m_playIntegrity) m_playIntegrity->shutdown();
@@ -749,6 +776,166 @@ AntiDetectResult AntiDetectCore::addExecutionNoise() {
     }
     
     auto result = m_timingPrevention->enableExecutionRandomization();
+    return createResult(result.success, result.message, result.error);
+}
+
+// ============================================================
+// ULTRA ADVANCED ANTI-DETECTION METHODS (v1.6)
+// ============================================================
+
+// Hardware Fingerprint Spoofing
+AntiDetectResult AntiDetectCore::enableHardwareSpoofing() {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->enableAllSpoofing();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setSamsungProfile() {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->setSamsungGalaxyS21Profile();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setGoogleProfile() {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->setGooglePixel7Profile();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setXiaomiProfile() {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->setXiaomi12Profile();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::spoofCPU(const std::string& cpu, int cores) {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->spoofCPUInfo(cpu, cores, cores);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::spoofGPU(const std::string& gpu) {
+    if (!m_hardwareSpoofer) {
+        return createResult(false, "", "Hardware Spoofer not initialized");
+    }
+    
+    auto result = m_hardwareSpoofer->spoofGPUInfo(gpu);
+    return createResult(result.success, result.message, result.error);
+}
+
+// Network Stack Spoofing
+AntiDetectResult AntiDetectCore::enableNetworkSpoofing() {
+    if (!m_networkStackSpoofer) {
+        return createResult(false, "", "Network Stack Spoofer not initialized");
+    }
+    
+    auto result = m_networkStackSpoofer->enableStackSpoofing();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setDeviceTTL() {
+    if (!m_networkStackSpoofer) {
+        return createResult(false, "", "Network Stack Spoofer not initialized");
+    }
+    
+    auto result = m_networkStackSpoofer->setDeviceTTL();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::spoofMAC(const std::string& mac) {
+    if (!m_networkStackSpoofer) {
+        return createResult(false, "", "Network Stack Spoofer not initialized");
+    }
+    
+    auto result = m_networkStackSpoofer->spoofMACAddress(mac);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setGoogleDNS() {
+    if (!m_networkStackSpoofer) {
+        return createResult(false, "", "Network Stack Spoofer not initialized");
+    }
+    
+    auto result = m_networkStackSpoofer->setGoogleDNS();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setChromeUA() {
+    if (!m_networkStackSpoofer) {
+        return createResult(false, "", "Network Stack Spoofer not initialized");
+    }
+    
+    auto result = m_networkStackSpoofer->setChromeUserAgent();
+    return createResult(result.success, result.message, result.error);
+}
+
+// SafetyNet Advanced Bypass
+AntiDetectResult AntiDetectCore::performFullSafetyNetBypass() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->performFullBypass();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::bypassRootDetection() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->bypassRootDetection();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setGreenBoot() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->setGreenBootState();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enforceSELinux() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->setSELinuxEnforcing();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setReleaseKeys() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->setReleaseKeys();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setCertifiedIntegrity() {
+    if (!m_safetyNetBypass) {
+        return createResult(false, "", "SafetyNet Bypass not initialized");
+    }
+    
+    auto result = m_safetyNetBypass->setCertifiedIntegrity();
     return createResult(result.success, result.message, result.error);
 }
 

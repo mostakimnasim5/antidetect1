@@ -1,8 +1,8 @@
 # AntiDetectPro
 
-**Enterprise-Grade Android Anti-Detection System - Advanced Edition v1.5**
+**Enterprise-Grade Android Anti-Detection System - Ultra Advanced Edition v1.6**
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue)
+![Version](https://img.shields.io/badge/version-1.6.0-blue)
 ![License](https://img.shields.io/badge/license-Commercial-red)
 ![C++](https://img.shields.io/badge/C%2B%2B-20-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-orange)
@@ -13,33 +13,49 @@
 
 AntiDetectPro is a **commercial-grade, enterprise-level** Android anti-detection system designed for professional application testing and browser fingerprint testing. Built entirely in **C++** without JavaScript or third-party APIs, it operates at the **Android OS level** to modify device fingerprints and tracking parameters with precision.
 
-### What's New in v1.5 - Advanced Anti-Detection
+### What's New in v1.6 - Ultra Advanced Anti-Detection
 
-This version includes **military-grade anti-detection capabilities** to bypass advanced security systems:
+This version includes **military-grade anti-detection capabilities** with significantly improved detection prevention rates:
+
+#### 🔧 Hardware Fingerprint Spoofing (v1.6) - **NEW**
+- **Complete DMI/SMBIOS Spoofing** - System vendor, product, board info
+- **CPU ID Spoofing** - Model, cores, threads, variant
+- **GPU Fingerprint Spoofing** - Renderer, vendor, version
+- **Pre-built Device Profiles** - Samsung Galaxy S21/S22, Pixel 6/7, Xiaomi 12, OnePlus 10
+
+#### 🌐 Network Stack Spoofing (v1.6) - **NEW**
+- **TCP/IP Stack Fingerprint** - Congestion control, window scaling
+- **TTL Spoofing** - Real device TTL (64) for WiFi/Mobile
+- **DNS Spoofing** - Google DNS, Cloudflare DNS
+- **User-Agent Spoofing** - Chrome, Firefox, Safari profiles
+- **MAC Address Spoofing** - Random Samsung/Apple MAC
+
+#### 🛡️ SafetyNet Advanced Bypass (v1.6) - **NEW**
+- **Full Root Detection Bypass** - Hide SU binary, Magisk, SuperSU
+- **Verified Boot State** - Green/Orange/Red state control
+- **SELinux Enforcement** - Proper security context
+- **Release Keys** - Hide test-keys indicators
+- **Debug Flags Disable** - ro.debuggable, ro.secure
+- **API Level Spoofing** - Android 13/14
 
 #### 🎯 Sensor Spoofing (v1.5)
 - **Natural Sensor Noise Simulation** - Gyroscope, Accelerometer, Magnetometer
 - **Realistic Movement Patterns** - Walking, Stationary, Driving simulation
 - **Micro-noise Generation** - Pink noise, Gaussian noise for authentic sensor data
-- Prevents detection from zero-sensor or static sensor analysis
 
 #### 🔐 Play Integrity API Bypass (v1.5)
 - **TrustZone Key Emulation** - Hardware-backed attestation spoofing
 - **Play Integrity Token Generation** - deviceIntegrity, basicIntegrity spoofing
 - **SafetyNet Bypass** - ctsProfileMatch simulation
-- **Verified Boot State Control** - green/orange/red state emulation
 
 #### 💻 Hypervisor Detection Bypass (v1.5)
 - **VT-x/AMD-V Detection Prevention** - CPU virtualization hiding
 - **ARM Simulation** - Real ARM hardware property spoofing
-- **QEMU/VMware/VirtualBox Detection Bypass**
 - **CPU Timing Normalization** - Real ARM Cortex timing patterns
 
 #### ⏱️ Timing Attack Prevention (v1.5)
 - **CPU Cache Timing Protection** - Cache timing attack prevention
 - **Execution Randomization** - Random jitter to prevent timing analysis
-- **Branch Predictor Noise** - Artificial branch prediction variation
-- **Memory Access Timing** - Realistic memory access patterns
 - **Pre-built Timing Profiles** - Natural smartphone, Flagship, Gaming modes
 
 ---

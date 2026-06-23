@@ -67,6 +67,10 @@ set(CORE_HEADERS
     include/PlayIntegrityBypass.hpp
     include/HypervisorBypass.hpp
     include/TimingAttackPrevention.hpp
+    # Ultra Advanced Modules (v1.6)
+    include/HardwareFingerprintSpoofer.hpp
+    include/NetworkStackSpoofer.hpp
+    include/SafetyNetAdvancedBypass.hpp
 )
 
 set(CORE_SOURCES
@@ -92,6 +96,10 @@ set(CORE_SOURCES
     src/PlayIntegrityBypass.cpp
     src/HypervisorBypass.cpp
     src/TimingAttackPrevention.cpp
+    # Ultra Advanced Modules (v1.6)
+    src/HardwareFingerprintSpoofer.cpp
+    src/NetworkStackSpoofer.cpp
+    src/SafetyNetAdvancedBypass.cpp
 )
 
 # CLI executable
