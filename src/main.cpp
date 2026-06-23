@@ -298,8 +298,8 @@ int main(int argc, char* argv[]) {
                 } else {
                     std::cout << "Available Profiles:\n";
                     for (const auto& profile : profiles) {
-                        std::cout << "  [" << profile["id"] << "] " << profile["name"] 
-                                  << " - " << profile["category"] << "\n";
+                        std::cout << "  [" << profile.at("id") << "] " << profile.at("name") 
+                                  << " - " << profile.at("category") << "\n";
                     }
                 }
             }
@@ -379,8 +379,8 @@ int main(int argc, char* argv[]) {
         else if (cmd == "list-profiles") {
             auto profiles = core.listProfiles();
             for (const auto& profile : profiles) {
-                std::cout << "[" << profile["id"] << "] " << profile["name"] 
-                          << " - " << profile["category"] << "\n";
+                std::cout << "[" << profile.at("id") << "] " << profile.at("name") 
+                          << " - " << profile.at("category") << "\n";
             }
         }
         else if (cmd == "apply-profile" && commands.size() >= 2) {

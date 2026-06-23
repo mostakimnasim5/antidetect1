@@ -367,35 +367,35 @@ void AndroidSpoofManager::initializeCountryData() {
         {"name", "Mexico"}, {"lat", "19.4326"}, {"lon", "-99.1332"},
         {"timezone", "America/Mexico_City"}, {"mcc", "334"}, {"carrier", "Telcel"},
         {"mnc1", "01"}, {"mnc2", "02"}, {"mnc3", "03"}, {"mnc4", "04"},
-        {"mnc5", "05"}, {"carrier2", "Movistar"}, {"carrier3": ""}
+        {"mnc5", "05"}, {"carrier2", "Movistar"}, {"carrier3", ""}
     };
     
     m_countryData["ES"] = {
         {"name", "Spain"}, {"lat", "40.4168"}, {"lon", "-3.7038"},
         {"timezone", "Europe/Madrid"}, {"mcc", "214"}, {"carrier", "Movistar"},
-        {"mnc1": "01"}, {"mnc2": "03"}, {"mnc3": "04"}, {"mnc4": "05"},
-        {"mnc5": "06"}, {"carrier2": "Orange"}, {"carrier3": "Vodafone"}
+        {"mnc1", "01"}, {"mnc2", "03"}, {"mnc3", "04"}, {"mnc4", "05"},
+        {"mnc5", "06"}, {"carrier2", "Orange"}, {"carrier3", "Vodafone"}
     };
     
     m_countryData["IT"] = {
         {"name", "Italy"}, {"lat", "41.9028"}, {"lon", "12.4964"},
-        {"timezone", "Europe/Rome"}, {"mcc": "222"}, {"carrier": "TIM"},
-        {"mnc1": "01"}, {"mnc2": "02"}, {"mnc3": "05"}, {"mnc4": "06"},
-        {"mnc5": "07"}, {"carrier2": "Vodafone"}, {"carrier3": "Wind"}
+        {"timezone", "Europe/Rome"}, {"mcc", "222"}, {"carrier", "TIM"},
+        {"mnc1", "01"}, {"mnc2", "02"}, {"mnc3", "05"}, {"mnc4", "06"},
+        {"mnc5", "07"}, {"carrier2", "Vodafone"}, {"carrier3", "Wind"}
     };
     
     m_countryData["NL"] = {
-        {"name", "Netherlands"}, {"lat": "52.3702"}, {"lon": "4.8952"},
-        {"timezone": "Europe/Amsterdam"}, {"mcc": "204"}, {"carrier": "KPN"},
-        {"mnc1": "04"}, {"mnc2": "06"}, {"mnc3": "08"}, {"mnc4": "10"},
-        {"mnc5": "12"}, {"carrier2": "Vodafone"}, {"carrier3": "T-Mobile"}
+        {"name", "Netherlands"}, {"lat", "52.3702"}, {"lon", "4.8952"},
+        {"timezone", "Europe/Amsterdam"}, {"mcc", "204"}, {"carrier", "KPN"},
+        {"mnc1", "04"}, {"mnc2", "06"}, {"mnc3", "08"}, {"mnc4", "10"},
+        {"mnc5", "12"}, {"carrier2", "Vodafone"}, {"carrier3", "T-Mobile"}
     };
     
     m_countryData["SE"] = {
-        {"name", "Sweden"}, {"lat": "59.3293"}, {"lon": "18.0686"},
-        {"timezone": "Europe/Stockholm"}, {"mcc": "240"}, {"carrier": "Telia"},
-        {"mnc1": "01"}, {"mnc2": "02"}, {"mnc3": "04"}, {"mnc4": "05"},
-        {"mnc5": "06"}, {"carrier2": "Tele2"}, {"carrier3": "Telenor"}
+        {"name", "Sweden"}, {"lat", "59.3293"}, {"lon", "18.0686"},
+        {"timezone", "Europe/Stockholm"}, {"mcc", "240"}, {"carrier", "Telia"},
+        {"mnc1", "01"}, {"mnc2", "02"}, {"mnc3", "04"}, {"mnc4", "05"},
+        {"mnc5", "06"}, {"carrier2", "Tele2"}, {"carrier3", "Telenor"}
     };
     
     Logger::getInstance().info("Country database initialized with " + std::to_string(m_countryData.size()) + " countries");
@@ -455,10 +455,10 @@ CompleteProfile AndroidSpoofManager::generateProfile(const std::string& brand, c
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, countries.size() - 1);
-        auto it = countries.begin();
-        std::advance(it, dis(gen));
-        countryCode = it->first;
-        countryInfo = it->second;
+        int idx = dis(gen);
+        
+        countryInfo = countries[idx];
+        
     }
     
     // Set device info based on brand
@@ -821,7 +821,7 @@ std::string AndroidSpoofManager::getTACInfo(const std::string& tacCode) {
         for (const auto& code : pair.second) {
             if (code == tacCode) {
                 info += "Brand: " + pair.first + "\n";
-                info += "Type: " + (pair.first == "Apple" ? "iPhone" : "Android Smartphone");
+                info += std::string("Type: ") + (pair.first == "Apple" ? "iPhone" : "Android Smartphone");
                 return info;
             }
         }
@@ -848,7 +848,7 @@ std::map<std::string, std::string> AndroidSpoofManager::getRandomLocationData(co
     std::uniform_int_distribution<> dis(0, m_countryData.size() - 1);
     
     auto it = m_countryData.begin();
-    std::advance(it, dis(gen));
+    
     return it->second;
 }
 

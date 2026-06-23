@@ -23,7 +23,7 @@ RealPhoneHardening::RealPhoneHardening()
     m_batteryConfig = {false, 85, "Discharging", "USB", "25", "Good", false};
     m_radioConfig = {false, "", "", "", ""};
     m_kernelConfig = {false, false, false, false, ""};
-    m_emulatorConfig = {false, true, true, true, true, true, true, false, false};
+    m_emulatorConfig = {false, false, false, false, false, false, false, false};
     m_canvasConfig = {false, 1, ""};
     m_webglConfig = {false, "", "", "", ""};
     m_audioConfig = {false, "", ""};

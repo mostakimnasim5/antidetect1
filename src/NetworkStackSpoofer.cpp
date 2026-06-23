@@ -67,8 +67,8 @@ void NetworkStackSpoofer::shutdown() {
     }
 }
 
-NetworkSpoofResult NetworkStackSpoofer::enableStackSpoofing() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::enableStackSpoofing() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     if (!m_initialized) {
         result.error = "Not initialized";
@@ -88,8 +88,8 @@ NetworkSpoofResult NetworkStackSpoofer::enableStackSpoofing() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::disableStackSpoofing() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::disableStackSpoofing() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     restoreOriginalSettings();
     m_spoofingActive = false;
@@ -100,8 +100,8 @@ NetworkSpoofResult NetworkStackSpoofer::disableStackSpoofing() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setCongestionControl(const std::string& algorithm) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::setCongestionControl(const std::string& algorithm) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -118,16 +118,16 @@ NetworkSpoofResult NetworkStackSpoofer::setCongestionControl(const std::string& 
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setCubicProfile() {
+NetworkSpoofResult2 NetworkStackSpoofer::setCubicProfile() {
     return setCongestionControl("cubic");
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setBbrProfile() {
+NetworkSpoofResult2 NetworkStackSpoofer::setBbrProfile() {
     return setCongestionControl("bbr");
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofTTL(int ttl) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofTTL(int ttl) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -144,20 +144,20 @@ NetworkSpoofResult NetworkStackSpoofer::spoofTTL(int ttl) {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofWifiTTL() {
+NetworkSpoofResult2 NetworkStackSpoofer::spoofWifiTTL() {
     return spoofTTL(65);  // Real device WiFi TTL
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofMobileTTL() {
+NetworkSpoofResult2 NetworkStackSpoofer::spoofMobileTTL() {
     return spoofTTL(65);  // Real device mobile TTL
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setDeviceTTL() {
+NetworkSpoofResult2 NetworkStackSpoofer::setDeviceTTL() {
     return spoofTTL(64);  // Real Linux device default TTL
 }
 
-NetworkSpoofResult NetworkStackSpoofer::enableWindowScaling() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::enableWindowScaling() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -172,8 +172,8 @@ NetworkSpoofResult NetworkStackSpoofer::enableWindowScaling() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::disableWindowScaling() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::disableWindowScaling() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -188,8 +188,8 @@ NetworkSpoofResult NetworkStackSpoofer::disableWindowScaling() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::enableTimestamps() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::enableTimestamps() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -204,8 +204,8 @@ NetworkSpoofResult NetworkStackSpoofer::enableTimestamps() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::disableTimestamps() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::disableTimestamps() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -220,8 +220,8 @@ NetworkSpoofResult NetworkStackSpoofer::disableTimestamps() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::enableSACK() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::enableSACK() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -236,8 +236,8 @@ NetworkSpoofResult NetworkStackSpoofer::enableSACK() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::disableSACK() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::disableSACK() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -252,8 +252,8 @@ NetworkSpoofResult NetworkStackSpoofer::disableSACK() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setMTU(int mtu) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::setMTU(int mtu) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -270,16 +270,16 @@ NetworkSpoofResult NetworkStackSpoofer::setMTU(int mtu) {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setWifiMTU() {
+NetworkSpoofResult2 NetworkStackSpoofer::setWifiMTU() {
     return setMTU(1500);  // Standard WiFi MTU
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setMobileMTU() {
+NetworkSpoofResult2 NetworkStackSpoofer::setMobileMTU() {
     return setMTU(1500);  // Standard mobile MTU
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setCustomDNS(const std::vector<std::string>& dnsServers) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::setCustomDNS(const std::vector<std::string>& dnsServers) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -299,16 +299,16 @@ NetworkSpoofResult NetworkStackSpoofer::setCustomDNS(const std::vector<std::stri
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setGoogleDNS() {
+NetworkSpoofResult2 NetworkStackSpoofer::setGoogleDNS() {
     return setCustomDNS({"8.8.8.8", "8.8.4.4"});
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setCloudflareDNS() {
+NetworkSpoofResult2 NetworkStackSpoofer::setCloudflareDNS() {
     return setCustomDNS({"1.1.1.1", "1.0.0.1"});
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofUserAgent(const std::string& userAgent) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofUserAgent(const std::string& userAgent) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -324,26 +324,26 @@ NetworkSpoofResult NetworkStackSpoofer::spoofUserAgent(const std::string& userAg
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setChromeUserAgent() {
+NetworkSpoofResult2 NetworkStackSpoofer::setChromeUserAgent() {
     return spoofUserAgent(
         "Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
     );
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setFirefoxUserAgent() {
+NetworkSpoofResult2 NetworkStackSpoofer::setFirefoxUserAgent() {
     return spoofUserAgent(
         "Mozilla/5.0 (Android 13; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0"
     );
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setSafariUserAgent() {
+NetworkSpoofResult2 NetworkStackSpoofer::setSafariUserAgent() {
     return spoofUserAgent(
         "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1"
     );
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofMACAddress(const std::string& mac) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofMACAddress(const std::string& mac) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -366,7 +366,7 @@ NetworkSpoofResult NetworkStackSpoofer::spoofMACAddress(const std::string& mac) 
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::randomizeMAC() {
+NetworkSpoofResult2 NetworkStackSpoofer::randomizeMAC() {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 255);
@@ -388,12 +388,12 @@ NetworkSpoofResult NetworkStackSpoofer::randomizeMAC() {
     return spoofMACAddress(ss.str());
 }
 
-NetworkSpoofResult NetworkStackSpoofer::setSamsungMAC() {
+NetworkSpoofResult2 NetworkStackSpoofer::setSamsungMAC() {
     return spoofMACAddress("48:74:40:XX:XX:XX");
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofMobileOperator(const std::string& name) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofMobileOperator(const std::string& name) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -406,8 +406,8 @@ NetworkSpoofResult NetworkStackSpoofer::spoofMobileOperator(const std::string& n
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofMobileCountryCode(int mcc) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofMobileCountryCode(int mcc) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -419,8 +419,8 @@ NetworkSpoofResult NetworkStackSpoofer::spoofMobileCountryCode(int mcc) {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofMobileNetworkCode(int mnc) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofMobileNetworkCode(int mnc) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -432,8 +432,8 @@ NetworkSpoofResult NetworkStackSpoofer::spoofMobileNetworkCode(int mnc) {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::spoofNetworkType(const std::string& type) {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::spoofNetworkType(const std::string& type) {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -454,8 +454,8 @@ NetworkSpoofResult NetworkStackSpoofer::spoofNetworkType(const std::string& type
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::applySamsungNetworkProfile() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::applySamsungNetworkProfile() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     setDeviceTTL();
     setCubicProfile();
@@ -472,8 +472,8 @@ NetworkSpoofResult NetworkStackSpoofer::applySamsungNetworkProfile() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::applyGoogleNetworkProfile() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::applyGoogleNetworkProfile() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     setDeviceTTL();
     setCubicProfile();
@@ -488,8 +488,8 @@ NetworkSpoofResult NetworkStackSpoofer::applyGoogleNetworkProfile() {
     return result;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::validateSpoofing() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::validateSpoofing() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     result.success = m_spoofingActive;
     result.message = m_spoofingActive ? 
@@ -525,8 +525,8 @@ std::map<std::string, std::string> NetworkStackSpoofer::getDetailedStatus() {
     return status;
 }
 
-NetworkSpoofResult NetworkStackSpoofer::getStatus() {
-    NetworkSpoofResult result = {false, "", "", {}};
+NetworkSpoofResult2 NetworkStackSpoofer::getStatus() {
+    NetworkSpoofResult2 result = {false, "", "", {}};
     
     std::stringstream ss;
     ss << "Network Stack Spoofer Status:\n";

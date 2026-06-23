@@ -143,20 +143,20 @@ bool DetectionBypass::setIntegrityOtherReasons(const std::vector<std::string>& r
 // ========== SAFETYNET BYPASS ==========
 
 bool DetectionBypass::setSafetyNetResult(bool basicIntegrity, bool ctsMatch,
-                                       bool evaluationTypeHardware, bool evaluationTypeBasic) {
+                                       bool evaluationTypeHardwareBacked, bool evaluationTypeBasic) {
     Logger::getInstance().info("Configuring SafetyNet attestation response...");
     auto& adb = ADBManager::getInstance();
     
     m_safetyNet.basicIntegrity = basicIntegrity;
     m_safetyNet.ctsProfileMatch = ctsMatch;
-    m_safetyNet.evaluationTypeHardware = evaluationTypeHardware;
+    m_safetyNet.evaluationTypeHardwareBacked = evaluationTypeHardwareBacked;
     m_safetyNet.evaluationTypeBasic = evaluationTypeBasic;
     
     // Critical SafetyNet properties
     adb.setProperty("ro.safetynet.enabled", "true");
     adb.setProperty("ro.safetynet.basic", basicIntegrity ? "true" : "false");
     adb.setProperty("ro.safetynet.cts", ctsMatch ? "true" : "false");
-    adb.setProperty("ro.safetynet.hardware", evaluationTypeHardware ? "true" : "false");
+    adb.setProperty("ro.safetynet.hardware", evaluationTypeHardwareBacked ? "true" : "false");
     adb.setProperty("ro.safetynet.basic_eval", evaluationTypeBasic ? "true" : "false");
     
     // SafetyNet requires these to pass:
@@ -1436,12 +1436,6 @@ bool DetectionBypass::hideSensorManipulation() { return true; }
 bool DetectionBypass::setRealLightSensor() { return true; }
 bool DetectionBypass::setRealProximitySensor() { return true; }
 
-bool DetectionBypass::bypassFileSystemDetection() { return true; }
-bool DetectionBypass::hideCustomROM() { return true; }
-bool DetectionBypass::hideSUAccess() { return true; }
-bool DetectionBypass::hideRootFiles() { return true; }
-bool DetectionBypass::hideMagiskFiles() { return true; }
-bool DetectionBypass::hideXposedFiles() { return true; }
 
 bool DetectionBypass::bypassPermissionDetection() { return true; }
 bool DetectionBypass::setRealPermissions() { return true; }

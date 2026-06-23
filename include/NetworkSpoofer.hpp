@@ -12,6 +12,7 @@ struct NetworkSpoofResult {
     std::string originalValue;
     std::string newValue;
     std::string error;
+    std::string message;
 };
 
 class NetworkSpoofer {

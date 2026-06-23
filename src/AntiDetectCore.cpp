@@ -1047,9 +1047,8 @@ AntiDetectResult AntiDetectCore::applyGeneratedProfile() {
         m_networkStackSpoofer->spoofMobileOperator(profile.carrierName);
     }
     
-    return createResult(true, "Generated unique profile applied successfully. " +
-        "[Uniqueness: " + std::to_string(result.uniquenessScore) + 
-        "%, Realism: " + std::to_string(result.realismScore) + "%]", "");
+    std::string uniquenessMsg = "[Uniqueness: " + std::to_string(result.uniquenessScore) + "%, Realism: " + std::to_string(result.realismScore) + "%]";
+    return createResult(true, "Generated unique profile applied successfully. " + uniquenessMsg, "");
 }
 
 }

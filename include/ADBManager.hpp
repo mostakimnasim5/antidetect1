@@ -28,6 +28,9 @@ enum class ADBConnectionState {
 class ADBManager {
 public:
     static ADBManager& getInstance();
+    ADBManager();
+    ~ADBManager();
+    
     
     bool initialize();
     bool isConnected() const;
@@ -61,12 +64,8 @@ public:
     
     bool writeFile(const std::string& remotePath, const std::string& content);
     std::string readFile(const std::string& remotePath);
-    
     void setConnectionStateCallback(std::function<void(ADBConnectionState)> callback);
-
 private:
-    ADBManager();
-    ~ADBManager();
     
     ADBManager(const ADBManager&) = delete;
     ADBManager& operator=(const ADBManager&) = delete;

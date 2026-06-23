@@ -8,13 +8,14 @@
 
 namespace AntiDetect {
 
-struct SpoofingResult {
+struct AdvancedSpoofingResult {
     bool success;
     std::string category;
     std::string property;
     std::string originalValue;
     std::string newValue;
     std::string error;
+    std::string message;
 };
 
 struct DeviceIDConfig {
@@ -68,61 +69,61 @@ public:
     bool isInitialized() const;
     
     // Device ID Spoofing
-    SpoofingResult spoofAndroidId(const std::string& androidId);
-    SpoofingResult spoofDeviceId(const std::string& deviceId);
-    SpoofingResult spoofSerialNumber(const std::string& serial);
-    SpoofingResult spoofBuildId(const std::string& buildId);
+    AdvancedSpoofingResult spoofAndroidId(const std::string& androidId);
+    AdvancedSpoofingResult spoofDeviceId(const std::string& deviceId);
+    AdvancedSpoofingResult spoofSerialNumber(const std::string& serial);
+    AdvancedSpoofingResult spoofBuildId(const std::string& buildId);
     
     // Hardware Spoofing
-    SpoofingResult spoofCPUModel(const std::string& cpuModel);
-    SpoofingResult spoofCPUAbi(const std::string& abi);
-    SpoofingResult spoofProcessorCount(int count);
-    SpoofingResult spoofTotalMemory(long memoryMB);
+    AdvancedSpoofingResult spoofCPUModel(const std::string& cpuModel);
+    AdvancedSpoofingResult spoofCPUAbi(const std::string& abi);
+    AdvancedSpoofingResult spoofProcessorCount(int count);
+    AdvancedSpoofingResult spoofTotalMemory(long memoryMB);
     
     // GPU Spoofing
-    SpoofingResult spoofGPURenderer(const std::string& renderer);
-    SpoofingResult spoofGPUVendor(const std::string& vendor);
-    SpoofingResult spoofOpenGLVersion(const std::string& version);
-    SpoofingResult spoofVulkanVersion(const std::string& version);
+    AdvancedSpoofingResult spoofGPURenderer(const std::string& renderer);
+    AdvancedSpoofingResult spoofGPUVendor(const std::string& vendor);
+    AdvancedSpoofingResult spoofOpenGLVersion(const std::string& version);
+    AdvancedSpoofingResult spoofVulkanVersion(const std::string& version);
     
     // Sensor Spoofing
-    SpoofingResult spoofAccelerometer(float x, float y, float z);
-    SpoofingResult spoofGyroscope(float x, float y, float z);
-    SpoofingResult spoofMagnetometer(float x, float y, float z);
-    SpoofingResult spoofProximity(bool present);
-    SpoofingResult spoofLightSensor(float lux);
+    AdvancedSpoofingResult spoofAccelerometer(float x, float y, float z);
+    AdvancedSpoofingResult spoofGyroscope(float x, float y, float z);
+    AdvancedSpoofingResult spoofMagnetometer(float x, float y, float z);
+    AdvancedSpoofingResult spoofProximity(bool present);
+    AdvancedSpoofingResult spoofLightSensor(float lux);
     
-    SpoofingResult enableSensorSpoofing();
-    SpoofingResult disableSensorSpoofing();
+    AdvancedSpoofingResult enableSensorSpoofing();
+    AdvancedSpoofingResult disableSensorSpoofing();
     
     // User-Agent Spoofing
-    SpoofingResult spoofUserAgent(const std::string& userAgent);
+    AdvancedSpoofingResult spoofUserAgent(const std::string& userAgent);
     std::string generateRandomUserAgent(const std::string& browser = "Chrome", const std::string& os = "Android");
     
     // WebRTC Spoofing
-    SpoofingResult spoofWebRTCLocalIP(const std::string& ip);
-    SpoofingResult spoofWebRTCPublicIP(const std::string& ip);
-    SpoofingResult enableWebRTCProxy();
-    SpoofingResult disableWebRTCProxy();
+    AdvancedSpoofingResult spoofWebRTCLocalIP(const std::string& ip);
+    AdvancedSpoofingResult spoofWebRTCPublicIP(const std::string& ip);
+    AdvancedSpoofingResult enableWebRTCProxy();
+    AdvancedSpoofingResult disableWebRTCProxy();
     
     // Widevine & DRM
-    SpoofingResult spoofWidevineLevel(int level);
-    SpoofingResult spoofHDCPLevel(const std::string& level);
-    SpoofingResult enableDRMEmulation();
-    SpoofingResult disableDRMEmulation();
+    AdvancedSpoofingResult spoofWidevineLevel(int level);
+    AdvancedSpoofingResult spoofHDCPLevel(const std::string& level);
+    AdvancedSpoofingResult enableDRMEmulation();
+    AdvancedSpoofingResult disableDRMEmulation();
     
     // SafetyNet & Play Integrity
-    SpoofingResult spoofSafetyNetResponse(const std::map<std::string, std::string>& response);
-    SpoofingResult spoofPlayIntegrityResult(const std::string& nonce, const std::string& result);
-    SpoofingResult enableBasicIntegrity();
-    SpoofingResult enableDeviceIntegrity();
-    SpoofingResult enableNoCtsMismatch();
+    AdvancedSpoofingResult spoofSafetyNetResponse(const std::map<std::string, std::string>& response);
+    AdvancedSpoofingResult spoofPlayIntegrityResult(const std::string& nonce, const std::string& result);
+    AdvancedSpoofingResult enableBasicIntegrity();
+    AdvancedSpoofingResult enableDeviceIntegrity();
+    AdvancedSpoofingResult enableNoCtsMismatch();
     
     // Tracker Blocking
-    SpoofingResult blockTracker(const std::string& trackerDomain);
-    SpoofingResult unblockTracker(const std::string& trackerDomain);
+    AdvancedSpoofingResult blockTracker(const std::string& trackerDomain);
+    AdvancedSpoofingResult unblockTracker(const std::string& trackerDomain);
     std::vector<std::string> getBlockedTrackers();
-    SpoofingResult loadBlocklist(const std::string& filepath);
+    AdvancedSpoofingResult loadBlocklist(const std::string& filepath);
     
     // Utility
     std::string generateRandomAndroidId();

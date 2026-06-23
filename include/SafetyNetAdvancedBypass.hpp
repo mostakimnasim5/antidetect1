@@ -6,11 +6,12 @@
 
 namespace AntiDetect {
 
-enum class IntegrityLevel {
+enum class SafetyNetIntegrityLevel {
     UNKNOWN = 0,
     MEETS_BASIC_INTEGRITY = 1,
     MEETS_DEVICE_INTEGRITY = 2,
     MEETS_STRONG_INTEGRITY = 3,
+    MEETS_LEGACY_DEVICE_INTEGRITY = 3,  // Legacy name
     CERTIFIED = 4
 };
 
@@ -21,7 +22,7 @@ enum class BootState {
     RED
 };
 
-struct IntegrityToken {
+struct SafetyNetIntegrityToken {
     bool isValid;
     std::string basicIntegrity;
     std::string ctsProfileMatch;
@@ -54,7 +55,7 @@ struct SafetyNetResult {
     bool success;
     std::string message;
     std::string error;
-    IntegrityToken token;
+    SafetyNetIntegrityToken token;
     std::map<std::string, std::string> details;
 };
 
@@ -77,7 +78,7 @@ public:
     // Root Detection Bypass
     SafetyNetResult bypassRootDetection();
     SafetyNetResult hideRootBinary();
-    SafetyNetResult hideSU binary();
+    SafetyNetResult hideSUBinary();
     SafetyNetResult hideMagisk();
     SafetyNetResult hideSuperSU();
     SafetyNetResult installRootCloak();
@@ -88,6 +89,7 @@ public:
     SafetyNetResult setGreenBootState();
     SafetyNetResult setOrangeBootState();
     SafetyNetResult setRedBootState();
+    SafetyNetResult spoofTCPOptions();
     SafetyNetResult bypassVerifiedBoot();
     SafetyNetResult setBootloaderLocked();
     
@@ -125,16 +127,15 @@ public:
     SafetyNetResult spoofBuildVersion();
     
     // Integrity Token Generation
-    SafetyNetResult generateIntegrityToken(IntegrityLevel level);
+    SafetyNetResult generateIntegrityToken(SafetyNetIntegrityLevel level);
     SafetyNetResult setBasicIntegrity();
-    SafetyNetResult setStrongIntegrity();
     SafetyNetResult setCertifiedIntegrity();
+    SafetyNetResult setStrongIntegrity();
     SafetyNetResult setCTSCProfileMatch();
     SafetyNetResult setDeviceIntegrity(const std::string& level);
     
     // Response Hooking
     SafetyNetResult hookIntegrityAPI();
-    SafetyNetResult hookSafetyNetAPI();
     SafetyNetResult hookPlayIntegrityAPI();
     SafetyNetResult setMockResponse(const std::string& api, const std::string& response);
     
@@ -170,7 +171,7 @@ public:
     // Validation
     SafetyNetResult validateAllChecks();
     bool isBypassActive() const;
-    IntegrityToken getCurrentToken();
+    SafetyNetIntegrityToken getCurrentToken();
     
     // Status
     std::map<std::string, std::string> getDetailedStatus();
@@ -187,7 +188,7 @@ private:
     
     bool m_initialized;
     bool m_bypassActive;
-    IntegrityToken m_currentToken;
+    SafetyNetIntegrityToken m_currentToken;
     
     std::map<std::string, std::string> m_modifiedProperties;
     std::map<std::string, std::string> m_backupValues;

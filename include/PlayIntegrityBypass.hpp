@@ -104,6 +104,7 @@ private:
     std::string generateKeyAttestation();
     
     void applyIntegritySettings();
+    std::string getFingerprintForState(const std::string& state);
     void generateRandomBytes(std::array<uint8_t, 32>& bytes);
     
     bool m_initialized;

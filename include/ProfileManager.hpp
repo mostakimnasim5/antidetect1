@@ -122,9 +122,14 @@ public:
     bool resetToOriginal();
     
     std::string generateProfileId();
+    void createDefaultProfiles();
     FingerprintProfile createDefaultProfile(const std::string& name, const std::string& category);
     
     std::map<std::string, std::string> profileToMap(const FingerprintProfile& profile);
+    std::string profileToJson(const FingerprintProfile& profile);
+    bool jsonToProfile(const std::string& json, FingerprintProfile& profile);
+    bool saveProfileToFile(const FingerprintProfile& profile, const std::string& filepath);
+    bool loadProfileFromFile(const std::string& filepath, FingerprintProfile& profile);
     FingerprintProfile mapToProfile(const std::map<std::string, std::string>& data);
 
 private:

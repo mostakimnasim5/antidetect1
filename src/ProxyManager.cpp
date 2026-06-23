@@ -390,7 +390,7 @@ bool ProxyManager::setWiFiProxy(const NetworkProxyInfo& proxy) {
     std::string proxyPort = std::to_string(proxy.port);
     std::string proxyExclusionList = "";
     
-    adb.executeShellCommand("settings put global wifi_proxy_settings "
+    adb.executeShellCommand(std::string("settings put global wifi_proxy_settings ")
         + "{\"proxyHost\":\"" + proxyHost + "\",\"proxyPort\":\"" + proxyPort + "\"}");
     
     return true;

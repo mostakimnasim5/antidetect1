@@ -140,106 +140,106 @@ static const std::map<std::string, std::vector<std::map<std::string, std::string
 static const std::map<std::string, std::map<std::string, std::vector<std::pair<std::string, std::string>>>> CARRIER_DATABASE = {
     {"US", {
         {"operators", {
-            {"310", "260", "T-Mobile"},
-            {"310", "200", "AT&T"},
-            {"310", "410", "Verizon"},
-            {"311", "480", "US Cellular"},
-            {"310", "120", "MetroPCS"},
-            {"310", "230", "Cricket"},
-            {"310", "890", "Consumer Cellular"},
+            {"310-260", "T-Mobile"},
+            {"310-200", "AT&T"},
+            {"310-410", "Verizon"},
+            {"311-480", "US Cellular"},
+            {"310-120", "MetroPCS"},
+            {"310-230", "Cricket"},
+            {"310-890", "Consumer Cellular"},
         }},
-        {"locales", {"en-US", "es-US"}},
-        {"timezones", {"America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles"}},
-        {"lat_range", "-125.0, -66.0"},
-        {"lon_range", "24.0, 50.0"}
+        {"locales", {{"locale", "en-US"}, {"locale", "es-US"}}},
+        {"timezones", {{"tz", "America/New_York"}, {"tz", "America/Chicago"}, {"tz", "America/Denver"}, {"tz", "America/Los_Angeles"}}},
+        {"lat_range", {{"min", "-125.0"}, {"max", "-66.0"}}},
+        {"lon_range", {{"min", "24.0"}, {"max", "50.0"}}}
     }},
     {"GB", {
         {"operators", {
-            {"234", "10", "O2"},
-            {"234", "15", "Vodafone"},
-            {"234", "30", "EE"},
-            {"234", "33", "Three"},
+            {"234-10", "O2"},
+            {"234-15", "Vodafone"},
+            {"234-30", "EE"},
+            {"234-33", "Three"},
         }},
-        {"locales", {"en-GB"}},
-        {"timezones", {"Europe/London"}},
-        {"lat_range", "-8.0, 2.0"},
-        {"lon_range", "50.0, 58.0"}
+        {"locales", {{"locale", "en-GB"}}},
+        {"timezones", {{"tz", "Europe/London"}}},
+        {"lat_range", {{"min", "-8.0"}, {"max", "2.0"}}},
+        {"lon_range", {{"min", "50.0"}, {"max", "58.0"}}}
     }},
     {"DE", {
         {"operators", {
-            {"262", "01", "Telekom"},
-            {"262", "02", "Vodafone DE"},
-            {"262", "03", "O2 DE"},
-            {"262", "07", "E-Plus"},
+            {"262-01", "Telekom"},
+            {"262-02", "Vodafone DE"},
+            {"262-03", "O2 DE"},
+            {"262-07", "E-Plus"},
         }},
-        {"locales", {"de-DE", "de-AT", "de-CH"}},
-        {"timezones", {"Europe/Berlin", "Europe/Vienna"}},
-        {"lat_range", "5.0, 16.0"},
-        {"lon_range", "47.0, 55.0"}
+        {"locales", {{"locale", "de-DE"}, {"locale", "de-AT"}, {"locale", "de-CH"}}},
+        {"timezones", {{"tz", "Europe/Berlin"}, {"tz", "Europe/Vienna"}}},
+        {"lat_range", {{"min", "5.0"}, {"max", "16.0"}}},
+        {"lon_range", {{"min", "47.0"}, {"max", "55.0"}}}
     }},
     {"JP", {
         {"operators", {
-            {"440", "10", "NTT DoCoMo"},
-            {"440", "20", "au"},
-            {"440", "50", "SoftBank"},
-            {"440", "70", "Rakuten"},
+            {"440-10", "NTT DoCoMo"},
+            {"440-20", "au"},
+            {"440-50", "SoftBank"},
+            {"440-70", "Rakuten"},
         }},
-        {"locales", {"ja-JP"}},
-        {"timezones", {"Asia/Tokyo"}},
-        {"lat_range", "122.0, 154.0"},
-        {"lon_range", "24.0, 46.0"}
+        {"locales", {{"locale", "ja-JP"}}},
+        {"timezones", {{"tz", "Asia/Tokyo"}}},
+        {"lat_range", {{"min", "122.0"}, {"max", "154.0"}}},
+        {"lon_range", {{"min", "24.0"}, {"max", "46.0"}}}
     }},
     {"IN", {
         {"operators", {
-            {"404", "11", "Airtel"},
-            {"404", "13", "Airtel"},
-            {"404", "20", "BSNL"},
-            {"404", "30", "Reliance Jio"},
-            {"404", "40", "Vodafone IN"},
-            {"404", "45", "Idea"},
-            {"405", "01", "Reliance Jio"},
+            {"404-11", "Airtel"},
+            {"404-13", "Airtel"},
+            {"404-20", "BSNL"},
+            {"404-30", "Reliance Jio"},
+            {"404-40", "Vodafone IN"},
+            {"404-45", "Idea"},
+            {"405-01", "Reliance Jio"},
         }},
-        {"locales", {"en-IN", "hi-IN", "bn-IN"}},
-        {"timezones", {"Asia/Kolkata"}},
-        {"lat_range", "68.0, 98.0"},
-        {"lon_range", "8.0, 37.0"}
+        {"locales", {{"locale", "en-IN"}, {"locale", "hi-IN"}, {"locale", "bn-IN"}}},
+        {"timezones", {{"tz", "Asia/Kolkata"}}},
+        {"lat_range", {{"min", "68.0"}, {"max", "98.0"}}},
+        {"lon_range", {{"min", "8.0"}, {"max", "37.0"}}}
     }},
     {"BD", {
         {"operators", {
-            {"470", "01", "Grameenphone"},
-            {"470", "02", "Robi"},
-            {"470", "03", "Banglalink"},
-            {"470", "04", "Teletalk"},
-            {"470", "05", "Citycell"},
+            {"470-01", "Grameenphone"},
+            {"470-02", "Robi"},
+            {"470-03", "Banglalink"},
+            {"470-04", "Teletalk"},
+            {"470-05", "Citycell"},
         }},
-        {"locales", {"bn-BD", "en-BD"}},
-        {"timezones", {"Asia/Dhaka"}},
-        {"lat_range", "88.0, 93.0"},
-        {"lon_range", "20.0, 27.0"}
+        {"locales", {{"locale", "bn-BD"}, {"locale", "en-BD"}}},
+        {"timezones", {{"tz", "Asia/Dhaka"}}},
+        {"lat_range", {{"min", "88.0"}, {"max", "93.0"}}},
+        {"lon_range", {{"min", "20.0"}, {"max", "27.0"}}}
     }},
     {"CN", {
         {"operators", {
-            {"460", "00", "China Mobile"},
-            {"460", "01", "China Unicom"},
-            {"460", "03", "China Telecom"},
-            {"460", "05", "China Telecom"},
-            {"460", "11", "China Mobile"},
+            {"460-00", "China Mobile"},
+            {"460-01", "China Unicom"},
+            {"460-03", "China Telecom"},
+            {"460-05", "China Telecom"},
+            {"460-11", "China Mobile"},
         }},
-        {"locales", {"zh-CN"}},
-        {"timezones", {"Asia/Shanghai", "Asia/Urumqi"}},
-        {"lat_range", "73.0, 136.0"},
-        {"lon_range", "18.0, 54.0"}
+        {"locales", {{"locale", "zh-CN"}}},
+        {"timezones", {{"tz", "Asia/Shanghai"}, {"tz", "Asia/Urumqi"}}},
+        {"lat_range", {{"min", "73.0"}, {"max", "136.0"}}},
+        {"lon_range", {{"min", "18.0"}, {"max", "54.0"}}}
     }},
     {"KR", {
         {"operators", {
-            {"450", "02", "KT"},
-            {"450", "04", "SK Telecom"},
-            {"450", "06", "LGU+"},
+            {"450-02", "KT"},
+            {"450-04", "SK Telecom"},
+            {"450-06", "LGU+"},
         }},
-        {"locales", {"ko-KR"}},
-        {"timezones", {"Asia/Seoul"}},
-        {"lat_range", "124.0, 132.0"},
-        {"lon_range", "33.0, 39.0"}
+        {"locales", {{"locale", "ko-KR"}}},
+        {"timezones", {{"tz", "Asia/Seoul"}}},
+        {"lat_range", {{"min", "124.0"}, {"max", "132.0"}}},
+        {"lon_range", {{"min", "33.0"}, {"max", "39.0"}}}
     }}
 };
 
@@ -444,8 +444,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateSamsungProfile(const 
     
     // Bootloader & Radio
     profile.bootloaderVersion = deviceData["model"];
-    profile.radioVersion = "G" << std::to_string(randomInt(998, 9998));
-    profile.kernelVersion = "5.10." << std::to_string(randomInt(100, 200)) << "-android13";
+    profile.radioVersion = std::string("G") + std::to_string(randomInt(998, 9998));
+    profile.kernelVersion = std::string("5.10.") + std::to_string(randomInt(100, 200)) + "-android13";
     
     // SoC
     profile.socModel = profile.cpuHardware;
@@ -571,7 +571,7 @@ ProfileGenerationResult RealisticProfileGenerator::generateGoogleProfile(const s
     // Bootloader & Radio
     profile.bootloaderVersion = deviceData["codename"] + ".234";
     profile.radioVersion = "g5123-" + generateNumericString(4);
-    profile.kernelVersion = "5.10-" << deviceData["platform"] << "-android" << profile.androidVersion;
+    profile.kernelVersion = std::string("5.10-") + deviceData.at("platform") + "-android" + profile.androidVersion;
     
     // SoC
     profile.socModel = profile.cpuHardware;
@@ -680,9 +680,9 @@ ProfileGenerationResult RealisticProfileGenerator::generateXiaomiProfile(const s
     profile.buildFingerprint = fp.str();
     
     // Bootloader & Radio
-    profile.bootloaderVersion = deviceData["codename"].substr(0, 4).c_str() + ".234";
-    profile.radioVersion = "V" << std::to_string(randomInt(14, 15)) << "." << generateNumericString(6);
-    profile.kernelVersion = "5.15-" << deviceData["platform"] << "-android" << profile.androidVersion;
+    profile.bootloaderVersion = deviceData.at("codename").substr(0, 4) + ".234";
+    profile.radioVersion = std::string("V") + std::to_string(randomInt(14, 15)) + "." + generateNumericString(6);
+    profile.kernelVersion = std::string("5.15-") + deviceData.at("platform") + "-android" + profile.androidVersion;
     
     // SoC
     profile.socModel = profile.cpuHardware;
@@ -793,8 +793,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateOnePlusProfile(const 
     
     // Bootloader & Radio
     profile.bootloaderVersion = "0.1";
-    profile.radioVersion = "V" << std::to_string(randomInt(14, 15)) << "." << generateNumericString(6);
-    profile.kernelVersion = "5.15-android" << profile.androidVersion;
+    profile.radioVersion = std::string("V") + std::to_string(randomInt(14, 15)) + "." + generateNumericString(6);
+    profile.kernelVersion = std::string("5.15-android") + profile.androidVersion;
     
     // SoC
     profile.socModel = profile.cpuHardware;
@@ -867,53 +867,67 @@ ProfileGenerationResult RealisticProfileGenerator::generateCompleteProfile(const
 
 void RealisticProfileGenerator::correlateGeoValues(DeviceProfile& profile, const std::string& region) {
     if (CARRIER_DATABASE.find(region) == CARRIER_DATABASE.end()) {
-        region = "US";
+        profile.region = "US";
+    } else {
+        profile.region = region;
     }
     
-    const auto& regionData = CARRIER_DATABASE.at(region);
+    const auto& regionData = CARRIER_DATABASE.at(profile.region);
     
-    // Locale
+    // Locale - stored as pair<string,string> with {"locale", "en-US"}
     if (regionData.find("locales") != regionData.end()) {
-        profile.locale = regionData.at("locales")[0];
-        size_t usPos = profile.locale.find("-");
-        if (usPos != std::string::npos) {
-            profile.language = profile.locale.substr(0, usPos);
-        } else {
-            profile.language = profile.locale;
+        const auto& locales = regionData.at("locales");
+        if (!locales.empty()) {
+            std::uniform_int_distribution<> localeDis(0, static_cast<int>(locales.size()) - 1);
+            profile.locale = locales[localeDis(m_randomGenerator)].second;
+            size_t usPos = profile.locale.find("-");
+            if (usPos != std::string::npos) {
+                profile.language = profile.locale.substr(0, usPos);
+            } else {
+                profile.language = profile.locale;
+            }
         }
     }
     
-    // Timezone
+    // Timezone - stored as pair<string,string> with {"tz", "America/New_York"}
     if (regionData.find("timezones") != regionData.end()) {
-        profile.timezone = regionData.at("timezones")[0];
+        const auto& timezones = regionData.at("timezones");
+        if (!timezones.empty()) {
+            std::uniform_int_distribution<> tzDis(0, static_cast<int>(timezones.size()) - 1);
+            profile.timezone = timezones[tzDis(m_randomGenerator)].second;
+        }
     }
     
-    // Operator
+    // Operator - stored as pair<string,string> with {"mcc-mnc", "name"}
     if (regionData.find("operators") != regionData.end()) {
         const auto& operators = regionData.at("operators");
-        std::uniform_int_distribution<> dis(0, static_cast<int>(operators.size()) - 1);
-        const auto& op = operators[dis(m_randomGenerator)];
-        
-        profile.carrierName = op.second;
-        profile.mcc = std::stoi(op.first);
-        profile.mnc = std::stoi(op.second);
+        if (!operators.empty()) {
+            std::uniform_int_distribution<> opDis(0, static_cast<int>(operators.size()) - 1);
+            const auto& op = operators[opDis(m_randomGenerator)];
+            
+            profile.carrierName = op.second;
+            // Parse mcc-mnc from op.first
+            std::string key = op.first;
+            size_t dashPos = key.find('-');
+            if (dashPos != std::string::npos) {
+                profile.mcc = std::stoi(key.substr(0, dashPos));
+                profile.mnc = std::stoi(key.substr(dashPos + 1));
+            }
+        }
     }
     
-    // Location
-    if (regionData.find("lat_range") != regionData.end()) {
-        std::string latStr = regionData.at("lat_range");
-        std::string lonStr = regionData.at("lon_range");
-        
-        size_t commaPos = latStr.find(',');
-        double latMin = std::stod(latStr.substr(0, commaPos));
-        double latMax = std::stod(latStr.substr(commaPos + 1));
-        
-        commaPos = lonStr.find(',');
-        double lonMin = std::stod(lonStr.substr(0, commaPos));
-        double lonMax = std::stod(lonStr.substr(commaPos + 1));
-        
-        profile.latitude = randomDouble(latMin, latMax);
-        profile.longitude = randomDouble(lonMin, lonMax);
+    // Location - stored as pair<string,string> with {"min", "-125.0"}, {"max", "-66.0"}
+    if (regionData.find("lat_range") != regionData.end() && regionData.find("lon_range") != regionData.end()) {
+        const auto& latRange = regionData.at("lat_range");
+        const auto& lonRange = regionData.at("lon_range");
+        if (latRange.size() >= 2 && lonRange.size() >= 2) {
+            double latMin = std::stod(latRange[0].second);
+            double latMax = std::stod(latRange[1].second);
+            double lonMin = std::stod(lonRange[0].second);
+            double lonMax = std::stod(lonRange[1].second);
+            profile.latitude = randomDouble(latMin, latMax);
+            profile.longitude = randomDouble(lonMin, lonMax);
+        }
     }
     
     profile.networkType = "4G";
@@ -1255,6 +1269,7 @@ std::string RealisticProfileGenerator::generateTrustzoneID() {
 std::string RealisticProfileGenerator::generateAttestationID() {
     return "attest_" + generateHexDigits(32);
 }
+
 
 std::string RealisticProfileGenerator::generateGAID() {
     std::stringstream ss;

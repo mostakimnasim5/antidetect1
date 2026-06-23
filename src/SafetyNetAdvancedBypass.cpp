@@ -110,7 +110,7 @@ SafetyNetResult SafetyNetAdvancedBypass::performFullBypass() {
     setLatestSecurityPatch();
     
     // Step 7: Generate integrity token
-    generateIntegrityToken(IntegrityLevel::MEETS_STRONG_INTEGRITY);
+    generateIntegrityToken(SafetyNetIntegrityLevel::MEETS_STRONG_INTEGRITY);
     
     // Step 8: Set all device attributes
     setDeviceSecure();
@@ -135,7 +135,7 @@ SafetyNetResult SafetyNetAdvancedBypass::bypassRootDetection() {
     
     // Hide common root indicators
     hideRootBinary();
-    hideSUbinary();
+    hideSUBinary();
     hideMagisk();
     hideSuperSU();
     
@@ -340,31 +340,31 @@ SafetyNetResult SafetyNetAdvancedBypass::setLatestSecurityPatch() {
 
 // === INTEGRITY TOKEN GENERATION ===
 
-SafetyNetResult SafetyNetAdvancedBypass::generateIntegrityToken(IntegrityLevel level) {
+SafetyNetResult SafetyNetAdvancedBypass::generateIntegrityToken(SafetyNetIntegrityLevel level) {
     SafetyNetResult result = {false, "", "", {}};
     
     m_currentToken.isValid = true;
     
     switch (level) {
-        case IntegrityLevel::CERTIFIED:
+        case SafetyNetIntegrityLevel::CERTIFIED:
             m_currentToken.basicIntegrity = "true";
             m_currentToken.ctsProfileMatch = "true";
             m_currentToken.deviceIntegrity = "CERTIFIED";
             break;
             
-        case IntegrityLevel::MEETS_STRONG_INTEGRITY:
+        case SafetyNetIntegrityLevel::MEETS_STRONG_INTEGRITY:
             m_currentToken.basicIntegrity = "true";
             m_currentToken.ctsProfileMatch = "true";
             m_currentToken.deviceIntegrity = "LEGIT";
             break;
             
-        case IntegrityLevel::MEETS_DEVICE_INTEGRITY:
+        case SafetyNetIntegrityLevel::MEETS_DEVICE_INTEGRITY:
             m_currentToken.basicIntegrity = "true";
             m_currentToken.ctsProfileMatch = "false";
             m_currentToken.deviceIntegrity = "LEGIT";
             break;
             
-        case IntegrityLevel::MEETS_BASIC_INTEGRITY:
+        case SafetyNetIntegrityLevel::MEETS_BASIC_INTEGRITY:
             m_currentToken.basicIntegrity = "true";
             m_currentToken.ctsProfileMatch = "false";
             m_currentToken.deviceIntegrity = "UNCHECKED";
@@ -627,7 +627,7 @@ bool SafetyNetAdvancedBypass::isBypassActive() const {
     return m_bypassActive;
 }
 
-IntegrityToken SafetyNetAdvancedBypass::getCurrentToken() {
+SafetyNetIntegrityToken SafetyNetAdvancedBypass::getCurrentToken() {
     return m_currentToken;
 }
 
@@ -716,7 +716,7 @@ std::string SafetyNetAdvancedBypass::encryptPayload() {
 }
 
 // Stub implementations for unused methods
-SafetyNetResult SafetyNetAdvancedBypass::hideSUbinary() { 
+SafetyNetResult SafetyNetAdvancedBypass::hideSUBinary() { 
     SafetyNetResult r = {true, "SU binary hidden", "", {}};
     return r;
 }

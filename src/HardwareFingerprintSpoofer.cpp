@@ -150,7 +150,7 @@ SpoofResult HardwareFingerprintSpoofer::spoofGPUInfo(const std::string& gpuModel
     adb.setProperty("ro.hardware.gpu", gpuModel);
     adb.setProperty("debug.hwui.render", gpuModel);
     adb.executeShellCommand("setprop debug.hwui.use_gpu_rasterizer true");
-    adb.executeShellCommand("setprop debug.gralloc.gpu", gpuModel);
+    adb.setProperty("debug.gralloc.gpu", gpuModel);
     
     m_currentSpoof.gpuRenderer = gpuModel;
     m_spoofedProperties["ro.hardware.gpu"] = gpuModel;
@@ -382,9 +382,9 @@ SpoofResult HardwareFingerprintSpoofer::spoofBatteryInfo(int level, const std::s
     auto& adb = ADBManager::getInstance();
     
     adb.executeShellCommand("dumpsys battery set level " + std::to_string(level));
-    adb.executeShellCommand("dumpsys battery set status " + 
+    adb.executeShellCommand(std::string("dumpsys battery set status ") + 
         (status == "charging" ? "2" : status == "discharging" ? "3" : "1"));
-    adb.executeShellCommand("dumpsys battery set health " + 
+    adb.executeShellCommand(std::string("dumpsys battery set health ") + 
         (health == "good" ? "2" : health == "overheat" ? "4" : "1"));
     
     result.success = true;

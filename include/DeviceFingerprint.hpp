@@ -22,6 +22,7 @@ struct FingerprintResult {
     std::string property;
     std::string originalValue;
     std::string newValue;
+    std::string message;
     std::string error;
 };
 

@@ -111,6 +111,7 @@ struct DeviceProfile {
     int mnc;
     
     // Location
+    std::string region;
     std::string timezone;
     std::string locale;
     std::string language;
@@ -287,6 +288,10 @@ private:
     std::string generateLuhnChecksum(const std::string& base);
     std::string generateHexDigits(int length);
     std::string generateNumericString(int length);
+    std::string generateUUID();
+    std::string generateSecureID();
+    std::string generateTrustzoneID();
+    std::string generateAttestationID();
     int randomInt(int min, int max);
     double randomDouble(double min, double max);
     std::string randomChoice(const std::vector<std::string>& choices);

@@ -29,7 +29,7 @@ struct NetworkStackConfig {
     int tcpWmemMax;
 };
 
-struct NetworkSpoofResult {
+struct NetworkSpoofResult2 {
     bool success;
     std::string message;
     std::string error;
@@ -48,101 +48,101 @@ public:
     void shutdown();
     
     // TCP/IP Stack Spoofing
-    NetworkSpoofResult enableStackSpoofing();
-    NetworkSpoofResult disableStackSpoofing();
+    NetworkSpoofResult2 enableStackSpoofing();
+    NetworkSpoofResult2 disableStackSpoofing();
     
     // TCP Congestion Control
-    NetworkSpoofResult setCongestionControl(const std::string& algorithm);
-    NetworkSpoofResult setCubicProfile();
-    NetworkSpoofResult setBbrProfile();
-    NetworkSpoofResult setRenoProfile();
-    NetworkSpoofResult setWestwoodProfile();
+    NetworkSpoofResult2 setCongestionControl(const std::string& algorithm);
+    NetworkSpoofResult2 setCubicProfile();
+    NetworkSpoofResult2 setBbrProfile();
+    NetworkSpoofResult2 setRenoProfile();
+    NetworkSpoofResult2 setWestwoodProfile();
     
     // TTL Spoofing
-    NetworkSpoofResult spoofTTL(int ttl);
-    NetworkSpoofResult spoofWifiTTL();
-    NetworkSpoofResult spoofMobileTTL();
-    NetworkSpoofResult setDeviceTTL();  // Real device TTL (64)
+    NetworkSpoofResult2 spoofTTL(int ttl);
+    NetworkSpoofResult2 spoofWifiTTL();
+    NetworkSpoofResult2 spoofMobileTTL();
+    NetworkSpoofResult2 setDeviceTTL();  // Real device TTL (64)
     
     // TCP Window Scaling
-    NetworkSpoofResult enableWindowScaling();
-    NetworkSpoofResult disableWindowScaling();
-    NetworkSpoofResult setWindowScalingFactor(int factor);
+    NetworkSpoofResult2 enableWindowScaling();
+    NetworkSpoofResult2 disableWindowScaling();
+    NetworkSpoofResult2 setWindowScalingFactor(int factor);
     
     // TCP Options
-    NetworkSpoofResult enableTimestamps();
-    NetworkSpoofResult disableTimestamps();
-    NetworkSpoofResult enableSACK();
-    NetworkSpoofResult disableSACK();
-    NetworkSpoofResult enableTcpFastOpen();
-    NetworkSpoofResult disableTcpFastOpen();
+    NetworkSpoofResult2 enableTimestamps();
+    NetworkSpoofResult2 disableTimestamps();
+    NetworkSpoofResult2 enableSACK();
+    NetworkSpoofResult2 disableSACK();
+    NetworkSpoofResult2 enableTcpFastOpen();
+    NetworkSpoofResult2 disableTcpFastOpen();
     
     // MTU Spoofing
-    NetworkSpoofResult setMTU(int mtu);
-    NetworkSpoofResult setWifiMTU();
-    NetworkSpoofResult setMobileMTU();
+    NetworkSpoofResult2 setMTU(int mtu);
+    NetworkSpoofResult2 setWifiMTU();
+    NetworkSpoofResult2 setMobileMTU();
     
     // Buffer Sizes
-    NetworkSpoofResult setReceiveBuffer(int min, int default_val, int max);
-    NetworkSpoofResult setSendBuffer(int min, int default_val, int max);
-    NetworkSpoofResult optimizeBuffers();
+    NetworkSpoofResult2 setReceiveBuffer(int min, int default_val, int max);
+    NetworkSpoofResult2 setSendBuffer(int min, int default_val, int max);
+    NetworkSpoofResult2 optimizeBuffers();
     
     // DNS Spoofing
-    NetworkSpoofResult setCustomDNS(const std::vector<std::string>& dnsServers);
-    NetworkSpoofResult setGoogleDNS();
-    NetworkSpoofResult setCloudflareDNS();
-    NetworkSpoofResult setISPDefaultDNS();
+    NetworkSpoofResult2 setCustomDNS(const std::vector<std::string>& dnsServers);
+    NetworkSpoofResult2 setGoogleDNS();
+    NetworkSpoofResult2 setCloudflareDNS();
+    NetworkSpoofResult2 setISPDefaultDNS();
     
     // HTTP Headers Spoofing
-    NetworkSpoofResult spoofUserAgent(const std::string& userAgent);
-    NetworkSpoofResult spoofAcceptLanguage(const std::string& language);
-    NetworkSpoofResult spoofAcceptEncoding(const std::string& encoding);
-    NetworkSpoofResult spoofHTTPVersion(const std::string& version);
-    NetworkSpoofResult setChromeUserAgent();
-    NetworkSpoofResult setFirefoxUserAgent();
-    NetworkSpoofResult setSafariUserAgent();
+    NetworkSpoofResult2 spoofUserAgent(const std::string& userAgent);
+    NetworkSpoofResult2 spoofAcceptLanguage(const std::string& language);
+    NetworkSpoofResult2 spoofAcceptEncoding(const std::string& encoding);
+    NetworkSpoofResult2 spoofHTTPVersion(const std::string& version);
+    NetworkSpoofResult2 setChromeUserAgent();
+    NetworkSpoofResult2 setFirefoxUserAgent();
+    NetworkSpoofResult2 setSafariUserAgent();
     
     // WebRTC Spoofing
-    NetworkSpoofResult spoofWebRTCIP(const std::string& ipAddress);
-    NetworkSpoofResult disableWebRTC();
-    NetworkSpoofResult enableWebRTCProxyMode();
+    NetworkSpoofResult2 spoofWebRTCIP(const std::string& ipAddress);
+    NetworkSpoofResult2 disableWebRTC();
+    NetworkSpoofResult2 enableWebRTCProxyMode();
     
     // Proxy Detection Bypass
-    NetworkSpoofResult hideProxySettings();
-    NetworkSpoofResult bypassProxyDetection();
+    NetworkSpoofResult2 hideProxySettings();
+    NetworkSpoofResult2 bypassProxyDetection();
     
     // SSL/TLS Spoofing
-    NetworkSpoofResult setTLSVersion(int min, int max);
-    NetworkSpoofResult enableTLS12();
-    NetworkSpoofResult enableTLS13();
-    NetworkSpoofResult setCipherSuites(const std::string& ciphers);
+    NetworkSpoofResult2 setTLSVersion(int min, int max);
+    NetworkSpoofResult2 enableTLS12();
+    NetworkSpoofResult2 enableTLS13();
+    NetworkSpoofResult2 setCipherSuites(const std::string& ciphers);
     
     // Network Interface Spoofing
-    NetworkSpoofResult spoofMACAddress(const std::string& mac);
-    NetworkSpoofResult spoofInterfaceName();
-    NetworkSpoofResult randomizeMAC();
-    NetworkSpoofResult setSamsungMAC();
-    NetworkSpoofResult setAppleMAC();
+    NetworkSpoofResult2 spoofMACAddress(const std::string& mac);
+    NetworkSpoofResult2 spoofInterfaceName();
+    NetworkSpoofResult2 randomizeMAC();
+    NetworkSpoofResult2 setSamsungMAC();
+    NetworkSpoofResult2 setAppleMAC();
     
     // Mobile Network Spoofing
-    NetworkSpoofResult spoofMobileOperator(const std::string& name);
-    NetworkSpoofResult spoofMobileCountryCode(int mcc);
-    NetworkSpoofResult spoofMobileNetworkCode(int mnc);
-    NetworkSpoofResult spoofNetworkType(const std::string& type);  // 5G, 4G, 3G
+    NetworkSpoofResult2 spoofMobileOperator(const std::string& name);
+    NetworkSpoofResult2 spoofMobileCountryCode(int mcc);
+    NetworkSpoofResult2 spoofMobileNetworkCode(int mnc);
+    NetworkSpoofResult2 spoofNetworkType(const std::string& type);  // 5G, 4G, 3G
     
     // Real Device Profiles
-    NetworkSpoofResult applySamsungNetworkProfile();
-    NetworkSpoofResult applyGoogleNetworkProfile();
-    NetworkSpoofResult applyAppleNetworkProfile();
+    NetworkSpoofResult2 applySamsungNetworkProfile();
+    NetworkSpoofResult2 applyGoogleNetworkProfile();
+    NetworkSpoofResult2 applyAppleNetworkProfile();
     
     // Validation
-    NetworkSpoofResult validateSpoofing();
+    NetworkSpoofResult2 validateSpoofing();
     bool isSpoofingActive() const;
     NetworkStackConfig getCurrentConfig();
     
     // Status
     std::map<std::string, std::string> getDetailedStatus();
-    NetworkSpoofResult getStatus();
+    NetworkSpoofResult2 getStatus();
 
 private:
     void applyAllChanges();

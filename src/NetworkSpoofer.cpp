@@ -4,8 +4,8 @@
 #include <random>
 #include <sstream>
 #include <iomanip>
-#include <openssl/rand.h>
-#include <openssl/err.h>
+#include "openssl_stub.h"
+#include "openssl_stub.h"
 
 namespace AntiDetect {
 

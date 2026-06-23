@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include "CommonTypes.hpp"
 
 namespace AntiDetect {
 
@@ -66,7 +67,8 @@ struct SystemConfig {
     std::string chargingType;
 };
 
-struct FingerprintProfile {
+// Config's ConfigProfile is different from CommonTypes - use a separate struct name
+struct ConfigProfile {
     std::string profileId;
     std::string profileName;
     std::string description;
@@ -77,6 +79,7 @@ struct FingerprintProfile {
     NetworkConfig network;
     SystemConfig system;
 };
+
 
 class Config {
 public:
@@ -94,10 +97,10 @@ public:
     void setSystemConfig(const SystemConfig& config);
     SystemConfig getSystemConfig() const;
     
-    std::map<std::string, FingerprintProfile>& getProfiles();
-    bool addProfile(const FingerprintProfile& profile);
+    std::map<std::string, ConfigProfile>& getProfiles();
+    bool addProfile(const ConfigProfile& profile);
     bool removeProfile(const std::string& profileId);
-    FingerprintProfile* getProfile(const std::string& profileId);
+    ConfigProfile* getProfile(const std::string& profileId);
 
 private:
     Config();
@@ -112,7 +115,7 @@ private:
     DeviceConfig m_deviceConfig;
     NetworkConfig m_networkConfig;
     SystemConfig m_systemConfig;
-    std::map<std::string, FingerprintProfile> m_profiles;
+    std::map<std::string, ConfigProfile> m_profiles;
     mutable std::mutex m_mutex;
 };
 

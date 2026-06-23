@@ -3,27 +3,14 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "ADBManager.hpp"
+#include "CommonTypes.hpp"
 #include <memory>
 
 namespace AntiDetect {
 
-struct DeviceInfo {
-    std::string serial;
-    std::string model;
-    std::string state;
-    std::string product;
-    std::string device;
-    std::string transportId;
-};
-
-struct ProfileInfo {
-    std::string id;
-    std::string name;
-    std::string description;
-    std::string category;
-    std::string createdAt;
-    std::string modifiedAt;
-};
+// DeviceInfo is from ADBManager.hpp
+// ProfileInfo is from CommonTypes.hpp
 
 struct OperationResult {
     bool success;

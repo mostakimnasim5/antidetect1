@@ -6,10 +6,10 @@
 #include <iomanip>
 #include <random>
 #include <chrono>
-#include <openssl/rand.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
+#include "openssl_stub.h"
+#include "openssl_stub.h"
+#include "openssl_stub.h"
+#include "openssl_stub.h"
 
 namespace AntiDetect {
 

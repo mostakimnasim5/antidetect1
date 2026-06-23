@@ -1,9 +1,9 @@
 #include "CryptoUtils.hpp"
-#include <openssl/md5.h>
-#include <openssl/sha.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
+#include "openssl_stub.h"
+#include "openssl_stub.h"
+#include "openssl_stub.h"
+#include "openssl_stub.h"
+#include "openssl_stub.h"
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -91,34 +91,85 @@ std::string CryptoUtils::generateRandomHex(int length) {
 }
 
 std::string CryptoUtils::base64Encode(const std::string& input) {
-    BIO* bio = BIO_new(BIO_s_mem());
-    BIO* b64 = BIO_new(BIO_f_base64());
-    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-    bio = BIO_push(b64, bio);
+    static const char* base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    std::string result;
+    int i = 0;
+    unsigned char charArray3[3];
+    unsigned char charArray4[4];
     
-    BIO_write(bio, input.c_str(), input.length());
-    BIO_flush(bio);
+    for (size_t j = 0; j < input.length(); j++) {
+        charArray3[i++] = input[j];
+        if (i == 3) {
+            charArray4[0] = (charArray3[0] & 0xfc) >> 2;
+            charArray4[1] = ((charArray3[0] & 0x03) << 4) + ((charArray3[1] & 0xf0) >> 4);
+            charArray4[2] = ((charArray3[1] & 0x0f) << 2) + ((charArray3[2] & 0xc0) >> 6);
+            charArray4[3] = charArray3[2] & 0x3f;
+            
+            for(i = 0; i < 4; i++)
+                result += base64Chars[charArray4[i]];
+            i = 0;
+        }
+    }
     
-    BUF_MEM* bufferPtr;
-    BIO_get_mem_ptr(bio, &bufferPtr);
-    
-    std::string result(bufferPtr->data, bufferPtr->length);
-    BIO_free_all(bio);
+    if (i > 0) {
+        for(int j = i; j < 3; j++)
+            charArray3[j] = '\0';
+        charArray4[0] = (charArray3[0] & 0xfc) >> 2;
+        charArray4[1] = ((charArray3[0] & 0x03) << 4) + ((charArray3[1] & 0xf0) >> 4);
+        charArray4[2] = ((charArray3[1] & 0x0f) << 2) + ((charArray3[2] & 0xc0) >> 6);
+        for(int j = 0; j < i + 1; j++)
+            result += base64Chars[charArray4[j]];
+        while(i++ < 3)
+            result += '=';
+    }
     
     return result;
 }
 
 std::string CryptoUtils::base64Decode(const std::string& input) {
-    BIO* bio = BIO_new_mem_buf(input.c_str(), input.length());
-    BIO* b64 = BIO_new(BIO_f_base64());
-    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-    bio = BIO_push(b64, bio);
+    static const unsigned char base64DecodeTable[256] = {
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 62, 64, 64, 64, 63,
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 64, 64, 64, 64, 64, 64,
+        64,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 64, 64, 64, 64, 64,
+        64, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64
+    };
     
-    std::vector<char> buffer(input.length());
-    int decodedLength = BIO_read(bio, buffer.data(), input.length());
+    std::string result;
+    unsigned char charArray4[4];
+    int i = 0;
+    unsigned char c;
     
-    std::string result(buffer.data(), decodedLength);
-    BIO_free_all(bio);
+    for (size_t k = 0; k < input.length(); k++) {
+        c = static_cast<unsigned char>(input[k]);
+        if (c == '=') break;
+        if (c >= 256 || base64DecodeTable[c] >= 64) continue;
+        charArray4[i++] = c;
+        if (i == 4) {
+            result += static_cast<char>((charArray4[0] << 2) + ((charArray4[1] & 0x30) >> 4));
+            result += static_cast<char>(((charArray4[1] & 0x0f) << 4) + ((charArray4[2] & 0x3c) >> 2));
+            result += static_cast<char>(((charArray4[2] & 0x03) << 6) + charArray4[3]);
+            i = 0;
+        }
+    }
+    
+    if (i > 0) {
+        for (int k = i; k < 4; k++) charArray4[k] = 0;
+        result += static_cast<char>((charArray4[0] << 2) + ((charArray4[1] & 0x30) >> 4));
+        if (i > 1) result += static_cast<char>(((charArray4[1] & 0x0f) << 4) + ((charArray4[2] & 0x3c) >> 2));
+        if (i > 2) result += static_cast<char>(((charArray4[2] & 0x03) << 6) + charArray4[3]);
+    }
     
     return result;
 }

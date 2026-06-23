@@ -98,12 +98,12 @@ SystemConfig Config::getSystemConfig() const {
     return m_systemConfig;
 }
 
-std::map<std::string, FingerprintProfile>& Config::getProfiles() {
+std::map<std::string, ConfigProfile>& Config::getProfiles() {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_profiles;
 }
 
-bool Config::addProfile(const FingerprintProfile& profile) {
+bool Config::addProfile(const ConfigProfile& profile) {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_profiles[profile.profileId] = profile;
     return true;
@@ -114,7 +114,7 @@ bool Config::removeProfile(const std::string& profileId) {
     return m_profiles.erase(profileId) > 0;
 }
 
-FingerprintProfile* Config::getProfile(const std::string& profileId) {
+ConfigProfile* Config::getProfile(const std::string& profileId) {
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_profiles.find(profileId);
     if (it != m_profiles.end()) {

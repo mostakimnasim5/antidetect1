@@ -73,6 +73,7 @@ public:
     SensorSpoofResult spoofPressure(double hPa);
     SensorSpoofResult spoofHumidity(double percent);
     SensorSpoofResult spoofTemperature(double celsius);
+    bool pushSensorData(SensorType type, const SensorData& data);
     SensorSpoofResult spoofStepCounter(int steps);
     SensorSpoofResult spoofRotationVector(double pitch, double roll, double azimuth);
     
