@@ -71,6 +71,8 @@ set(CORE_HEADERS
     include/HardwareFingerprintSpoofer.hpp
     include/NetworkStackSpoofer.hpp
     include/SafetyNetAdvancedBypass.hpp
+    # Profile Generator (v1.7)
+    include/RealisticProfileGenerator.hpp
 )
 
 set(CORE_SOURCES
@@ -100,6 +102,8 @@ set(CORE_SOURCES
     src/HardwareFingerprintSpoofer.cpp
     src/NetworkStackSpoofer.cpp
     src/SafetyNetAdvancedBypass.cpp
+    # Profile Generator (v1.7)
+    src/RealisticProfileGenerator.cpp
 )
 
 # CLI executable

@@ -21,6 +21,7 @@ class TimingAttackPrevention;
 class HardwareFingerprintSpoofer;
 class NetworkStackSpoofer;
 class SafetyNetAdvancedBypass;
+class RealisticProfileGenerator;
 
 enum class AntiDetectStatus {
     UNINITIALIZED,
@@ -145,6 +146,14 @@ public:
     AntiDetectResult setReleaseKeys();
     AntiDetectResult setCertifiedIntegrity();
     
+    // Realistic Profile Generator (v1.7)
+    AntiDetectResult generateUniqueProfile(const std::string& manufacturer, const std::string& region);
+    AntiDetectResult generateSamsungProfile(const std::string& region);
+    AntiDetectResult generateGoogleProfile(const std::string& region);
+    AntiDetectResult generateXiaomiProfile(const std::string& region);
+    AntiDetectResult exportProfile(const std::string& format);
+    AntiDetectResult applyGeneratedProfile();
+    
     // Status
     std::map<std::string, std::string> getDeviceInfo();
     std::map<std::string, std::string> getCurrentFingerprint();
@@ -180,7 +189,10 @@ private:
     std::unique_ptr<NetworkStackSpoofer> m_networkStackSpoofer;
     std::unique_ptr<SafetyNetAdvancedBypass> m_safetyNetBypass;
     
-    static constexpr const char* VERSION = "1.6.0";
+    // Realistic Profile Generator (v1.7)
+    std::unique_ptr<RealisticProfileGenerator> m_profileGenerator;
+    
+    static constexpr const char* VERSION = "1.7.0";
     static constexpr const char* BUILD_DATE = __DATE__;
 };
 

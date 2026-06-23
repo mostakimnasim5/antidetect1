@@ -13,6 +13,7 @@
 #include "HardwareFingerprintSpoofer.hpp"
 #include "NetworkStackSpoofer.hpp"
 #include "SafetyNetAdvancedBypass.hpp"
+#include "RealisticProfileGenerator.hpp"
 #include <iostream>
 
 namespace AntiDetect {
@@ -75,6 +76,9 @@ void AntiDetectCore::initializeComponents() {
     m_networkStackSpoofer = std::make_unique<NetworkStackSpoofer>();
     m_safetyNetBypass = std::make_unique<SafetyNetAdvancedBypass>();
     
+    // Realistic Profile Generator (v1.7)
+    m_profileGenerator = std::make_unique<RealisticProfileGenerator>();
+    
     Logger::getInstance().info("Initializing ADB Manager...");
     if (!m_adbManager->initialize()) {
         Logger::getInstance().warning("ADB initialization failed - some features may be unavailable");
@@ -112,6 +116,10 @@ void AntiDetectCore::initializeComponents() {
         
         Logger::getInstance().info("Initializing SafetyNet Advanced Bypass...");
         m_safetyNetBypass->initialize();
+        
+        // Initialize Profile Generator (v1.7)
+        Logger::getInstance().info("Initializing Realistic Profile Generator...");
+        // Profile generator doesn't need ADB
     }
     
     Logger::getInstance().info("Initializing Profile Manager...");
@@ -119,6 +127,9 @@ void AntiDetectCore::initializeComponents() {
 }
 
 void AntiDetectCore::cleanupComponents() {
+    // Cleanup Profile Generator (v1.7)
+    m_profileGenerator.reset();
+    
     // Cleanup Ultra Advanced Modules (v1.6) first
     if (m_safetyNetBypass) m_safetyNetBypass->shutdown();
     if (m_networkStackSpoofer) m_networkStackSpoofer->shutdown();
@@ -937,6 +948,108 @@ AntiDetectResult AntiDetectCore::setCertifiedIntegrity() {
     
     auto result = m_safetyNetBypass->setCertifiedIntegrity();
     return createResult(result.success, result.message, result.error);
+}
+
+// ============================================================
+// REALISTIC PROFILE GENERATOR METHODS (v1.7)
+// ============================================================
+
+AntiDetectResult AntiDetectCore::generateUniqueProfile(const std::string& manufacturer, const std::string& region) {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    auto result = m_profileGenerator->generateCompleteProfile(manufacturer);
+    return createResult(result.success, result.message + 
+        " [Uniqueness: " + std::to_string(result.uniquenessScore) + 
+        "%, Realism: " + std::to_string(result.realismScore) + "%]", result.error);
+}
+
+AntiDetectResult AntiDetectCore::generateSamsungProfile(const std::string& region) {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    auto result = m_profileGenerator->generateSamsungProfile(region);
+    return createResult(result.success, result.message + 
+        " [Uniqueness: " + std::to_string(result.uniquenessScore) + 
+        "%, Realism: " + std::to_string(result.realismScore) + "%]", result.error);
+}
+
+AntiDetectResult AntiDetectCore::generateGoogleProfile(const std::string& region) {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    auto result = m_profileGenerator->generateGoogleProfile(region);
+    return createResult(result.success, result.message + 
+        " [Uniqueness: " + std::to_string(result.uniquenessScore) + 
+        "%, Realism: " + std::to_string(result.realismScore) + "%]", result.error);
+}
+
+AntiDetectResult AntiDetectCore::generateXiaomiProfile(const std::string& region) {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    auto result = m_profileGenerator->generateXiaomiProfile(region);
+    return createResult(result.success, result.message + 
+        " [Uniqueness: " + std::to_string(result.uniquenessScore) + 
+        "%, Realism: " + std::to_string(result.realismScore) + "%]", result.error);
+}
+
+AntiDetectResult AntiDetectCore::exportProfile(const std::string& format) {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    // Generate a profile first
+    auto result = m_profileGenerator->generateRandomProfile();
+    if (!result.success) {
+        return createResult(false, "", "Failed to generate profile");
+    }
+    
+    std::string exportedData;
+    if (format == "json" || format == "JSON") {
+        exportedData = m_profileGenerator->exportToJSON(result.profile);
+    } else if (format == "adb" || format == "ADB") {
+        exportedData = m_profileGenerator->exportToADBCommands(result.profile);
+    } else {
+        exportedData = m_profileGenerator->exportToJSON(result.profile);
+    }
+    
+    return createResult(true, "Profile exported as " + format, "");
+}
+
+AntiDetectResult AntiDetectCore::applyGeneratedProfile() {
+    if (!m_profileGenerator) {
+        return createResult(false, "", "Profile Generator not initialized");
+    }
+    
+    // Generate a unique profile
+    auto result = m_profileGenerator->generateRandomProfile();
+    if (!result.success) {
+        return createResult(false, "", "Failed to generate profile");
+    }
+    
+    const auto& profile = result.profile;
+    
+    // Apply all spoofing
+    if (m_hardwareSpoofer) {
+        m_hardwareSpoofer->spoofDeviceInfo(profile.manufacturer, profile.model, profile.brand);
+        m_hardwareSpoofer->spoofCPUInfo(profile.cpuModel, profile.cpuCores, profile.cpuThreads);
+        m_hardwareSpoofer->spoofGPUInfo(profile.gpuModel);
+        m_hardwareSpoofer->spoofBuildFingerprint(profile.buildFingerprint);
+    }
+    
+    if (m_networkStackSpoofer) {
+        m_networkStackSpoofer->spoofMACAddress(profile.wifiMAC);
+        m_networkStackSpoofer->spoofMobileOperator(profile.carrierName);
+    }
+    
+    return createResult(true, "Generated unique profile applied successfully. " +
+        "[Uniqueness: " + std::to_string(result.uniquenessScore) + 
+        "%, Realism: " + std::to_string(result.realismScore) + "%]", "");
 }
 
 }
