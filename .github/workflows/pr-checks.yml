@@ -1,7 +1,5 @@
 # ==============================================================================
-# AntiDetectPro - PR-Specific Checks
-# ==============================================================================
-# Lightweight checks specifically for Pull Requests
+# AntiDetectPro - PR Specific Checks
 # ==============================================================================
 
 name: PR Checks
@@ -9,9 +7,7 @@ name: PR Checks
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [main, develop]
 
-# Cancel in-progress runs for the same PR
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -19,80 +15,52 @@ concurrency:
 permissions:
   contents: read
   pull-requests: write
-  checks: write
 
 jobs:
 
   # ===========================================================================
-  # FAST CHECKS (Run First)
+  # QUICK CHECKS
   # ===========================================================================
   quick-checks:
     name: Quick Checks
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Check File Changes
+      - name: Check Changes
         run: |
           echo "=== Files Changed ==="
           git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD
-          
-          echo ""
-          echo "### Changed Files" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD >> $GITHUB_STEP_SUMMARY
       
-      - name: Check for Large Files
-        run: |
-          LARGE_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD | \
-            xargs -I {} git ls-files -s {} 2>/dev/null | \
-            awk '$4 > 500000 {print $4, $2}' || true)
-          
-          if [ -n "$LARGE_FILES" ]; then
-            echo "⚠️ Large files detected (>500KB):"
-            echo "$LARGE_FILES"
-          fi
-      
-      - name: Check Commit Messages
+      - name: Recent Commits
         run: |
           echo "=== Recent Commits ==="
           git log --oneline -5
 
   # ===========================================================================
-  # COMPILATION TEST (Fast)
+  # COMPILE TEST
   # ===========================================================================
   compile-check:
     name: Compile Test
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
       - name: Install Build Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            cmake \
-            g++-13 \
-            ninja-build
+          sudo apt-get install -y cmake g++ ninja-build build-essential
       
       - name: Configure CMake
-        run: |
-          cmake -B build-test \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_COMPILER=g++-13 \
-            -GNinja
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -GNinja
       
-      - name: Compile (Stop on First Error)
+      - name: Compile
         run: |
-          cmake --build build-test --parallel 2 --target AntiDetectPro 2>&1 | tee build.log
+          cmake --build build --parallel 2 2>&1 | tee build.log
           
-          # Check for errors
           if grep -q "error:" build.log; then
             echo ""
-            echo "=== COMPILATION ERRORS DETECTED ==="
+            echo "=== ERRORS DETECTED ==="
             grep -A2 "error:" build.log | head -30
             exit 1
           fi
@@ -100,11 +68,11 @@ jobs:
           echo ""
           echo "✅ Compilation successful!"
       
-      - name: Upload Build Log
+      - name: Upload Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ github.event.pull_request.number }}
+          name: build-log
           path: build.log
           retention-days: 7
 
@@ -114,149 +82,41 @@ jobs:
   lint-check:
     name: Lint Check
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
       - name: Install Linters
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            clang-tidy \
-            cppcheck
+          sudo apt-get install -y clang-tidy cppcheck
       
-      - name: Run Basic Lint
+      - name: Basic Lint
         run: |
-          echo "=== Running Lint Checks ==="
+          echo "=== Lint Check ==="
           
-          # Check for common C++ issues
-          ISSUES=0
-          
-          # Check for using namespace std
+          # Check for common issues
           if grep -rn "using namespace std" src/ include/ 2>/dev/null; then
-            echo "⚠️ Found 'using namespace std' - should use std:: prefix"
-            ISSUES=$((ISSUES+1))
+            echo "⚠️ Found 'using namespace std'"
           fi
           
-          # Check for cout/cerr without std::
-          if grep -rn "cout\|cerr\|cin" src/ include/ 2>/dev/null | grep -v "std::" | grep -v "//.*cout"; then
-            echo "⚠️ Found unprefixed cout/cerr/cin"
-            ISSUES=$((ISSUES+1))
-          fi
-          
-          # Check for TODO without author
-          TODO_NO_AUTHOR=$(grep -rn "TODO" src/ include/ 2>/dev/null | grep -v "// TODO" | wc -l || echo "0")
-          if [ "$TODO_NO_AUTHOR" -gt 0 ]; then
-            echo "⚠️ Found TODOs without author"
-            ISSUES=$((ISSUES+1))
-          fi
-          
-          if [ "$ISSUES" -eq 0 ]; then
-            echo "✅ No major lint issues found"
-          fi
+          echo "✅ Basic lint check complete"
 
   # ===========================================================================
   # PR SIZE CHECK
   # ===========================================================================
-  pr-size-check:
-    name: PR Size Check
+  pr-size:
+    name: PR Size
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Calculate PR Size
+      - name: Calculate Size
         run: |
-          # Get the diff stats
           git fetch origin ${{ github.event.pull_request.base.sha }}
           
-          ADDITIONS=$(git diff --numstat origin/${{ github.event.pull_request.base.sha }} HEAD | \
-            awk '{add += $1} END {print add}')
-          DELETIONS=$(git diff --numstat origin/${{ github.event.pull_request.base.sha }} HEAD | \
-            awk '{del += $2} END {print del}')
+          CHANGED=$(git diff --name-only origin/${{ github.event.pull_request.base.sha }} HEAD | wc -l)
           
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.sha }} HEAD | wc -l)
-          
-          echo "### PR Size" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Files Changed | $CHANGED_FILES |" >> $GITHUB_STEP_SUMMARY
-          echo "| Additions | +$ADDITIONS |" >> $GITHUB_STEP_SUMMARY
-          echo "| Deletions | -$DELETIONS |" >> $GITHUB_STEP_SUMMARY
-          
-          echo ""
-          echo "PR Statistics:"
-          echo "- Files Changed: $CHANGED_FILES"
-          echo "- Additions: +$ADDITIONS"
-          echo "- Deletions: -$DELETIONS"
-          
-          # Size warnings
-          if [ "$CHANGED_FILES" -gt 20 ]; then
-            echo ""
-            echo "⚠️ Large PR: Consider splitting into smaller PRs"
-          fi
-
-  # ===========================================================================
-  # COMMENT PR WITH RESULTS
-  # ===========================================================================
-  pr-comment:
-    name: Comment PR
-    runs-on: ubuntu-latest
-    needs: [quick-checks, compile-check, lint-check]
-    
-    steps:
-      - name: Post PR Comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const conclusion = '${{ needs.quick-checks.result }}' === 'success' && 
-                              '${{ needs.compile-check.result }}' === 'success' &&
-                              '${{ needs.lint-check.result }}' === 'success';
-            
-            const status = conclusion ? '✅ All Checks Passed' : '❌ Some Checks Failed';
-            
-            const body = `
-              ## CI/CD Pipeline Results
-              
-              ${status}
-              
-              | Check | Status |
-              |-------|--------|
-              | Quick Checks | ${{ needs.quick-checks.result }} |
-              | Compile Test | ${{ needs.compile-check.result }} |
-              | Lint Check | ${{ needs.lint-check.result }} |
-              
-              ---
-              *This comment was automatically generated by GitHub Actions*
-            `;
-            
-            // Check if comment already exists
-            const comments = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            
-            const existingComment = comments.data.find(c => 
-              c.user.login === 'github-actions[bot]' && 
-              c.body.includes('CI/CD Pipeline Results')
-            );
-            
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                comment_id: existingComment.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            }
+          echo "### PR Size"
+          echo "| Metric | Value |"
+          echo "|--------|-------|"
+          echo "| Files Changed | $CHANGED |"
