@@ -1,5 +1,5 @@
 # ============================================================
-# AntiDetectPro v1.5 - Windows Build Script (PowerShell)
+# AntiDetectPro v1.7 - Windows Build Script (PowerShell)
 # ============================================================
 #
 # Modern PowerShell build script for Windows 10/11
@@ -34,7 +34,7 @@ $ProjectRoot = $PSScriptRoot
 $BuildDir = Join-Path $ProjectRoot "build"
 
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "  AntiDetectPro v1.5 - Windows Build Script" -ForegroundColor Cyan
+Write-Host "  AntiDetectPro v1.7 - Windows Build Script" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 

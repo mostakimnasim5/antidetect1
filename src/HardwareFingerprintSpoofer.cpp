@@ -36,7 +36,7 @@ bool HardwareFingerprintSpoofer::initialize() {
         m_originalSpoof.deviceModel = adb.getProperty("ro.product.model");
         m_originalSpoof.deviceManufacturer = adb.getProperty("ro.product.manufacturer");
         m_originalSpoof.deviceBrand = adb.getProperty("ro.product.brand");
-        m_originalSpoof.hardwareHardware = adb.getProperty("ro.hardware");
+        m_originalSpoof.deviceHardware = adb.getProperty("ro.hardware");
         m_originalSpoof.bootloaderVersion = adb.getProperty("ro.bootloader");
         m_originalSpoof.kernelVersion = adb.getProperty("ro.kernel.version");
     }

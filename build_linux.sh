@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# AntiDetectPro v1.5 - Linux Build Script
+# AntiDetectPro v1.7 - Linux Build Script
 # ============================================================
 #
 # Build script for Linux/macOS
@@ -29,7 +29,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 echo -e "${CYAN}============================================================${NC}"
-echo -e "${CYAN}  AntiDetectPro v1.5 - Linux Build Script${NC}"
+echo -e "${CYAN}  AntiDetectPro v1.7 - Linux Build Script${NC}"
 echo -e "${CYAN}============================================================${NC}"
 echo ""
 
@@ -185,7 +185,7 @@ if [ -n "$EXE_PATH" ]; then
     
     echo ""
     echo -e "${GREEN}============================================================${NC}"
-    echo -e "${GREEN}  [SUCCESS] AntiDetectPro v1.5 Build Completed!${NC}"
+    echo -e "${GREEN}  [SUCCESS] AntiDetectPro v1.7 Build Completed!${NC}"
     echo -e "${GREEN}============================================================${NC}"
     echo ""
     echo -e "  ${CYAN}Executable:${NC} $EXE_PATH"

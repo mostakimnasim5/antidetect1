@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM AntiDetectPro v1.5 - Windows Build Script
+REM AntiDetectPro v1.7 - Windows Build Script
 REM ============================================================
 REM 
 REM This script compiles AntiDetectPro for Windows
@@ -16,7 +16,7 @@ REM
 REM ============================================================
 
 echo ============================================================
-echo AntiDetectPro v1.5 - Windows Build
+echo AntiDetectPro v1.7 - Windows Build
 echo ============================================================
 echo.
 

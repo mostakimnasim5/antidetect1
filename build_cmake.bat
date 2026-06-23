@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM AntiDetectPro v1.5 - Windows CMake Build (Alternative)
+REM AntiDetectPro v1.7 - Windows CMake Build (Alternative)
 REM ============================================================
 REM 
 REM This script uses CMake directly for building
@@ -43,7 +43,7 @@ goto :parse_args
 :args_done
 
 echo ============================================================
-echo AntiDetectPro v1.5 - Windows Build (CMake)
+echo AntiDetectPro v1.7 - Windows Build (CMake)
 echo ============================================================
 echo.
 
@@ -132,7 +132,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo ============================================================
-echo [SUCCESS] AntiDetectPro v1.5 Build Completed!
+echo [SUCCESS] AntiDetectPro v1.7 Build Completed!
 echo ============================================================
 echo.
 echo Output executable:
