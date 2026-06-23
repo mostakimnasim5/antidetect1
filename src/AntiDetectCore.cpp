@@ -6,6 +6,10 @@
 #include "ProfileManager.hpp"
 #include "Logger.hpp"
 #include "Config.hpp"
+#include "SensorSpoofer.hpp"
+#include "PlayIntegrityBypass.hpp"
+#include "HypervisorBypass.hpp"
+#include "TimingAttackPrevention.hpp"
 #include <iostream>
 
 namespace AntiDetect {
@@ -57,6 +61,12 @@ void AntiDetectCore::initializeComponents() {
     m_systemManager = std::make_unique<SystemManager>();
     m_profileManager = std::make_unique<ProfileManager>();
     
+    // Advanced Anti-Detection Modules
+    m_sensorSpoofer = std::make_unique<SensorSpoofer>();
+    m_playIntegrity = std::make_unique<PlayIntegrityBypass>();
+    m_hypervisorBypass = std::make_unique<HypervisorBypass>();
+    m_timingPrevention = std::make_unique<TimingAttackPrevention>();
+    
     Logger::getInstance().info("Initializing ADB Manager...");
     if (!m_adbManager->initialize()) {
         Logger::getInstance().warning("ADB initialization failed - some features may be unavailable");
@@ -71,6 +81,19 @@ void AntiDetectCore::initializeComponents() {
         
         Logger::getInstance().info("Initializing System Manager...");
         m_systemManager->initialize();
+        
+        // Initialize Advanced Modules
+        Logger::getInstance().info("Initializing Sensor Spoofer...");
+        m_sensorSpoofer->initialize();
+        
+        Logger::getInstance().info("Initializing Play Integrity Bypass...");
+        m_playIntegrity->initialize();
+        
+        Logger::getInstance().info("Initializing Hypervisor Bypass...");
+        m_hypervisorBypass->initialize();
+        
+        Logger::getInstance().info("Initializing Timing Attack Prevention...");
+        m_timingPrevention->initialize();
     }
     
     Logger::getInstance().info("Initializing Profile Manager...");
@@ -78,6 +101,17 @@ void AntiDetectCore::initializeComponents() {
 }
 
 void AntiDetectCore::cleanupComponents() {
+    // Cleanup Advanced Modules first
+    if (m_timingPrevention) m_timingPrevention->shutdown();
+    if (m_hypervisorBypass) m_hypervisorBypass->shutdown();
+    if (m_playIntegrity) m_playIntegrity->shutdown();
+    if (m_sensorSpoofer) m_sensorSpoofer->shutdown();
+    
+    m_timingPrevention.reset();
+    m_hypervisorBypass.reset();
+    m_playIntegrity.reset();
+    m_sensorSpoofer.reset();
+    
     m_profileManager.reset();
     m_systemManager.reset();
     m_networkSpoofer.reset();
@@ -553,6 +587,169 @@ std::map<std::string, std::string> AntiDetectCore::getSystemStatus() {
     }
     
     return status;
+}
+
+// ============================================================
+// ADVANCED ANTI-DETECTION METHODS (v1.5)
+// ============================================================
+
+// Sensor Spoofing
+AntiDetectResult AntiDetectCore::enableSensorSpoofing() {
+    if (!m_sensorSpoofer) {
+        return createResult(false, "", "Sensor Spoofer not initialized");
+    }
+    
+    auto result = m_sensorSpoofer->enableAllSensors();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableAccelerometerSpoofing(double x, double y, double z) {
+    if (!m_sensorSpoofer) {
+        return createResult(false, "", "Sensor Spoofer not initialized");
+    }
+    
+    auto result = m_sensorSpoofer->spoofAccelerometer(x, y, z);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableGyroscopeSpoofing(double x, double y, double z) {
+    if (!m_sensorSpoofer) {
+        return createResult(false, "", "Sensor Spoofer not initialized");
+    }
+    
+    auto result = m_sensorSpoofer->spoofGyroscope(x, y, z);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableMagnetometerSpoofing(double x, double y, double z) {
+    if (!m_sensorSpoofer) {
+        return createResult(false, "", "Sensor Spoofer not initialized");
+    }
+    
+    auto result = m_sensorSpoofer->spoofMagnetometer(x, y, z);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableNaturalMovement(const std::string& pattern) {
+    if (!m_sensorSpoofer) {
+        return createResult(false, "", "Sensor Spoofer not initialized");
+    }
+    
+    auto result = m_sensorSpoofer->setMovementPattern(pattern);
+    return createResult(result.success, result.message, result.error);
+}
+
+// Play Integrity API Bypass
+AntiDetectResult AntiDetectCore::enableIntegrityBypass() {
+    if (!m_playIntegrity) {
+        return createResult(false, "", "Play Integrity Bypass not initialized");
+    }
+    
+    auto result = m_playIntegrity->enableIntegrityBypass();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setIntegrityLevel(const std::string& level) {
+    if (!m_playIntegrity) {
+        return createResult(false, "", "Play Integrity Bypass not initialized");
+    }
+    
+    IntegrityLevel intLevel = IntegrityLevel::MEETS_STRONG_INTEGRITY;
+    if (level == "strong" || level == "STRONG") {
+        intLevel = IntegrityLevel::MEETS_STRONG_INTEGRITY;
+    } else if (level == "device" || level == "DEVICE") {
+        intLevel = IntegrityLevel::MEETS_DEVICE_INTEGRITY;
+    } else if (level == "basic" || level == "BASIC") {
+        intLevel = IntegrityLevel::MEETS_BASIC_INTEGRITY;
+    } else if (level == "certified" || level == "CERTIFIED") {
+        intLevel = IntegrityLevel::CERTIFIED;
+    }
+    
+    auto result = m_playIntegrity->setIntegrityLevel(intLevel);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::bypassSafetyNet() {
+    if (!m_playIntegrity) {
+        return createResult(false, "", "Play Integrity Bypass not initialized");
+    }
+    
+    auto result = m_playIntegrity->bypassSafetyNet();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::emulateTrustZone() {
+    if (!m_playIntegrity) {
+        return createResult(false, "", "Play Integrity Bypass not initialized");
+    }
+    
+    auto result = m_playIntegrity->emulateTrustZoneKey("attestation");
+    return createResult(result.success, result.message, result.error);
+}
+
+// Hypervisor/VM Detection Bypass
+AntiDetectResult AntiDetectCore::enableHypervisorBypass() {
+    if (!m_hypervisorBypass) {
+        return createResult(false, "", "Hypervisor Bypass not initialized");
+    }
+    
+    auto result = m_hypervisorBypass->enableBypass();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setDeviceAsRealHardware() {
+    if (!m_hypervisorBypass) {
+        return createResult(false, "", "Hypervisor Bypass not initialized");
+    }
+    
+    auto result = m_hypervisorBypass->setDeviceAsRealHardware();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableARMSimulation() {
+    if (!m_hypervisorBypass) {
+        return createResult(false, "", "Hypervisor Bypass not initialized");
+    }
+    
+    auto result = m_hypervisorBypass->enableARMSimulation();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::enableTimingNormalization() {
+    if (!m_hypervisorBypass) {
+        return createResult(false, "", "Hypervisor Bypass not initialized");
+    }
+    
+    auto result = m_hypervisorBypass->enableTimingNormalization();
+    return createResult(result.success, result.message, result.error);
+}
+
+// Timing Attack Prevention
+AntiDetectResult AntiDetectCore::enableTimingProtection() {
+    if (!m_timingPrevention) {
+        return createResult(false, "", "Timing Prevention not initialized");
+    }
+    
+    auto result = m_timingPrevention->enableProtection();
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::setTimingProfile(const std::string& profile) {
+    if (!m_timingPrevention) {
+        return createResult(false, "", "Timing Prevention not initialized");
+    }
+    
+    auto result = m_timingPrevention->setProfile(profile);
+    return createResult(result.success, result.message, result.error);
+}
+
+AntiDetectResult AntiDetectCore::addExecutionNoise() {
+    if (!m_timingPrevention) {
+        return createResult(false, "", "Timing Prevention not initialized");
+    }
+    
+    auto result = m_timingPrevention->enableExecutionRandomization();
+    return createResult(result.success, result.message, result.error);
 }
 
 }

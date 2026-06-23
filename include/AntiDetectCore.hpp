@@ -14,6 +14,10 @@ class SystemManager;
 class ProfileManager;
 class Logger;
 class Config;
+class SensorSpoofer;
+class PlayIntegrityBypass;
+class HypervisorBypass;
+class TimingAttackPrevention;
 
 enum class AntiDetectStatus {
     UNINITIALIZED,
@@ -41,11 +45,13 @@ public:
     AntiDetectStatus getStatus() const;
     std::string getVersion() const;
     
+    // Device Management
     AntiDetectResult connect(const std::string& deviceAddress);
     AntiDetectResult disconnect();
     std::vector<std::string> listDevices();
     AntiDetectResult selectDevice(const std::string& serial);
     
+    // Device Fingerprint
     AntiDetectResult applyDeviceProfile(const std::map<std::string, std::string>& profile);
     AntiDetectResult resetDevice();
     
@@ -58,6 +64,7 @@ public:
     AntiDetectResult spoofScreenResolution(int width, int height);
     AntiDetectResult spoofScreenDensity(int density);
     
+    // Network
     AntiDetectResult spoofMACAddress(const std::string& macAddress);
     AntiDetectResult spoofCarrier(const std::string& carrierName);
     AntiDetectResult spoofLocation(double latitude, double longitude);
@@ -65,6 +72,7 @@ public:
     AntiDetectResult enableGPSSpoofing();
     AntiDetectResult enableMockLocation();
     
+    // System
     AntiDetectResult setTimezone(const std::string& timezone);
     AntiDetectResult setLocale(const std::string& locale);
     AntiDetectResult setLanguage(const std::string& language);
@@ -76,6 +84,7 @@ public:
     AntiDetectResult enableDebugMode();
     AntiDetectResult disableDebugMode();
     
+    // Profile Management
     AntiDetectResult applyProfile(const std::string& profileId);
     AntiDetectResult createProfile(const std::string& name, const std::map<std::string, std::string>& data);
     AntiDetectResult deleteProfile(const std::string& profileId);
@@ -84,6 +93,33 @@ public:
     AntiDetectResult exportConfiguration(const std::string& filepath);
     AntiDetectResult importConfiguration(const std::string& filepath);
     
+    // Advanced Anti-Detection (v1.5)
+    
+    // Sensor Spoofing - Natural sensor noise simulation
+    AntiDetectResult enableSensorSpoofing();
+    AntiDetectResult enableAccelerometerSpoofing(double x, double y, double z);
+    AntiDetectResult enableGyroscopeSpoofing(double x, double y, double z);
+    AntiDetectResult enableMagnetometerSpoofing(double x, double y, double z);
+    AntiDetectResult enableNaturalMovement(const std::string& pattern);
+    
+    // Play Integrity API Bypass
+    AntiDetectResult enableIntegrityBypass();
+    AntiDetectResult setIntegrityLevel(const std::string& level);
+    AntiDetectResult bypassSafetyNet();
+    AntiDetectResult emulateTrustZone();
+    
+    // Hypervisor/VM Detection Bypass
+    AntiDetectResult enableHypervisorBypass();
+    AntiDetectResult setDeviceAsRealHardware();
+    AntiDetectResult enableARMSimulation();
+    AntiDetectResult enableTimingNormalization();
+    
+    // Timing Attack Prevention
+    AntiDetectResult enableTimingProtection();
+    AntiDetectResult setTimingProfile(const std::string& profile);
+    AntiDetectResult addExecutionNoise();
+    
+    // Status
     std::map<std::string, std::string> getDeviceInfo();
     std::map<std::string, std::string> getCurrentFingerprint();
     std::map<std::string, std::string> getSystemStatus();
@@ -107,7 +143,13 @@ private:
     std::unique_ptr<SystemManager> m_systemManager;
     std::unique_ptr<ProfileManager> m_profileManager;
     
-    static constexpr const char* VERSION = "1.0.0";
+    // Advanced Anti-Detection Modules (v1.5)
+    std::unique_ptr<SensorSpoofer> m_sensorSpoofer;
+    std::unique_ptr<PlayIntegrityBypass> m_playIntegrity;
+    std::unique_ptr<HypervisorBypass> m_hypervisorBypass;
+    std::unique_ptr<TimingAttackPrevention> m_timingPrevention;
+    
+    static constexpr const char* VERSION = "1.5.0";
     static constexpr const char* BUILD_DATE = __DATE__;
 };
 

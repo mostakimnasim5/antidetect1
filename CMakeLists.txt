@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(AntiDetectPro VERSION 1.0.0 LANGUAGES CXX)
+project(AntiDetectPro VERSION 1.5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -62,6 +62,11 @@ set(CORE_HEADERS
     include/DetectionBypass.hpp
     include/HttpClient.hpp
     include/CryptoUtils.hpp
+    # Advanced Anti-Detection Modules (v1.5)
+    include/SensorSpoofer.hpp
+    include/PlayIntegrityBypass.hpp
+    include/HypervisorBypass.hpp
+    include/TimingAttackPrevention.hpp
 )
 
 set(CORE_SOURCES
@@ -82,6 +87,11 @@ set(CORE_SOURCES
     src/DetectionBypass.cpp
     src/HttpClient.cpp
     src/CryptoUtils.cpp
+    # Advanced Anti-Detection Modules (v1.5)
+    src/SensorSpoofer.cpp
+    src/PlayIntegrityBypass.cpp
+    src/HypervisorBypass.cpp
+    src/TimingAttackPrevention.cpp
 )
 
 # CLI executable

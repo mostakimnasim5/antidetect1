@@ -1,8 +1,8 @@
 # AntiDetectPro
 
-**Enterprise-Grade Android Anti-Detection System**
+**Enterprise-Grade Android Anti-Detection System - Advanced Edition v1.5**
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.5.0-blue)
 ![License](https://img.shields.io/badge/license-Commercial-red)
 ![C++](https://img.shields.io/badge/C%2B%2B-20-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-orange)
@@ -12,6 +12,37 @@
 ## Overview
 
 AntiDetectPro is a **commercial-grade, enterprise-level** Android anti-detection system designed for professional application testing and browser fingerprint testing. Built entirely in **C++** without JavaScript or third-party APIs, it operates at the **Android OS level** to modify device fingerprints and tracking parameters with precision.
+
+### What's New in v1.5 - Advanced Anti-Detection
+
+This version includes **military-grade anti-detection capabilities** to bypass advanced security systems:
+
+#### 🎯 Sensor Spoofing (v1.5)
+- **Natural Sensor Noise Simulation** - Gyroscope, Accelerometer, Magnetometer
+- **Realistic Movement Patterns** - Walking, Stationary, Driving simulation
+- **Micro-noise Generation** - Pink noise, Gaussian noise for authentic sensor data
+- Prevents detection from zero-sensor or static sensor analysis
+
+#### 🔐 Play Integrity API Bypass (v1.5)
+- **TrustZone Key Emulation** - Hardware-backed attestation spoofing
+- **Play Integrity Token Generation** - deviceIntegrity, basicIntegrity spoofing
+- **SafetyNet Bypass** - ctsProfileMatch simulation
+- **Verified Boot State Control** - green/orange/red state emulation
+
+#### 💻 Hypervisor Detection Bypass (v1.5)
+- **VT-x/AMD-V Detection Prevention** - CPU virtualization hiding
+- **ARM Simulation** - Real ARM hardware property spoofing
+- **QEMU/VMware/VirtualBox Detection Bypass**
+- **CPU Timing Normalization** - Real ARM Cortex timing patterns
+
+#### ⏱️ Timing Attack Prevention (v1.5)
+- **CPU Cache Timing Protection** - Cache timing attack prevention
+- **Execution Randomization** - Random jitter to prevent timing analysis
+- **Branch Predictor Noise** - Artificial branch prediction variation
+- **Memory Access Timing** - Realistic memory access patterns
+- **Pre-built Timing Profiles** - Natural smartphone, Flagship, Gaming modes
+
+---
 
 ## Key Features
 
@@ -42,40 +73,141 @@ AntiDetectPro is a **commercial-grade, enterprise-level** Android anti-detection
 - **Import/Export**: Share and backup profiles
 - **Pre-built Profiles**: Samsung, Google Pixel, Xiaomi, OnePlus included
 
-## Architecture
+## Usage (v1.5 Advanced Commands)
+
+### Sensor Spoofing
+```bash
+# Enable all sensor spoofing with natural noise
+./AntiDetectPro enable-sensor-spoofing
+
+# Set accelerometer with natural movement
+./AntiDetectPro spoof-accelerometer 0.0 0.0 9.81
+
+# Enable natural movement simulation
+./AntiDetectPro enable-natural-movement walking
+# Options: stationary, walking, driving, random
+```
+
+### Play Integrity Bypass
+```bash
+# Enable full integrity bypass
+./AntiDetectPro enable-integrity-bypass
+
+# Set integrity level
+./AntiDetectPro set-integrity-level strong
+# Options: strong, device, basic, certified
+
+# Bypass SafetyNet
+./AntiDetectPro bypass-safetynet
+
+# Emulate TrustZone
+./AntiDetectPro emulate-trustzone
+```
+
+### Hypervisor Bypass
+```bash
+# Enable hypervisor bypass
+./AntiDetectPro enable-hypervisor-bypass
+
+# Configure as real hardware
+./AntiDetectPro set-real-hardware
+
+# Enable ARM simulation
+./AntiDetectPro enable-arm-simulation
+
+# Enable CPU timing normalization
+./AntiDetectPro enable-timing-normalization
+```
+
+### Timing Attack Prevention
+```bash
+# Enable full timing protection
+./AntiDetectPro enable-timing-protection
+
+# Set timing profile
+./AntiDetectPro set-timing-profile flagship_device
+# Options: natural_smartphone, flagship_device, mid_range, gaming_device, stealth_mode
+
+# Add execution noise
+./AntiDetectPro add-execution-noise
+```
+
+### C++ API (v1.5)
+
+```cpp
+#include "AntiDetectCore.hpp"
+
+int main() {
+    auto& core = AntiDetectCore::getInstance();
+    core.initialize();
+    core.connect("192.168.1.100:5555");
+    
+    // === ADVANCED ANTI-DETECTION (v1.5) ===
+    
+    // Sensor Spoofing with Natural Noise
+    core.enableSensorSpoofing();
+    core.enableAccelerometerSpoofing(0.001, -0.002, 9.81);
+    core.enableGyroscopeSpoofing(0.001, 0.002, 0.001);
+    core.enableNaturalMovement("walking");
+    
+    // Play Integrity Bypass
+    core.enableIntegrityBypass();
+    core.setIntegrityLevel("strong");
+    core.bypassSafetyNet();
+    core.emulateTrustZone();
+    
+    // Hypervisor Detection Bypass
+    core.enableHypervisorBypass();
+    core.setDeviceAsRealHardware();
+    core.enableARMSimulation();
+    core.enableTimingNormalization();
+    
+    // Timing Attack Prevention
+    core.enableTimingProtection();
+    core.setTimingProfile("flagship_device");
+    core.addExecutionNoise();
+    
+    core.shutdown();
+    return 0;
+}
+```
+
+---
+
+## Architecture (v1.5)
 
 ```
 AntiDetectPro/
-├── include/                    # Header files
-│   ├── AntiDetectCore.hpp     # Main API interface
+├── include/
+│   ├── AntiDetectCore.hpp      # Main API interface
 │   ├── ADBManager.hpp          # ADB communication layer
-│   ├── DeviceFingerprint.hpp   # Device fingerprint engine
-│   ├── NetworkSpoofer.hpp      # Network spoofing module
-│   ├── SystemManager.hpp       # System control module
-│   ├── ProfileManager.hpp      # Profile management
-│   ├── Logger.hpp              # Logging system
-│   └── Config.hpp              # Configuration management
-├── src/                        # Source files
-│   ├── main.cpp                # CLI application
-│   ├── AntiDetectCore.cpp      # Core implementation
-│   ├── ADBManager.cpp          # ADB operations
-│   ├── DeviceFingerprint.cpp   # Fingerprint manipulation
-│   ├── NetworkSpoofer.cpp      # Network spoofing
-│   ├── SystemManager.cpp       # System control
-│   ├── ProfileManager.cpp      # Profile handling
-│   ├── Logger.cpp              # Logging
-│   └── Config.cpp              # Configuration
-├── CMakeLists.txt             # Build configuration
-└── README.md                   # This file
+│   ├── DeviceFingerprint.hpp    # Device fingerprint engine
+│   ├── NetworkSpoofer.hpp       # Network spoofing module
+│   ├── SystemManager.hpp        # System control module
+│   ├── ProfileManager.hpp       # Profile management
+│   ├── SensorSpoofer.hpp        # [NEW v1.5] Sensor noise simulation
+│   ├── PlayIntegrityBypass.hpp # [NEW v1.5] Play Integrity API bypass
+│   ├── HypervisorBypass.hpp    # [NEW v1.5] VM detection bypass
+│   ├── TimingAttackPrevention.hpp # [NEW v1.5] Timing attack protection
+│   └── ...
+├── src/
+│   ├── main.cpp                 # CLI application
+│   ├── AntiDetectCore.cpp       # Core implementation
+│   ├── ADBManager.cpp           # ADB operations
+│   ├── SensorSpoofer.cpp        # [NEW v1.5] Natural sensor noise
+│   ├── PlayIntegrityBypass.cpp  # [NEW v1.5] Integrity bypass
+│   ├── HypervisorBypass.cpp     # [NEW v1.5] VM detection bypass
+│   ├── TimingAttackPrevention.cpp # [NEW v1.5] Timing protection
+│   └── ...
+└── CMakeLists.txt              # Build configuration
 ```
+
+---
 
 ## Requirements
 
 ### Build Requirements
-- **C++20 compatible compiler**
-  - GCC 10+ (Linux/macOS)
-  - MSVC 2019+ (Windows)
-  - Clang 12+ (macOS)
+- **C++20 compatible compiler** (GCC 10+, MSVC 2019+, Clang 12+)
 - **CMake 3.20+**
 - **OpenSSL** (for cryptographic functions)
 - **Threads** (POSIX threads)
@@ -85,223 +217,13 @@ AntiDetectPro/
 - **Android device** with USB debugging enabled or network ADB
 - **Root access** (optional, for some advanced features)
 
-## Installation
-
-### Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/mostakimnasim5/antidetect1.git
-cd antidetect1
-
-# Create build directory
-mkdir build && cd build
-
-# Configure with CMake
-cmake .. -DCMAKE_BUILD_TYPE=Release
-
-# Build
-cmake --build . --config Release
-
-# Install (optional)
-cmake --install .
-```
-
-### Windows
-
-```powershell
-# Using Visual Studio Developer Command Prompt
-mkdir build
-cd build
-cmake .. -G "Visual Studio 17 2022" -A x64
-cmake --build . --config Release
-```
-
-### Linux
-
-```bash
-# Install dependencies (Ubuntu/Debian)
-sudo apt-get update
-sudo apt-get install build-essential cmake libssl-dev
-
-# Build
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-```
-
-### macOS
-
-```bash
-# Install dependencies
-brew install cmake openssl
-
-# Build
-mkdir build && cd build
-cmake .. -DOPENSSL_ROOT_DIR=$(brew --prefix openssl)
-make -j$(sysctl -n hw.ncpu)
-```
-
-## Usage
-
-### Command Line Interface
-
-```bash
-# Show help
-./AntiDetectPro --help
-
-# List connected devices
-./AntiDetectPro list-devices
-
-# Connect to device via network
-./AntiDetectPro connect 192.168.1.100:5555
-
-# Spoof device manufacturer
-./AntiDetectPro spoof-manufacturer Samsung
-
-# Spoof device model
-./AntiDetectPro spoof-model "Galaxy S21 Ultra"
-
-# Spoof MAC address
-./AntiDetectPro spoof-mac AA:BB:CC:DD:EE:FF
-
-# Spoof carrier
-./AntiDetectPro spoof-carrier Verizon
-
-# Spoof location (latitude, longitude)
-./AntiDetectPro spoof-location 40.7128 -74.0060
-
-# Set timezone
-./AntiDetectPro set-timezone "America/New_York"
-
-# List available profiles
-./AntiDetectPro list-profiles
-
-# Apply a profile
-./AntiDetectPro apply-profile samsung_galaxy_s21
-
-# Reset device to original state
-./AntiDetectPro reset
-```
-
-### Interactive Mode
-
-```bash
-./AntiDetectPro
-
-# In interactive mode:
-AntiDetectPro> list-devices
-AntiDetectPro> connect 192.168.1.100:5555
-AntiDetectPro> spoof-model "Pixel 7 Pro"
-AntiDetectPro> spoof-mac 00:11:22:33:44:55
-AntiDetectPro> apply-profile google_pixel
-AntiDetectPro> reset
-AntiDetectPro> exit
-```
-
-### C++ API Usage
-
-```cpp
-#include "AntiDetectCore.hpp"
-
-int main() {
-    auto& core = AntiDetectCore::getInstance();
-    
-    // Initialize
-    core.initialize();
-    
-    // Connect to device
-    core.connect("192.168.1.100:5555");
-    
-    // Spoof device fingerprint
-    core.spoofManufacturer("Samsung");
-    core.spoofModel("SM-G998B");
-    core.spoofAndroidVersion("13");
-    core.spoofScreenResolution(1440, 3200);
-    core.spoofScreenDensity(640);
-    
-    // Network spoofing
-    core.spoofMACAddress("AA:BB:CC:DD:EE:FF");
-    core.spoofCarrier("Verizon");
-    core.spoofLocation(40.7128, -74.0060);
-    core.enableMockLocation();
-    
-    // System control
-    core.setTimezone("America/New_York");
-    core.setLocale("en_US");
-    core.setBatteryStatus(85, "Charging");
-    
-    // Apply profile
-    core.applyProfile("profile_id_here");
-    
-    // Reset when done
-    core.resetDevice();
-    
-    // Shutdown
-    core.shutdown();
-    
-    return 0;
-}
-```
-
-## Pre-built Profiles
-
-AntiDetectPro includes several pre-configured profiles:
-
-| Profile | Manufacturer | Model | Description |
-|---------|-------------|-------|-------------|
-| `Samsung` | Samsung | Galaxy S21 Ultra | Samsung flagship configuration |
-| `Google` | Google | Pixel 7 Pro | Google flagship configuration |
-| `Xiaomi` | Xiaomi | Mi 13 Pro | Xiaomi flagship configuration |
-| `OnePlus` | OnePlus | OnePlus 11 | OnePlus flagship configuration |
-| `Generic` | Generic | Android Device | Generic Android configuration |
-
-## Advanced Features
-
-### Profile Creation
-
-```bash
-# Create custom profile via CLI
-./AntiDetectPro create-profile "My Custom Device"
-
-# Or via API
-auto profile = profileManager.createDefaultProfile("Custom Device", "Custom");
-profile.device.manufacturer = "Sony";
-profile.device.model = "Xperia 1 IV";
-profile.device.androidVersion = "13";
-profileManager.createProfile(profile);
-```
-
-### Batch Operations
-
-```cpp
-// Apply multiple changes at once
-std::map<std::string, std::string> customProfile = {
-    {"ro.product.manufacturer", "Samsung"},
-    {"ro.product.model", "SM-G998B"},
-    {"ro.build.version.release", "13"},
-    {"ro.sf.lcd_density", "640"},
-    {"ro.carrier", "Verizon"}
-};
-
-core.applyDeviceProfile(customProfile);
-```
-
-### Export/Import
-
-```bash
-# Export all profiles
-./AntiDetectPro export-config ./my-profiles
-
-# Import profile
-./AntiDetectPro import-config ./my-profile.json
-```
+---
 
 ## Security Considerations
 
 ⚠️ **Important Disclaimers:**
 
-1. **Legal Use Only**: This software is intended for legitimate purposes such as:
+1. **Legal Use Only**: This software is intended for legitimate purposes:
    - Application testing
    - Browser automation testing
    - Security research
@@ -309,104 +231,22 @@ core.applyDeviceProfile(customProfile);
 
 2. **No Illegal Activities**: Do not use this software for:
    - Fraud
-   - Account manipulation that violates terms of service
+   - Account manipulation violating terms of service
    - Any illegal activities
 
-3. **Device Responsibility**: Users are solely responsible for:
-   - Backing up device data before use
-   - Understanding the risks of modifying device properties
-   - Ensuring compliance with applicable laws and regulations
-
-## Troubleshooting
-
-### Common Issues
-
-**"ADB not found"**
-```bash
-# Install ADB
-# Ubuntu/Debian
-sudo apt-get install adb
-
-# macOS
-brew install android-platform-tools
-
-# Windows - Download from Android SDK Manager
-```
-
-**"Device not found"**
-```bash
-# Enable USB debugging on your Android device
-# Settings > Developer Options > USB Debugging
-
-# Check device connection
-adb devices
-
-# Restart ADB server
-adb kill-server
-adb start-server
-```
-
-**"Permission denied"**
-```bash
-# Some features require root access
-# Enable root in developer options
-# Settings > Developer Options > Root Access > Apps and ADB
-```
-
-### Debug Mode
-
-```bash
-# Enable debug logging
-./AntiDetectPro --debug --log ./debug.log
-
-# Or in interactive mode
-AntiDetectPro> debug on
-```
-
-## Development
-
-### Adding New Spoofing Capabilities
-
-```cpp
-// In DeviceFingerprint.hpp
-FingerprintResult spoofNewProperty(const std::string& value);
-
-// In DeviceFingerprint.cpp
-FingerprintResult DeviceFingerprint::spoofNewProperty(const std::string& value) {
-    FingerprintResult result = {false, "new.property", "", value, ""};
-    result.originalValue = getPropertyValue("new.property");
-    result.success = applyPropertyChange("new.property", value);
-    return result;
-}
-```
-
-### Building Documentation
-
-```bash
-# Generate API documentation (requires Doxygen)
-doxygen Doxyfile
-```
-
-## License
-
-**Commercial License - Elite Level**
-
-This software is proprietary and commercial. All rights reserved.
-
-- Redistribution of source code is not permitted
-- Redistribution of compiled binaries requires written permission
-- Commercial use requires a valid license
-
-## Support
-
-For support, documentation, and licensing inquiries:
-- GitHub Issues: [Report Issues](https://github.com/mostakimnasim5/antidetect1/issues)
-- Email: [Contact Author](mailto:support@example.com)
+---
 
 ## Changelog
 
-### v1.0.0 (2024)
-- Initial release
+### v1.5.0 (Current)
+- **[NEW]** Sensor Spoofing Module - Natural sensor noise simulation
+- **[NEW]** Play Integrity API Bypass - TrustZone, SafetyNet bypass
+- **[NEW]** Hypervisor Detection Bypass - VT-x/AMD-V hiding
+- **[NEW]** Timing Attack Prevention - Cache timing, execution randomization
+- **[NEW]** Pre-built timing profiles for different device types
+- **[NEW]** Natural movement patterns (stationary, walking, driving)
+
+### v1.0.0 (Initial)
 - Device fingerprint spoofing
 - Network identity spoofing
 - System control features
@@ -414,13 +254,15 @@ For support, documentation, and licensing inquiries:
 - CLI interface
 - C++ API
 
-## Acknowledgments
+---
 
-- Android Open Source Project
-- ADB Protocol Documentation
-- OpenSSL Project
+## License
+
+**Commercial License - Elite Level**
+
+All rights reserved. Redistribution of source code is not permitted.
 
 ---
 
-**AntiDetectPro** - Enterprise Anti-Detection System
+**AntiDetectPro v1.5** - Enterprise Anti-Detection System
 Copyright (c) 2024 - All Rights Reserved
