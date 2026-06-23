@@ -543,16 +543,14 @@ std::map<std::string, std::string> AntiDetectCore::getSystemStatus() {
         status = m_systemManager->getSystemInfo();
     }
     
-    status["core_status"] = [this]() -> std::string {
-        switch (m_status) {
-            case AntiDetectStatus::UNINITIALIZED: return "Uninitialized";
-            case AntiDetectStatus::INITIALIZING: return "Initializing";
-            case AntiDetectStatus::READY: return "Ready";
-            case AntiDetectStatus::RUNNING: return "Running";
-            case AntiDetectStatus::ERROR: return "Error";
-            default: return "Unknown";
-        }
-    }();
+    switch (m_status) {
+        case AntiDetectStatus::UNINITIALIZED: status["core_status"] = "Uninitialized"; break;
+        case AntiDetectStatus::INITIALIZING: status["core_status"] = "Initializing"; break;
+        case AntiDetectStatus::READY: status["core_status"] = "Ready"; break;
+        case AntiDetectStatus::RUNNING: status["core_status"] = "Running"; break;
+        case AntiDetectStatus::ERROR: status["core_status"] = "Error"; break;
+        default: status["core_status"] = "Unknown"; break;
+    }
     
     return status;
 }

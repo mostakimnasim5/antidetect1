@@ -258,7 +258,7 @@ FingerprintResult DeviceFingerprint::spoofDeviceBrand(const std::string& brand) 
 }
 
 FingerprintResult DeviceFingerprint::spoofBuildFingerprint(const std::string& fingerprint) {
-    FingerprintResult result = {"ro.build.fingerprint", "", "", fingerprint, ""};
+    FingerprintResult result = {false, "ro.build.fingerprint", "", fingerprint, ""};
     
     result.originalValue = getPropertyValue("ro.build.fingerprint");
     
@@ -277,7 +277,7 @@ FingerprintResult DeviceFingerprint::spoofBuildFingerprint(const std::string& fi
 }
 
 FingerprintResult DeviceFingerprint::spoofBuildId(const std::string& buildId) {
-    FingerprintResult result = {"ro.build.id", "", "", buildId, ""};
+    FingerprintResult result = {false, "ro.build.id", "", buildId, ""};
     
     result.originalValue = getPropertyValue("ro.build.id");
     result.success = applyPropertyChange("ro.build.id", buildId);
@@ -317,7 +317,7 @@ FingerprintResult DeviceFingerprint::spoofSecurityPatch(const std::string& patch
 }
 
 FingerprintResult DeviceFingerprint::spoofScreenResolution(int width, int height) {
-    FingerprintResult result = {"", "", "", std::to_string(width) + "x" + std::to_string(height), ""};
+    FingerprintResult result = {false, "", "", std::to_string(width) + "x" + std::to_string(height), ""};
     
     result.originalValue = getPropertyValue("ro.sf.lcd_density");
     
@@ -374,7 +374,7 @@ FingerprintResult DeviceFingerprint::spoofHardwareInfo(const std::string& hardwa
 }
 
 FingerprintResult DeviceFingerprint::spoofGPUInfo(const std::string& vendor, const std::string& renderer) {
-    FingerprintResult result = {"", "", "", vendor + " " + renderer, ""};
+    FingerprintResult result = {false, "", "", vendor + " " + renderer, ""};
     
     applyPropertyChange("debug.hwui.render_adreno_profiler.idle_timeout", "0");
     applyPropertyChange("persist.sys.angle.hwui.disable", "1");

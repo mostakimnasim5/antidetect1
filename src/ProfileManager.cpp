@@ -8,13 +8,16 @@
 #include <sstream>
 #include <ctime>
 #include <algorithm>
+#include <cstdlib>
 #include <sys/stat.h>
 
 #ifdef _WIN32
 #include <direct.h>
+#include <windows.h>
 #define mkdir _mkdir
 #else
 #include <unistd.h>
+#include <dirent.h>
 #endif
 
 namespace AntiDetect {
@@ -25,6 +28,7 @@ ProfileManager::ProfileManager()
     : m_activeProfileId("")
     , m_initialized(false)
 {
+    srand(static_cast<unsigned>(time(nullptr)));
 }
 
 ProfileManager::~ProfileManager() {
@@ -499,7 +503,49 @@ bool ProfileManager::resetToOriginal() {
 bool ProfileManager::loadProfilesFromDisk() {
     m_profiles.clear();
     
-    return true;
+    std::string profileDir = getProfilesDirectory();
+    mkdir(profileDir.c_str(), 0755);
+    
+    std::vector<std::string> profileFiles;
+    std::string searchPath = profileDir + "/*.json";
+    
+#ifdef _WIN32
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            std::string filename = findFileData.cFileName;
+            if (filename.find(".json") != std::string::npos) {
+                profileFiles.push_back(profileDir + "/" + filename);
+            }
+        } while (FindNextFile(hFind, &findFileData));
+        FindClose(hFind);
+    }
+#else
+    DIR* dir = opendir(profileDir.c_str());
+    if (dir) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            std::string filename = entry->d_name;
+            if (filename.find(".json") != std::string::npos) {
+                profileFiles.push_back(profileDir + "/" + filename);
+            }
+        }
+        closedir(dir);
+    }
+#endif
+    
+    int loaded = 0;
+    for (const auto& filepath : profileFiles) {
+        FingerprintProfile profile;
+        if (loadProfileFromFile(filepath, profile)) {
+            m_profiles.push_back(profile);
+            loaded++;
+        }
+    }
+    
+    Logger::getInstance().info("Loaded " + std::to_string(loaded) + " profiles from disk");
+    return loaded > 0 || profileFiles.empty();
 }
 
 bool ProfileManager::saveProfilesToDisk() {
@@ -568,8 +614,116 @@ std::string ProfileManager::profileToJson(const FingerprintProfile& profile) {
 }
 
 bool ProfileManager::jsonToProfile(const std::string& json, FingerprintProfile& profile) {
-    Logger::getInstance().warning("JSON parsing not fully implemented");
-    return false;
+    if (json.empty()) {
+        return false;
+    }
+    
+    auto trim = [](const std::string& s) -> std::string {
+        size_t start = s.find_first_not_of(" \t\n\r");
+        size_t end = s.find_last_not_of(" \t\n\r");
+        if (start == std::string::npos) return "";
+        return s.substr(start, end - start + 1);
+    };
+    
+    auto extractString = [&](const std::string& jsonStr, const std::string& key) -> std::string {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return "";
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return "";
+        
+        size_t valueStart = jsonStr.find('"', colonPos);
+        if (valueStart == std::string::npos) return "";
+        valueStart++;
+        
+        size_t valueEnd = valueStart;
+        while (valueEnd < jsonStr.length()) {
+            if (jsonStr[valueEnd] == '"' && jsonStr[valueEnd-1] != '\\') {
+                break;
+            }
+            valueEnd++;
+        }
+        
+        std::string value = jsonStr.substr(valueStart, valueEnd - valueStart);
+        size_t escPos = 0;
+        while ((escPos = value.find("\\\"", escPos)) != std::string::npos) {
+            value.erase(escPos, 1);
+        }
+        return value;
+    };
+    
+    auto extractBool = [&](const std::string& jsonStr, const std::string& key) -> bool {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return false;
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return false;
+        
+        size_t valueStart = jsonStr.find_first_not_of(" \t", colonPos + 1);
+        if (valueStart == std::string::npos) return false;
+        
+        return jsonStr.substr(valueStart, 4) == "true";
+    };
+    
+    auto extractInt = [&](const std::string& jsonStr, const std::string& key) -> int {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return 0;
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return 0;
+        
+        size_t valueStart = jsonStr.find_first_not_of(" \t", colonPos + 1);
+        if (valueStart == std::string::npos) return 0;
+        
+        size_t valueEnd = valueStart;
+        while (valueEnd < jsonStr.length() && 
+               (isdigit(jsonStr[valueEnd]) || jsonStr[valueEnd] == '-' || jsonStr[valueEnd] == '.')) {
+            valueEnd++;
+        }
+        
+        try {
+            return std::stoi(jsonStr.substr(valueStart, valueEnd - valueStart));
+        } catch (...) {
+            return 0;
+        }
+    };
+    
+    try {
+        profile.metadata.id = extractString(json, "id");
+        profile.metadata.name = extractString(json, "name");
+        profile.metadata.description = extractString(json, "description");
+        profile.metadata.category = extractString(json, "category");
+        profile.metadata.author = extractString(json, "author");
+        profile.metadata.version = extractInt(json, "version");
+        profile.metadata.isActive = extractBool(json, "isActive");
+        
+        profile.device.manufacturer = extractString(json, "manufacturer");
+        profile.device.brand = extractString(json, "brand");
+        profile.device.model = extractString(json, "model");
+        profile.device.androidVersion = extractString(json, "androidVersion");
+        profile.device.sdkVersion = extractString(json, "sdkVersion");
+        profile.device.screenWidth = extractInt(json, "screenWidth");
+        profile.device.screenHeight = extractInt(json, "screenHeight");
+        profile.device.screenDensity = extractInt(json, "screenDensity");
+        
+        profile.network.macAddress = extractString(json, "macAddress");
+        profile.network.carrierName = extractString(json, "carrierName");
+        profile.network.latitude = std::stod(extractString(json, "latitude"));
+        profile.network.longitude = std::stod(extractString(json, "longitude"));
+        profile.network.locationSpoofingEnabled = extractBool(json, "locationSpoofingEnabled");
+        
+        profile.system.timezone = extractString(json, "timezone");
+        profile.system.locale = extractString(json, "locale");
+        profile.system.language = extractString(json, "language");
+        
+        return true;
+    } catch (const std::exception& e) {
+        Logger::getInstance().error("JSON parsing error: " + std::string(e.what()));
+        return false;
+    }
 }
 
 std::map<std::string, std::string> ProfileManager::profileToMap(const FingerprintProfile& profile) {

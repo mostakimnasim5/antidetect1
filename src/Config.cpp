@@ -191,8 +191,95 @@ std::string Config::configToJson() {
 }
 
 bool Config::jsonToConfig(const std::string& json) {
-    Logger::getInstance().warning("JSON parsing not implemented - using default config");
-    return false;
+    if (json.empty()) {
+        return false;
+    }
+    
+    auto extractString = [&](const std::string& jsonStr, const std::string& key) -> std::string {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return "";
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return "";
+        
+        size_t valueStart = jsonStr.find('"', colonPos);
+        if (valueStart == std::string::npos) return "";
+        valueStart++;
+        
+        size_t valueEnd = valueStart;
+        while (valueEnd < jsonStr.length()) {
+            if (jsonStr[valueEnd] == '"' && jsonStr[valueEnd-1] != '\\') {
+                break;
+            }
+            valueEnd++;
+        }
+        
+        return jsonStr.substr(valueStart, valueEnd - valueStart);
+    };
+    
+    auto extractBool = [&](const std::string& jsonStr, const std::string& key) -> bool {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return false;
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return false;
+        
+        size_t valueStart = jsonStr.find_first_not_of(" \t", colonPos + 1);
+        if (valueStart == std::string::npos) return false;
+        
+        return jsonStr.substr(valueStart, 4) == "true";
+    };
+    
+    auto extractInt = [&](const std::string& jsonStr, const std::string& key) -> int {
+        std::string searchKey = "\"" + key + "\"";
+        size_t pos = jsonStr.find(searchKey);
+        if (pos == std::string::npos) return 0;
+        
+        size_t colonPos = jsonStr.find(':', pos);
+        if (colonPos == std::string::npos) return 0;
+        
+        size_t valueStart = jsonStr.find_first_not_of(" \t", colonPos + 1);
+        if (valueStart == std::string::npos) return 0;
+        
+        size_t valueEnd = valueStart;
+        while (valueEnd < jsonStr.length() && isdigit(jsonStr[valueEnd])) {
+            valueEnd++;
+        }
+        
+        try {
+            return std::stoi(jsonStr.substr(valueStart, valueEnd - valueStart));
+        } catch (...) {
+            return 0;
+        }
+    };
+    
+    try {
+        m_deviceConfig.manufacturer = extractString(json, "manufacturer");
+        m_deviceConfig.brand = extractString(json, "brand");
+        m_deviceConfig.model = extractString(json, "model");
+        m_deviceConfig.androidVersion = extractString(json, "androidVersion");
+        m_deviceConfig.screenWidth = extractInt(json, "screenWidth");
+        m_deviceConfig.screenHeight = extractInt(json, "screenHeight");
+        m_deviceConfig.screenDensity = extractInt(json, "screenDensity");
+        
+        m_networkConfig.macAddress = extractString(json, "macAddress");
+        m_networkConfig.carrierName = extractString(json, "carrierName");
+        m_networkConfig.latitude = std::stod(extractString(json, "latitude"));
+        m_networkConfig.longitude = std::stod(extractString(json, "longitude"));
+        m_networkConfig.locationSpoofing = extractBool(json, "locationSpoofing");
+        
+        m_systemConfig.timezone = extractString(json, "timezone");
+        m_systemConfig.locale = extractString(json, "locale");
+        m_systemConfig.mockLocation = extractBool(json, "mockLocation");
+        
+        Logger::getInstance().info("Configuration loaded from JSON");
+        return true;
+    } catch (const std::exception& e) {
+        Logger::getInstance().error("Config JSON parsing error: " + std::string(e.what()));
+        return false;
+    }
 }
 
 }
