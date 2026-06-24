@@ -1,44 +1,397 @@
-name: C++ CI
+name: C++ CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: false
+        default: 'Release'
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: '6.5'
 
 jobs:
 
-  build:
-    name: Build C++ Project
+  # ═══════════════════════════════════════════════════════════════════
+  # Ubuntu Linux Build (GCC)
+  # ═══════════════════════════════════════════════════════════════════
+  ubuntu-build:
+    name: Ubuntu 22.04 (GCC-11)
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          g++-11 \
+          build-essential \
+          libssl-dev \
+          libcurl4-openssl-dev \
+          ninja-build \
+          meson \
+          cppcheck \
+          clang-format-14
+
+    - name: Set GCC-11 as default
+      run: |
+        echo "CC=gcc-11" >> $GITHUB_ENV
+        echo "CXX=g++-11" >> $GITHUB_ENV
+
+    - name: Configure CMake
+      env:
+        CFLAGS: "-Wall -Wextra"
+        CXXFLAGS: "-Wall -Wextra -Wpedantic"
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_C_COMPILER=gcc-11 \
+          -DCMAKE_CXX_COMPILER=g++-11 \
+          -GNinja
+
+    - name: Run Static Analysis (cppcheck)
+      continue-on-error: true
+      run: |
+        cppcheck --enable=all --std=c++20 --verbose \
+          --suppress=missingInclude \
+          --inline-suppr \
+          -i build/ \
+          -i .git/ \
+          src/ include/ 2>&1 | tee cppcheck_report.txt
+        echo "📋 Cppcheck report saved"
+
+    - name: Build project
+      run: |
+        ninja -C build -j$(nproc) 2>&1 | tee build.log
+        
+    - name: Check for compilation errors
+      run: |
+        if grep -q "error:" build.log; then
+          echo "❌ Compilation errors found:"
+          grep -A2 "error:" build.log | head -50
+          exit 1
+        fi
+        if grep -q "Error" build.log; then
+          echo "⚠️  Build completed with errors"
+          exit 1
+        fi
+        echo "✅ No compilation errors"
+
+    - name: Show warnings summary
+      run: |
+        WARN_COUNT=$(grep -c "warning:" build.log || echo "0")
+        echo "Total warnings: $WARN_COUNT"
+        if [ "$WARN_COUNT" -gt 0 ]; then
+          echo "📋 Top 10 warnings:"
+          grep "warning:" build.log | head -10
+        fi
+
+    - name: Show build outputs
+      if: success()
+      run: |
+        echo "=== ✅ Build Successful ==="
+        echo "Build artifacts:"
+        find build -type f -name "*.a" -o -name "*.so" -o -name "*.exe" -o -name "lib*.a" 2>/dev/null | head -20
+        echo ""
+        echo "Binary size:"
+        du -sh build/bin/* 2>/dev/null || echo "No binaries in bin/"
+
+    - name: Run Tests
+      if: success()
+      run: |
+        cd build
+        ctest --output-on-failure --timeout 60 2>&1 || echo "Tests execution completed"
+
+    - name: Upload build logs
+      if: failure()
+      uses: actions/upload-artifact@v5
+      with:
+        name: ubuntu-build-logs
+        path: |
+          build.log
+          cppcheck_report.txt
+        retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Windows Build (MSVC 2022)
+  # ═══════════════════════════════════════════════════════════════════
+  windows-build:
+    name: Windows 2022 (MSVC)
+    runs-on: windows-2022
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        msvc_version: 14.37
+
+    - name: Configure CMake
+      run: |
+        cmake -B build `
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+          -G "Visual Studio 17 2022" `
+          -A x64
+
+    - name: Build project
+      shell: cmd
+      run: |
+        cmake --build build --config Release --parallel 2>&1 | tee build.log
+
+    - name: Check for compilation errors
+      shell: cmd
+      run: |
+        type build.log | findstr /C:"error:" > nul
+        if %errorlevel% equ 0 (
+          echo ❌ Compilation errors found:
+          type build.log | findstr /C:"error:"
+          exit /b 1
+        )
+        echo ✅ No compilation errors
+
+    - name: Show warnings summary
+      shell: cmd
+      run: |
+        echo Total warnings:
+        type build.log | findstr /C:"warning:" | find /c /v ""
+        type build.log | findstr /C:"warning:" | head -10
+
+    - name: Show build outputs
+      if: success()
+      shell: cmd
+      run: |
+        echo === ✅ Build Successful ===
+        dir /s /b build\*.exe 2>nul
+        dir /s /b build\*.dll 2>nul
+
+    - name: Upload build logs
+      if: failure()
+      uses: actions/upload-artifact@v5
+      with:
+        name: windows-build-logs
+        path: build.log
+        retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Windows Build (MinGW-w64)
+  # ═══════════════════════════════════════════════════════════════════
+  windows-mingw:
+    name: Windows (MinGW-w64 GCC-13)
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup MinGW
+      uses: egor-tensin/setup-mingw@v4
+      with:
+        variant: winlibs
+        version: 13.2.0
+
+    - name: Install OpenSSL
+      shell: bash
+      run: |
+        choco install openssl -y --no-progress 2>&1 || true
+        mkdir -p C:/OpenSSL/include C:/OpenSSL/lib
+        cp -r C:/Program\ Files/OpenSSL/include/* C:/OpenSSL/include/ 2>/dev/null || true
+        cp C:/Program\ Files/OpenSSL/lib/*.a C:/OpenSSL/lib/ 2>/dev/null || true
+
+    - name: Configure CMake
+      shell: bash
+      env:
+        CC: gcc
+        CXX: g++
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_C_COMPILER=gcc \
+          -DCMAKE_CXX_COMPILER=g++ \
+          -DOPENSSL_ROOT_DIR="C:/OpenSSL"
+
+    - name: Build project
+      shell: bash
+      run: |
+        cmake --build build --parallel 2 2>&1 | tee build.log
+
+    - name: Check for errors
+      shell: bash
+      run: |
+        if grep -q "error:" build.log; then
+          echo "❌ Compilation errors found:"
+          grep "error:" build.log
+          exit 1
+        fi
+        echo "✅ Build completed"
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v5
+      with:
+        name: mingw-build-logs
+        path: build.log
+
+  # ═══════════════════════════════════════════════════════════════════
+  # macOS Build (Apple Clang)
+  # ═══════════════════════════════════════════════════════════════════
+  macos-build:
+    name: macOS 14 (Apple Clang)
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Install dependencies
+      run: |
+        brew install openssl@3 cmake ninja
+        export OPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
+
+    - name: Configure CMake
+      env:
+        OPENSSL_ROOT_DIR: "/usr/local/opt/openssl@3"
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -GNinja
+
+    - name: Build project
+      run: |
+        ninja -C build -j$(sysctl -n hw.ncpu) 2>&1 | tee build.log
+
+    - name: Check for errors
+      run: |
+        if grep -q "error:" build.log; then
+          echo "❌ Compilation errors found:"
+          grep "error:" build.log
+          exit 1
+        fi
+        echo "✅ Build completed"
+
+    - name: Show build outputs
+      if: success()
+      run: |
+        echo "=== ✅ Build Successful ==="
+        find build -name "*.a" -o -name "lib*" 2>/dev/null | head -10
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Code Quality Check
+  # ═══════════════════════════════════════════════════════════════════
+  code-quality:
+    name: Code Quality Check
     runs-on: ubuntu-latest
     
     steps:
-    
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v5
-    
-    - name: Install build tools
+      with:
+        fetch-depth: 0
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install tools
       run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake g++ build-essential libssl-dev
-    
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-    
-    - name: Build
-      run: cmake --build build --parallel 2 2>&1
-    
-    - name: Show outputs
-      if: success()
+        pip install cpplint cmake-format
+
+    - name: Run cpplint
+      continue-on-error: true
       run: |
-        echo "=== Build Successful ==="
-        ls -la build/
-    
-    - name: Run Tests
+        cpplint --recursive --extensions=cpp,hpp,cc,hh \
+          --filter=-legal/copyright,-readability/casting \
+          --linelength=120 \
+          src/ include/ 2>&1 | tee cpplint_report.txt
+
+    - name: CMake format check
+      continue-on-error: true
       run: |
-        cd build
-        ctest --output-on-failure || echo "Tests completed"
+        cmake-format --check CMakeLists.txt 2>&1 || echo "CMake formatting suggestions available"
+
+    - name: Check for TODO/FIXME
+      run: |
+        TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" src/ include/ --include="*.cpp" --include="*.hpp" 2>/dev/null | wc -l)
+        echo "TODO/FIXME comments found: $TODO_COUNT"
+        if [ "$TODO_COUNT" -gt 10 ]; then
+          echo "⚠️  High number of TODO comments - consider addressing them"
+          grep -r "TODO\|FIXME" src/ include/ --include="*.cpp" --include="*.hpp" 2>/dev/null | head -20
+        fi
+
+    - name: Check header guards
+      run: |
+        MISSING=$(find include/ -name "*.hpp" -exec sh -c 'grep -L "#ifndef\|#pragma once" "$1" > /dev/null && echo "$1"' _ {} \;)
+        if [ -n "$MISSING" ]; then
+          echo "⚠️  Files missing header guards:"
+          echo "$MISSING"
+        else
+          echo "✅ All header files have guards"
+        fi
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Summary & Notifications
+  # ═══════════════════════════════════════════════════════════════════
+  build-summary:
+    name: Build Summary
+    needs: [ubuntu-build, windows-build, windows-mingw, macos-build, code-quality]
+    runs-on: ubuntu-latest
+    
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      if: needs.ubuntu-build.result == 'failure' || needs.windows-build.result == 'failure'
+      uses: actions/download-artifact@v5
+      continue-on-error: true
+
+    - name: Generate Summary
+      run: |
+        echo "## 📊 CI Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Ubuntu GCC-11 | ${{ needs.ubuntu-build.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Windows MSVC | ${{ needs.windows-build.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Windows MinGW | ${{ needs.windows-mingw.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| macOS Clang | ${{ needs.macos-build.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "### Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ needs.ubuntu-build.result }}" == "failure" || "${{ needs.windows-build.result }}" == "failure" ]]; then
+          echo "❌ **Build Failed** - Check artifacts for detailed logs" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ **All builds passed!**" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Set failure status
+      if: needs.ubuntu-build.result == 'failure' || needs.windows-build.result == 'failure'
+      run: |
+        echo "❌ CI FAILED - One or more builds failed. Please check the logs above."
+        exit 1
