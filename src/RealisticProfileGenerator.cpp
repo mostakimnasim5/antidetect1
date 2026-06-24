@@ -1,4 +1,6 @@
 #include "RealisticProfileGenerator.hpp"
+#include "DeviceIDGenerator.hpp"
+#include "CryptoEmulator.hpp"
 #include "Logger.hpp"
 #include <sstream>
 #include <iomanip>
@@ -481,6 +483,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateSamsungProfile(const 
     profile.androidID = uniqueIDs.androidID;
     profile.wifiMAC = uniqueIDs.wifiMAC;
     profile.bluetoothMAC = uniqueIDs.bluetoothMAC;
+    profile.gsfId = generateGSFID();
+    profile.bssid = generateBSSID(profile.brand);
     
     // Profile hash
     profile.profileHash = generateProfileHash(profile);
@@ -606,6 +610,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateGoogleProfile(const s
     profile.androidID = uniqueIDs.androidID;
     profile.wifiMAC = uniqueIDs.wifiMAC;
     profile.bluetoothMAC = uniqueIDs.bluetoothMAC;
+    profile.gsfId = generateGSFID();
+    profile.bssid = generateBSSID(profile.brand);
     profile.profileHash = generateProfileHash(profile);
     
     ProfileGenerationResult result;
@@ -717,6 +723,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateXiaomiProfile(const s
     profile.androidID = uniqueIDs.androidID;
     profile.wifiMAC = uniqueIDs.wifiMAC;
     profile.bluetoothMAC = uniqueIDs.bluetoothMAC;
+    profile.gsfId = generateGSFID();
+    profile.bssid = generateBSSID(profile.brand);
     profile.profileHash = generateProfileHash(profile);
     
     ProfileGenerationResult result;
@@ -829,6 +837,8 @@ ProfileGenerationResult RealisticProfileGenerator::generateOnePlusProfile(const 
     profile.androidID = uniqueIDs.androidID;
     profile.wifiMAC = uniqueIDs.wifiMAC;
     profile.bluetoothMAC = uniqueIDs.bluetoothMAC;
+    profile.gsfId = generateGSFID();
+    profile.bssid = generateBSSID(profile.brand);
     profile.profileHash = generateProfileHash(profile);
     
     ProfileGenerationResult result;
@@ -1279,4 +1289,42 @@ std::string RealisticProfileGenerator::generateGAID() {
     return ss.str();
 }
 
+
+// Device Identifier Generation (v1.8)
+void RealisticProfileGenerator::generateDeviceIdentifiers(DeviceProfile& profile, const std::string& brand) {
+    auto& idGen = DeviceIDGenerator::getInstance();
+    idGen.initialize();
+    
+    profile.imei = idGen.generateIMEI(brand);
+    profile.serialNumber = idGen.generateSerialNumber(brand);
+    profile.gsfId = generateGSFID();
+    profile.androidID = idGen.generateAndroidId();
+    profile.wifiMAC = idGen.generateMACAddress("wifi");
+    profile.bluetoothMAC = idGen.generateBluetoothAddress();
+    profile.bssid = generateBSSID(brand);
 }
+
+std::string RealisticProfileGenerator::generateGSFID() {
+    std::stringstream ss;
+    ss << "af-" << generateNumericString(12);
+    return ss.str();
+}
+
+std::string RealisticProfileGenerator::generateBSSID(const std::string& brand) {
+    static const std::map<std::string, std::string> BRAND_OUI = {
+        {"google", "F4:F5:D8"}, {"samsung", "F8:A9:63"}, {"xiaomi", "58:44:98"},
+        {"oneplus", "38:2C:4A"}, {"huawei", "00:25:9E"}, {"generic", "AA:BB:CC"}
+    };
+    
+    std::string lowerBrand = brand;
+    std::transform(lowerBrand.begin(), lowerBrand.end(), lowerBrand.begin(), ::tolower);
+    
+    std::string oui = BRAND_OUI.count(lowerBrand) ? BRAND_OUI.at(lowerBrand) : BRAND_OUI.at("generic");
+    
+    std::stringstream ss;
+    ss << oui << ":" << generateHexDigits(2) << ":" 
+       << generateHexDigits(2) << ":" << generateHexDigits(2);
+    return ss.str();
+}
+
+} // namespace AntiDetect

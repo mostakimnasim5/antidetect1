@@ -3,6 +3,9 @@
 #include "DeviceFingerprint.hpp"
 #include "NetworkSpoofer.hpp"
 #include "SystemManager.hpp"
+#include "DeviceIDGenerator.hpp"
+#include "CryptoEmulator.hpp"
+#include "VirtualSecurityChip.hpp"
 #include "Logger.hpp"
 #include <fstream>
 #include <sstream>

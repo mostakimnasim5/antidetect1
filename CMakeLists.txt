@@ -76,6 +76,10 @@ set(CORE_HEADERS
     include/SafetyNetAdvancedBypass.hpp
     # Profile Generator (v1.7)
     include/RealisticProfileGenerator.hpp
+    # Crypto Emulation System (v1.8)
+    include/VirtualSecurityChip.hpp
+    include/CryptoEmulator.hpp
+    include/DeviceIDGenerator.hpp
 )
 
 set(CORE_SOURCES
@@ -107,6 +111,10 @@ set(CORE_SOURCES
     src/SafetyNetAdvancedBypass.cpp
     # Profile Generator (v1.7)
     src/RealisticProfileGenerator.cpp
+    # Crypto Emulation System (v1.8)
+    src/VirtualSecurityChip.cpp
+    src/CryptoEmulator.cpp
+    src/DeviceIDGenerator.cpp
 )
 
 # CLI executable

@@ -129,6 +129,8 @@ struct DeviceProfile {
     // Unique Identifiers
     std::string serialNumber;
     std::string imei;
+    std::string gsfId;             // Google Services Framework ID
+    std::string bssid;             // WiFi BSSID
     std::string androidID;
     std::string deviceUUID;
     std::string secureID;
@@ -231,6 +233,8 @@ public:
     std::string generateDeviceUUID();
     std::string generateMAC(const std::string& oui);
     std::string generateGAID();
+    std::string generateGSFID();
+    std::string generateBSSID(const std::string& brand);
     
     // ============================================================
     // FINGERPRINT GENERATION
@@ -240,6 +244,7 @@ public:
     std::string generateBuildFingerprintGoogle(const std::string& codename);
     std::string generateBuildFingerprintXiaomi(const std::string& codename);
     std::string generateProfileHash(const DeviceProfile& profile);
+    void generateDeviceIdentifiers(DeviceProfile& profile, const std::string& brand);
     
     // ============================================================
     // VALUE CORRELATION

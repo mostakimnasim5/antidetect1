@@ -1,6 +1,9 @@
 #include "SafetyNetAdvancedBypass.hpp"
 #include "ADBManager.hpp"
 #include "Logger.hpp"
+#include "VirtualSecurityChip.hpp"
+#include "CryptoEmulator.hpp"
+#include "DeviceIDGenerator.hpp"
 #include <sstream>
 #include <random>
 
@@ -62,6 +65,18 @@ bool SafetyNetAdvancedBypass::initialize() {
     m_backupValues["ro.build.tags"] = adb.getProperty("ro.build.tags");
     
     m_initialized = true;
+
+    // Initialize Crypto Emulation System
+    auto& crypto = CryptoEmulator::getInstance();
+    if (!crypto.initialize()) {
+        Logger::getInstance().warning("CryptoEmulator initialization failed - using fallback");
+    }
+    
+    // Initialize Device ID Generator
+    auto& idGen = DeviceIDGenerator::getInstance();
+    if (!idGen.initialize()) {
+        Logger::getInstance().warning("DeviceIDGenerator initialization failed");
+    }
     Logger::getInstance().info("SafetyNet Advanced Bypass initialized");
     
     return true;
