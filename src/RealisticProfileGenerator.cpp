@@ -1226,7 +1226,7 @@ std::vector<DeviceProfile> RealisticProfileGenerator::generateUniqueBatch(int co
     std::vector<DeviceProfile> profiles;
     std::set<std::string> usedSerials;
     
-    for (int i = 0; i < count * 2 && profiles.size() < count; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(count) * 2 && profiles.size() < static_cast<size_t>(count); ++i) {
         auto result = generateRandomProfile(manufacturer);
         if (result.success && usedSerials.find(result.profile.serialNumber) == usedSerials.end()) {
             usedSerials.insert(result.profile.serialNumber);

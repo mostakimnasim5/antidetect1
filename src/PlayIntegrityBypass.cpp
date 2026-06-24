@@ -25,7 +25,7 @@ PlayIntegrityBypass::PlayIntegrityBypass()
     , m_currentLevel(IntegrityLevel::UNKNOWN)
 {
     // Initialize with default secure values
-    m_currentToken = {false, "", "", "", "", "", false, false, false, false, false, false, false, false};
+    m_currentToken = {false, "", "", "", "", "", false, false, false, false, false, false, false, false, false};
 }
 
 PlayIntegrityBypass::~PlayIntegrityBypass() {

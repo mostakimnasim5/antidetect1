@@ -98,7 +98,7 @@ void SafetyNetAdvancedBypass::shutdown() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::performFullBypass() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     if (!m_initialized) {
         result.error = "Not initialized";
@@ -147,7 +147,7 @@ SafetyNetResult SafetyNetAdvancedBypass::performFullBypass() {
 // === ROOT DETECTION BYPASS ===
 
 SafetyNetResult SafetyNetAdvancedBypass::bypassRootDetection() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     // Hide common root indicators
     hideRootBinary();
@@ -172,7 +172,7 @@ SafetyNetResult SafetyNetAdvancedBypass::bypassRootDetection() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::hideRootBinary() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -189,7 +189,7 @@ SafetyNetResult SafetyNetAdvancedBypass::hideRootBinary() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::hideMagisk() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -216,7 +216,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setGreenBootState() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setVerifiedBootState(BootState state) {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -250,7 +250,7 @@ SafetyNetResult SafetyNetAdvancedBypass::enforceSELinux() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setSELinuxEnforcing() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -268,7 +268,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setSELinuxEnforcing() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::enableDMVerity() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -286,7 +286,7 @@ SafetyNetResult SafetyNetAdvancedBypass::enableDMVerity() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::disableDebugFlags() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -313,7 +313,7 @@ SafetyNetResult SafetyNetAdvancedBypass::disableDebugFlags() {
 // === SYSTEM PROPERTIES ===
 
 SafetyNetResult SafetyNetAdvancedBypass::setReleaseKeys() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -336,7 +336,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setReleaseKeys() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setLatestSecurityPatch() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -357,7 +357,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setLatestSecurityPatch() {
 // === INTEGRITY TOKEN GENERATION ===
 
 SafetyNetResult SafetyNetAdvancedBypass::generateIntegrityToken(SafetyNetIntegrityLevel level) {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     m_currentToken.isValid = true;
     
@@ -411,7 +411,7 @@ SafetyNetResult SafetyNetAdvancedBypass::generateIntegrityToken(SafetyNetIntegri
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setCTSCProfileMatch() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     m_currentToken.ctsProfileMatch = "true";
     
@@ -422,7 +422,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setCTSCProfileMatch() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setBasicIntegrity() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     m_currentToken.basicIntegrity = "true";
     
@@ -433,7 +433,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setBasicIntegrity() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setStrongIntegrity() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     m_currentToken.basicIntegrity = "true";
     m_currentToken.ctsProfileMatch = "true";
@@ -446,7 +446,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setStrongIntegrity() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setCertifiedIntegrity() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     m_currentToken.basicIntegrity = "true";
     m_currentToken.ctsProfileMatch = "true";
@@ -461,7 +461,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setCertifiedIntegrity() {
 // === DEVICE STATE ===
 
 SafetyNetResult SafetyNetAdvancedBypass::setDeviceSecure() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -477,7 +477,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setDeviceSecure() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setScreenLocked() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -496,7 +496,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setScreenLocked() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setEncryptionEnabled() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -514,7 +514,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setEncryptionEnabled() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::setBootloaderLocked() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -532,7 +532,7 @@ SafetyNetResult SafetyNetAdvancedBypass::setBootloaderLocked() {
 // === PRE-BUILT PROFILES ===
 
 SafetyNetResult SafetyNetAdvancedBypass::applySamsungProfile() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -552,7 +552,7 @@ SafetyNetResult SafetyNetAdvancedBypass::applySamsungProfile() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::applyGoogleProfile() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -572,7 +572,7 @@ SafetyNetResult SafetyNetAdvancedBypass::applyGoogleProfile() {
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::applyStockROMProfile() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     // Apply stock ROM settings
     setReleaseKeys();
@@ -592,7 +592,7 @@ SafetyNetResult SafetyNetAdvancedBypass::applyStockROMProfile() {
 // === VALIDATION ===
 
 SafetyNetResult SafetyNetAdvancedBypass::validateAllChecks() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     auto& adb = ADBManager::getInstance();
     
@@ -670,7 +670,7 @@ std::map<std::string, std::string> SafetyNetAdvancedBypass::getDetailedStatus() 
 }
 
 SafetyNetResult SafetyNetAdvancedBypass::getStatus() {
-    SafetyNetResult result = {false, "", "", {}};
+    SafetyNetResult result = {.success = false, .message = "", .error = "", .token = {}, .details = {}};
     
     std::stringstream ss;
     ss << "SafetyNet Advanced Bypass Status:\n";

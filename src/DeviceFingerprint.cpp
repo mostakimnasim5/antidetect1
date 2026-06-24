@@ -192,7 +192,7 @@ bool DeviceFingerprint::restoreOriginalValue(const std::string& property) {
 }
 
 FingerprintResult DeviceFingerprint::spoofDeviceManufacturer(const std::string& manufacturer) {
-    FingerprintResult result = {false, "ro.product.manufacturer", "", manufacturer, ""};
+    FingerprintResult result = {false, "ro.product.manufacturer", "", manufacturer, "", ""};
     
     result.originalValue = getPropertyValue("ro.product.manufacturer");
     
@@ -215,7 +215,7 @@ FingerprintResult DeviceFingerprint::spoofDeviceManufacturer(const std::string& 
 }
 
 FingerprintResult DeviceFingerprint::spoofDeviceModel(const std::string& model) {
-    FingerprintResult result = {false, "ro.product.model", "", model, ""};
+    FingerprintResult result = {false, "ro.product.model", "", model, "", ""};
     
     result.originalValue = getPropertyValue("ro.product.model");
     
@@ -238,7 +238,7 @@ FingerprintResult DeviceFingerprint::spoofDeviceModel(const std::string& model) 
 }
 
 FingerprintResult DeviceFingerprint::spoofDeviceBrand(const std::string& brand) {
-    FingerprintResult result = {false, "ro.product.brand", "", brand, ""};
+    FingerprintResult result = {false, "ro.product.brand", "", brand, "", ""};
     
     result.originalValue = getPropertyValue("ro.product.brand");
     
@@ -258,7 +258,7 @@ FingerprintResult DeviceFingerprint::spoofDeviceBrand(const std::string& brand) 
 }
 
 FingerprintResult DeviceFingerprint::spoofBuildFingerprint(const std::string& fingerprint) {
-    FingerprintResult result = {false, "ro.build.fingerprint", "", fingerprint, ""};
+    FingerprintResult result = {false, "ro.build.fingerprint", "", fingerprint, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.fingerprint");
     
@@ -277,7 +277,7 @@ FingerprintResult DeviceFingerprint::spoofBuildFingerprint(const std::string& fi
 }
 
 FingerprintResult DeviceFingerprint::spoofBuildId(const std::string& buildId) {
-    FingerprintResult result = {false, "ro.build.id", "", buildId, ""};
+    FingerprintResult result = {false, "ro.build.id", "", buildId, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.id");
     result.success = applyPropertyChange("ro.build.id", buildId);

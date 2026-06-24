@@ -154,7 +154,7 @@ std::string CryptoUtils::base64Decode(const std::string& input) {
     for (size_t k = 0; k < input.length(); k++) {
         c = static_cast<unsigned char>(input[k]);
         if (c == '=') break;
-        if (c >= 256 || base64DecodeTable[c] >= 64) continue;
+        if (base64DecodeTable[c] >= 64) continue;
         charArray4[i++] = c;
         if (i == 4) {
             result += static_cast<char>((charArray4[0] << 2) + ((charArray4[1] & 0x30) >> 4));

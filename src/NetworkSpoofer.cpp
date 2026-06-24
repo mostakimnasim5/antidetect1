@@ -179,7 +179,7 @@ bool NetworkSpoofer::backupOriginalValue(const std::string& setting, const std::
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofMACAddress(const std::string& macAddress) {
-    NetworkSpoofResult result = {false, "MAC", "", macAddress, ""};
+    NetworkSpoofResult result = {false, "MAC", "", macAddress, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -218,7 +218,7 @@ NetworkSpoofResult NetworkSpoofer::spoofWiFiMACAddress(const std::string& macAdd
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofBluetoothMAC(const std::string& macAddress) {
-    NetworkSpoofResult result = {false, "Bluetooth", "", macAddress, ""};
+    NetworkSpoofResult result = {false, "Bluetooth", "", macAddress, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -241,7 +241,7 @@ NetworkSpoofResult NetworkSpoofer::spoofBluetoothMAC(const std::string& macAddre
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofEthernetMAC(const std::string& macAddress) {
-    NetworkSpoofResult result = {false, "Ethernet", "", macAddress, ""};
+    NetworkSpoofResult result = {false, "Ethernet", "", macAddress, "", ""};
     
     auto& adb = ADBManager::getInstance();
     std::string formattedMAC = formatMAC(macAddress);
@@ -261,7 +261,7 @@ NetworkSpoofResult NetworkSpoofer::spoofEthernetMAC(const std::string& macAddres
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofCarrierName(const std::string& carrierName) {
-    NetworkSpoofResult result = {false, "Carrier", "", carrierName, ""};
+    NetworkSpoofResult result = {false, "Carrier", "", carrierName, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -290,7 +290,7 @@ NetworkSpoofResult NetworkSpoofer::spoofCarrierName(const std::string& carrierNa
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofCarrierCountry(const std::string& country) {
-    NetworkSpoofResult result = {false, "Country", "", country, ""};
+    NetworkSpoofResult result = {false, "Country", "", country, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -307,7 +307,7 @@ NetworkSpoofResult NetworkSpoofer::spoofCarrierCountry(const std::string& countr
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofSIMOperator(const std::string& operatorCode) {
-    NetworkSpoofResult result = {false, "SIM Operator", "", operatorCode, ""};
+    NetworkSpoofResult result = {false, "SIM Operator", "", operatorCode, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -324,7 +324,7 @@ NetworkSpoofResult NetworkSpoofer::spoofSIMOperator(const std::string& operatorC
 }
 
 NetworkSpoofResult NetworkSpoofer::spoofNetworkType(const std::string& networkType) {
-    NetworkSpoofResult result = {false, "Network Type", "", networkType, ""};
+    NetworkSpoofResult result = {false, "Network Type", "", networkType, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -383,7 +383,7 @@ NetworkSpoofResult NetworkSpoofer::spoofLocation(double latitude, double longitu
 }
 
 NetworkSpoofResult NetworkSpoofer::enableGPSSpoofing() {
-    NetworkSpoofResult result = {false, "GPS", "", "", ""};
+    NetworkSpoofResult result = {false, "GPS", "", "", "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -398,7 +398,7 @@ NetworkSpoofResult NetworkSpoofer::enableGPSSpoofing() {
 }
 
 NetworkSpoofResult NetworkSpoofer::disableGPSSpoofing() {
-    NetworkSpoofResult result = {false, "GPS", "", "", ""};
+    NetworkSpoofResult result = {false, "GPS", "", "", "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -412,7 +412,7 @@ NetworkSpoofResult NetworkSpoofer::disableGPSSpoofing() {
 }
 
 NetworkSpoofResult NetworkSpoofer::enableMockLocation() {
-    NetworkSpoofResult result = {false, "Mock Location", "", "", ""};
+    NetworkSpoofResult result = {false, "Mock Location", "", "", "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -427,7 +427,7 @@ NetworkSpoofResult NetworkSpoofer::enableMockLocation() {
 }
 
 NetworkSpoofResult NetworkSpoofer::disableMockLocation() {
-    NetworkSpoofResult result = {false, "Mock Location", "", "", ""};
+    NetworkSpoofResult result = {false, "Mock Location", "", "", "", ""};
     
     auto& adb = ADBManager::getInstance();
     

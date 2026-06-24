@@ -11,8 +11,8 @@
 namespace AntiDetect {
 
 VirtualSecurityChip::VirtualSecurityChip()
-    : m_initialized(false)
-    , m_bootState("green")
+    : m_bootState("green")
+    , m_initialized(false)
     , m_securityLevel("STRONG_BOX")
 {
     m_startTime = std::chrono::steady_clock::now();

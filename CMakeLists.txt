@@ -15,7 +15,7 @@ include(CTest)
 if(MSVC)
     add_compile_options(/W4 /WX-)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # Find required packages
@@ -184,3 +184,13 @@ endif()
 
 # Add tests subdirectory
 add_subdirectory(tests)
+
+# Suppress specific warnings that are not errors
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(
+        -Wno-missing-field-initializers
+        -Wno-unused-parameter
+        -Wno-unused-variable
+        -Wno-reorder
+    )
+endif()

@@ -621,13 +621,6 @@ bool ProfileManager::jsonToProfile(const std::string& json, FingerprintProfile& 
         return false;
     }
     
-    auto trim = [](const std::string& s) -> std::string {
-        size_t start = s.find_first_not_of(" \t\n\r");
-        size_t end = s.find_last_not_of(" \t\n\r");
-        if (start == std::string::npos) return "";
-        return s.substr(start, end - start + 1);
-    };
-    
     auto extractString = [&](const std::string& jsonStr, const std::string& key) -> std::string {
         std::string searchKey = "\"" + key + "\"";
         size_t pos = jsonStr.find(searchKey);
