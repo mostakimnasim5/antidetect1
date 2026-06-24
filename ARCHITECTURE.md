@@ -73,6 +73,10 @@
 - **DMI/SMBIOS Spoofing**: Real device appearance
 - **CPUID Masking**: Hide virtualization signatures
 - **Sensor Data Simulation**: Accelerometer, Gyroscope, GPS, etc.
+- **Kernel-Level Properties**: Complete ro.*, persist.*, vendor.* spoofing
+- **Valid Device Identifiers**: IMEI (Luhn-valid), Serial Numbers, GSF ID, Android ID
+- **Battery Masking**: Health, temperature, voltage, serial spoofing
+- **Touch Simulation**: Hyper-realistic human-like touch patterns with noise
 
 ### 3. Network Virtualization
 - **Per-VM MAC Address**: Unique, realistic MAC per instance

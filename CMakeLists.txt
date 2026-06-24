@@ -63,6 +63,8 @@ set(CORE_HEADERS
     # Core Engine
     include/CoreEngine.hpp
     include/VMManager.hpp
+    include/profiles/DeviceIdentityGenerator.hpp
+    include/profiles/DeviceProfileDatabase.hpp
     include/ProfileManager.hpp
     include/ResourceAllocator.hpp
     include/StorageManager.hpp
@@ -116,6 +118,8 @@ set(CORE_SOURCES
     src/CoreEngine.cpp
     src/VMManager.cpp
     src/ProfileManager.cpp
+    src/profiles/DeviceIdentityGenerator.cpp
+    src/profiles/DeviceProfileDatabase.cpp
     src/ResourceAllocator.cpp
     src/StorageManager.cpp
     src/SnapshotManager.cpp
