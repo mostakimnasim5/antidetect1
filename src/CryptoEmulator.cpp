@@ -10,8 +10,8 @@
 namespace AntiDetect {
 
 CryptoEmulator::CryptoEmulator()
-    : m_deviceBrand("Samsung")
-    , m_initialized(false)
+    : m_initialized(false)
+    , m_deviceBrand("Samsung")
     , m_deviceModel("SM-G998B")
     , m_androidVersion("13")
     , m_securityPatch("2023-12-01")

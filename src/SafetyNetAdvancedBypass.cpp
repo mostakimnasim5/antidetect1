@@ -733,156 +733,156 @@ std::string SafetyNetAdvancedBypass::encryptPayload() {
 
 // Stub implementations for unused methods
 SafetyNetResult SafetyNetAdvancedBypass::hideSUBinary() { 
-    SafetyNetResult r = {true, "SU binary hidden", "", {}};
+    SafetyNetResult r = {true, "SU binary hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideSuperSU() { 
-    SafetyNetResult r = {true, "SuperSU hidden", "", {}};
+    SafetyNetResult r = {true, "SuperSU hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::installRootCloak() { 
-    SafetyNetResult r = {true, "Root cloak installed", "", {}};
+    SafetyNetResult r = {true, "Root cloak installed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::useMagiskHide() { 
-    SafetyNetResult r = {true, "Magisk hide enabled", "", {}};
+    SafetyNetResult r = {true, "Magisk hide enabled", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::bypassVerifiedBoot() { 
-    SafetyNetResult r = {true, "Verified boot bypassed", "", {}};
+    SafetyNetResult r = {true, "Verified boot bypassed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideDebugSymbols() { 
-    SafetyNetResult r = {true, "Debug symbols hidden", "", {}};
+    SafetyNetResult r = {true, "Debug symbols hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideSystemProperties() { 
-    SafetyNetResult r = {true, "System properties hidden", "", {}};
+    SafetyNetResult r = {true, "System properties hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::spoofBuildTags() { 
-    SafetyNetResult r = {true, "Build tags spoofed", "", {}};
+    SafetyNetResult r = {true, "Build tags spoofed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::bypassPlayServicesChecks() { 
-    SafetyNetResult r = {true, "Play Services checks bypassed", "", {}};
+    SafetyNetResult r = {true, "Play Services checks bypassed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideGMS() { 
-    SafetyNetResult r = {true, "GMS hidden", "", {}};
+    SafetyNetResult r = {true, "GMS hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::spoofGMSVersion() { 
-    SafetyNetResult r = {true, "GMS version spoofed", "", {}};
+    SafetyNetResult r = {true, "GMS version spoofed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::disableSafetyNet() { 
-    SafetyNetResult r = {true, "SafetyNet disabled", "", {}};
+    SafetyNetResult r = {true, "SafetyNet disabled", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hookSafetyNetAPI() { 
-    SafetyNetResult r = {true, "SafetyNet API hooked", "", {}};
+    SafetyNetResult r = {true, "SafetyNet API hooked", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hookPlayIntegrityAPI() { 
-    SafetyNetResult r = {true, "Play Integrity API hooked", "", {}};
+    SafetyNetResult r = {true, "Play Integrity API hooked", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setMockResponse(const std::string& api, const std::string& response) { 
-    SafetyNetResult r = {true, "Mock response set for " + api, "", {}};
+    SafetyNetResult r = {true, "Mock response set for " + api, "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideSystemMounts() { 
-    SafetyNetResult r = {true, "System mounts hidden", "", {}};
+    SafetyNetResult r = {true, "System mounts hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideSystemBinaries() { 
-    SafetyNetResult r = {true, "System binaries hidden", "", {}};
+    SafetyNetResult r = {true, "System binaries hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::checkForDangerousApps() { 
-    SafetyNetResult r = {true, "No dangerous apps found", "", {}};
+    SafetyNetResult r = {true, "No dangerous apps found", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideXposed() { 
-    SafetyNetResult r = {true, "Xposed hidden", "", {}};
+    SafetyNetResult r = {true, "Xposed hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideFrida() { 
-    SafetyNetResult r = {true, "Frida hidden", "", {}};
+    SafetyNetResult r = {true, "Frida hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setBatteryHealth(const std::string& health) { 
-    SafetyNetResult r = {true, "Battery health set: " + health, "", {}};
+    SafetyNetResult r = {true, "Battery health set: " + health, "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setBatteryStatus(const std::string& status) { 
-    SafetyNetResult r = {true, "Battery status set: " + status, "", {}};
+    SafetyNetResult r = {true, "Battery status set: " + status, "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::disablePowerSaving() { 
-    SafetyNetResult r = {true, "Power saving disabled", "", {}};
+    SafetyNetResult r = {true, "Power saving disabled", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::checkMemoryTampering() { 
-    SafetyNetResult r = {true, "Memory not tampered", "", {}};
+    SafetyNetResult r = {true, "Memory not tampered", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hideDebuggableProcess() { 
-    SafetyNetResult r = {true, "Debuggable processes hidden", "", {}};
+    SafetyNetResult r = {true, "Debuggable processes hidden", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::secureMemoryAllocation() { 
-    SafetyNetResult r = {true, "Memory allocation secured", "", {}};
+    SafetyNetResult r = {true, "Memory allocation secured", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setKeyguardSecure() { 
-    SafetyNetResult r = {true, "Keyguard set to secure", "", {}};
+    SafetyNetResult r = {true, "Keyguard set to secure", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::applyMinimalProfile() { 
-    SafetyNetResult r = {true, "Minimal profile applied", "", {}};
+    SafetyNetResult r = {true, "Minimal profile applied", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::spoofAPILevel(int level) { 
-    SafetyNetResult r = {true, "API level spoofed to " + std::to_string(level), "", {}};
+    SafetyNetResult r = {true, "API level spoofed to " + std::to_string(level), "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setAPILevel33() { return spoofAPILevel(33); }
 SafetyNetResult SafetyNetAdvancedBypass::setAPILevel34() { return spoofAPILevel(34); }
 SafetyNetResult SafetyNetAdvancedBypass::spoofBuildVersion() { 
-    SafetyNetResult r = {true, "Build version spoofed", "", {}};
+    SafetyNetResult r = {true, "Build version spoofed", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::prepareHardwareAttestation() { 
-    SafetyNetResult r = {true, "Hardware attestation prepared", "", {}};
+    SafetyNetResult r = {true, "Hardware attestation prepared", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setHardwareAttestationKey() { 
-    SafetyNetResult r = {true, "Hardware attestation key set", "", {}};
+    SafetyNetResult r = {true, "Hardware attestation key set", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::generateAttestationCertificate() { 
-    SafetyNetResult r = {true, "Attestation certificate generated", "", {}};
+    SafetyNetResult r = {true, "Attestation certificate generated", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setKeystoreFlags() { 
-    SafetyNetResult r = {true, "Keystore flags set", "", {}};
+    SafetyNetResult r = {true, "Keystore flags set", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setDeviceIntegrity(const std::string& level) { 
     m_currentToken.deviceIntegrity = level;
-    SafetyNetResult r = {true, "Device integrity set to: " + level, "", {}};
+    SafetyNetResult r = {true, "Device integrity set to: " + level, "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::hookIntegrityAPI() { 
-    SafetyNetResult r = {true, "Integrity API hooked", "", {}};
+    SafetyNetResult r = {true, "Integrity API hooked", "", {}, {}};
     return r;
 }
 SafetyNetResult SafetyNetAdvancedBypass::setOrangeBootState() { return setVerifiedBootState(BootState::ORANGE); }
 SafetyNetResult SafetyNetAdvancedBypass::setRedBootState() { return setVerifiedBootState(BootState::RED); }
 SafetyNetResult SafetyNetAdvancedBypass::spoofTCPOptions() { 
-    SafetyNetResult r = {true, "TCP options spoofed", "", {}};
+    SafetyNetResult r = {true, "TCP options spoofed", "", {}, {}};
     return r;
 }
 

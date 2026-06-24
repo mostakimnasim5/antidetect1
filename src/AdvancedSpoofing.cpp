@@ -425,7 +425,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofVulkanVersion(const std::string& v
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofAccelerometer(float x, float y, float z) {
     AdvancedSpoofingResult result = {false, "Sensor", "accelerometer", "", 
-                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
+                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -440,7 +440,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofAccelerometer(float x, float y, fl
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofGyroscope(float x, float y, float z) {
     AdvancedSpoofingResult result = {false, "Sensor", "gyroscope", "",
-                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
+                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -455,7 +455,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofGyroscope(float x, float y, float 
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofMagnetometer(float x, float y, float z) {
     AdvancedSpoofingResult result = {false, "Sensor", "magnetometer", "",
-                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
+                            std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -730,7 +730,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofSafetyNetResponse(const std::map<s
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofPlayIntegrityResult(const std::string& nonce, const std::string& result) {
-    AdvancedSpoofingResult result_ = {false, "PlayIntegrity", "play.integrity", "", result, ""};
+    AdvancedSpoofingResult result_ = {false, "PlayIntegrity", "play.integrity", "", result, "", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -795,7 +795,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableNoCtsMismatch() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::blockTracker(const std::string& trackerDomain) {
-    AdvancedSpoofingResult result = {false, "Tracker", "block." + trackerDomain, "", "blocked", ""};
+    AdvancedSpoofingResult result = {false, "Tracker", "block." + trackerDomain, "", "blocked", "", ""};
     
     m_blockedTrackers[trackerDomain] = "blocked";
     
@@ -806,7 +806,7 @@ AdvancedSpoofingResult AdvancedSpoofing::blockTracker(const std::string& tracker
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::unblockTracker(const std::string& trackerDomain) {
-    AdvancedSpoofingResult result = {false, "Tracker", "unblock." + trackerDomain, "", "unblocked", ""};
+    AdvancedSpoofingResult result = {false, "Tracker", "unblock." + trackerDomain, "", "unblocked", "", ""};
     
     m_blockedTrackers.erase(trackerDomain);
     

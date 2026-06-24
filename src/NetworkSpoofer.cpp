@@ -355,7 +355,7 @@ NetworkSpoofResult NetworkSpoofer::spoofNetworkType(const std::string& networkTy
 
 NetworkSpoofResult NetworkSpoofer::spoofLocation(double latitude, double longitude) {
     NetworkSpoofResult result = {false, "Location", "", 
-                                  std::to_string(latitude) + "," + std::to_string(longitude), ""};
+                                  std::to_string(latitude) + "," + std::to_string(longitude), "", ""};
     
     auto& adb = ADBManager::getInstance();
     

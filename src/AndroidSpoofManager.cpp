@@ -1444,7 +1444,7 @@ OperationResult AndroidSpoofManager::importFromJSON(const std::string& filepath)
 OperationResult AndroidSpoofManager::exportBatchToJSON(const std::string& directory, int profilesPerFile) {
     OperationResult result = {true, "", ""};
     
-    struct stat st = {0};
+    struct stat st = {};
     if (stat(directory.c_str(), &st) == -1) {
         mkdir(directory.c_str(), 0755);
     }

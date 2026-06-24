@@ -103,10 +103,10 @@ private:
     std::map<std::string, SecureKey> m_secureKeys;
     std::string m_deviceUniqueId;
     std::string m_boundProfileId;
+    bool m_initialized;
     std::string m_bootState;
     std::string m_bootCertificate;
     std::string m_securityLevel;
-    bool m_initialized;
     std::mutex m_mutex;
     
     // Attestation chain (simulated)

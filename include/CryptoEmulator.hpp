@@ -87,14 +87,13 @@ private:
     std::map<std::string, std::string> m_keyPairs;
     
     // Device info for attestation
+    bool m_initialized;
     std::string m_deviceBrand;
     std::string m_deviceModel;
     std::string m_androidVersion;
     std::string m_securityPatch;
     std::string m_packageName;
     std::string m_apkDigest;
-    
-    bool m_initialized;
 };
 
 } // namespace AntiDetect

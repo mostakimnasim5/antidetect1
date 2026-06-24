@@ -290,7 +290,7 @@ FingerprintResult DeviceFingerprint::spoofBuildId(const std::string& buildId) {
 }
 
 FingerprintResult DeviceFingerprint::spoofAndroidVersion(const std::string& version) {
-    FingerprintResult result = {false, "ro.build.version.release", "", "", version, ""};
+    FingerprintResult result = {false, "ro.build.version.release", "", version, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.version.release");
     result.success = applyPropertyChange("ro.build.version.release", version);
@@ -299,7 +299,7 @@ FingerprintResult DeviceFingerprint::spoofAndroidVersion(const std::string& vers
 }
 
 FingerprintResult DeviceFingerprint::spoofSDKVersion(const std::string& sdkVersion) {
-    FingerprintResult result = {false, "ro.build.version.sdk", "", "", sdkVersion, ""};
+    FingerprintResult result = {false, "ro.build.version.sdk", "", sdkVersion, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.version.sdk");
     result.success = applyPropertyChange("ro.build.version.sdk", sdkVersion);
@@ -308,7 +308,7 @@ FingerprintResult DeviceFingerprint::spoofSDKVersion(const std::string& sdkVersi
 }
 
 FingerprintResult DeviceFingerprint::spoofSecurityPatch(const std::string& patch) {
-    FingerprintResult result = {false, "ro.build.version.security_patch", "", "", patch, ""};
+    FingerprintResult result = {false, "ro.build.version.security_patch", "", patch, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.version.security_patch");
     result.success = applyPropertyChange("ro.build.version.security_patch", patch);
@@ -317,7 +317,7 @@ FingerprintResult DeviceFingerprint::spoofSecurityPatch(const std::string& patch
 }
 
 FingerprintResult DeviceFingerprint::spoofScreenResolution(int width, int height) {
-    FingerprintResult result = {false, "", "", std::to_string(width) + "x" + std::to_string(height), ""};
+    FingerprintResult result = {false, "", "", std::to_string(width) + "x" + std::to_string(height), "", ""};
     
     result.originalValue = getPropertyValue("ro.sf.lcd_density");
     
@@ -332,7 +332,7 @@ FingerprintResult DeviceFingerprint::spoofScreenResolution(int width, int height
 }
 
 FingerprintResult DeviceFingerprint::spoofScreenDensity(int density) {
-    FingerprintResult result = {false, "ro.sf.lcd_density", "", "", std::to_string(density), ""};
+    FingerprintResult result = {false, "ro.sf.lcd_density", "", std::to_string(density), "", ""};
     
     result.originalValue = getPropertyValue("ro.sf.lcd_density");
     
@@ -344,7 +344,7 @@ FingerprintResult DeviceFingerprint::spoofScreenDensity(int density) {
 }
 
 FingerprintResult DeviceFingerprint::spoofScreenDPI(const std::string& dpi) {
-    FingerprintResult result = {false, "ro.sf.lcd_density", "", "", dpi, ""};
+    FingerprintResult result = {false, "ro.sf.lcd_density", "", dpi, "", ""};
     
     result.originalValue = getPropertyValue("ro.sf.lcd_density");
     
@@ -357,7 +357,7 @@ FingerprintResult DeviceFingerprint::spoofScreenDPI(const std::string& dpi) {
 }
 
 FingerprintResult DeviceFingerprint::spoofHardwareInfo(const std::string& hardware, const std::string& board) {
-    FingerprintResult result = {false, "ro.hardware", "", "", hardware, ""};
+    FingerprintResult result = {false, "ro.hardware", "", hardware, "", ""};
     
     result.originalValue = getPropertyValue("ro.hardware");
     
@@ -374,7 +374,7 @@ FingerprintResult DeviceFingerprint::spoofHardwareInfo(const std::string& hardwa
 }
 
 FingerprintResult DeviceFingerprint::spoofGPUInfo(const std::string& vendor, const std::string& renderer) {
-    FingerprintResult result = {false, "", "", vendor + " " + renderer, ""};
+    FingerprintResult result = {false, "", "", vendor + " " + renderer, "", ""};
     
     applyPropertyChange("debug.hwui.render_adreno_profiler.idle_timeout", "0");
     applyPropertyChange("persist.sys.angle.hwui.disable", "1");
@@ -386,7 +386,7 @@ FingerprintResult DeviceFingerprint::spoofGPUInfo(const std::string& vendor, con
 }
 
 FingerprintResult DeviceFingerprint::spoofOpenGLVersion(const std::string& version) {
-    FingerprintResult result = {false, "ro.opengles.version", "", "", version, ""};
+    FingerprintResult result = {false, "ro.opengles.version", "", version, "", ""};
     
     result.originalValue = getPropertyValue("ro.opengles.version");
     result.success = applyPropertyChange("ro.opengles.version", version);
@@ -395,7 +395,7 @@ FingerprintResult DeviceFingerprint::spoofOpenGLVersion(const std::string& versi
 }
 
 FingerprintResult DeviceFingerprint::spoofBootloader(const std::string& bootloader) {
-    FingerprintResult result = {false, "ro.build.bootloader", "", "", bootloader, ""};
+    FingerprintResult result = {false, "ro.build.bootloader", "", bootloader, "", ""};
     
     result.originalValue = getPropertyValue("ro.build.bootloader");
     result.success = applyPropertyChange("ro.build.bootloader", bootloader);
@@ -404,7 +404,7 @@ FingerprintResult DeviceFingerprint::spoofBootloader(const std::string& bootload
 }
 
 FingerprintResult DeviceFingerprint::spoofRadioVersion(const std::string& version) {
-    FingerprintResult result = {false, "ro.modem.wifi.version", "", "", version, ""};
+    FingerprintResult result = {false, "ro.modem.wifi.version", "", version, "", ""};
     
     result.originalValue = getPropertyValue("ro.modem.wifi.version");
     
@@ -416,7 +416,7 @@ FingerprintResult DeviceFingerprint::spoofRadioVersion(const std::string& versio
 }
 
 FingerprintResult DeviceFingerprint::spoofDeviceName(const std::string& name) {
-    FingerprintResult result = {false, "ro.product.device", "", "", name, ""};
+    FingerprintResult result = {false, "ro.product.device", "", name, "", ""};
     
     result.originalValue = getPropertyValue("ro.product.device");
     
