@@ -299,7 +299,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofSerialNumber(const std::string& se
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofBuildId(const std::string& buildId) {
-    AdvancedSpoofingResult result = {"DeviceID", "ro.build.id", "", buildId, ""};
+    AdvancedSpoofingResult result = {false, "DeviceID", "ro.build.id", "", buildId, ""};
     
     result.originalValue = getCurrentValue("ro.build.id");
     result.success = applySpoof("ro.build.id", buildId);
@@ -312,7 +312,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofBuildId(const std::string& buildId
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofCPUModel(const std::string& cpuModel) {
-    AdvancedSpoofingResult result = {"Hardware", "ro.product.cpu.model", "", cpuModel, ""};
+    AdvancedSpoofingResult result = {false, "Hardware", "ro.product.cpu.model", "", cpuModel, ""};
     
     result.originalValue = getCurrentValue("ro.product.cpu.model");
     result.success = applySpoof("ro.product.cpu.model", cpuModel);
@@ -326,7 +326,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofCPUModel(const std::string& cpuMod
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofCPUAbi(const std::string& abi) {
-    AdvancedSpoofingResult result = {"Hardware", "ro.product.cpu.abi", "", abi, ""};
+    AdvancedSpoofingResult result = {false, "Hardware", "ro.product.cpu.abi", "", abi, ""};
     
     result.originalValue = getCurrentValue("ro.product.cpu.abi");
     
@@ -345,7 +345,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofCPUAbi(const std::string& abi) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofProcessorCount(int count) {
-    AdvancedSpoofingResult result = {"Hardware", "sys.proc_count", "", std::to_string(count), ""};
+    AdvancedSpoofingResult result = {false, "Hardware", "sys.proc_count", "", std::to_string(count), ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -361,7 +361,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofProcessorCount(int count) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofTotalMemory(long memoryMB) {
-    AdvancedSpoofingResult result = {"Hardware", "sys.total_memory", "", std::to_string(memoryMB) + "MB", ""};
+    AdvancedSpoofingResult result = {false, "Hardware", "sys.total_memory", "", std::to_string(memoryMB) + "MB", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -374,7 +374,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofTotalMemory(long memoryMB) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofGPURenderer(const std::string& renderer) {
-    AdvancedSpoofingResult result = {"GPU", "debug.hwui.render_gpu_profiler.renderer", "", renderer, ""};
+    AdvancedSpoofingResult result = {false, "GPU", "debug.hwui.render_gpu_profiler.renderer", "", renderer, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -388,7 +388,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofGPURenderer(const std::string& ren
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofGPUVendor(const std::string& vendor) {
-    AdvancedSpoofingResult result = {"GPU", "ro.hardware.gpu", "", vendor, ""};
+    AdvancedSpoofingResult result = {false, "GPU", "ro.hardware.gpu", "", vendor, ""};
     
     result.originalValue = getCurrentValue("ro.hardware.gpu");
     result.success = applySpoof("ro.hardware.gpu", vendor);
@@ -397,7 +397,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofGPUVendor(const std::string& vendo
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofOpenGLVersion(const std::string& version) {
-    AdvancedSpoofingResult result = {"GPU", "ro.opengles.version", "", version, ""};
+    AdvancedSpoofingResult result = {false, "GPU", "ro.opengles.version", "", version, ""};
     
     result.originalValue = getCurrentValue("ro.opengles.version");
     result.success = applySpoof("ro.opengles.version", version);
@@ -410,7 +410,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofOpenGLVersion(const std::string& v
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofVulkanVersion(const std::string& version) {
-    AdvancedSpoofingResult result = {"GPU", "ro.hardware.vulkan.version", "", version, ""};
+    AdvancedSpoofingResult result = {false, "GPU", "ro.hardware.vulkan.version", "", version, ""};
     
     result.originalValue = getCurrentValue("ro.hardware.vulkan.version");
     result.success = applySpoof("ro.hardware.vulkan.version", version);
@@ -424,7 +424,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofVulkanVersion(const std::string& v
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofAccelerometer(float x, float y, float z) {
-    AdvancedSpoofingResult result = {"Sensor", "accelerometer", "", 
+    AdvancedSpoofingResult result = {false, "Sensor", "accelerometer", "", 
                             std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
     
     auto& adb = ADBManager::getInstance();
@@ -439,7 +439,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofAccelerometer(float x, float y, fl
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofGyroscope(float x, float y, float z) {
-    AdvancedSpoofingResult result = {"Sensor", "gyroscope", "",
+    AdvancedSpoofingResult result = {false, "Sensor", "gyroscope", "",
                             std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
     
     auto& adb = ADBManager::getInstance();
@@ -454,7 +454,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofGyroscope(float x, float y, float 
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofMagnetometer(float x, float y, float z) {
-    AdvancedSpoofingResult result = {"Sensor", "magnetometer", "",
+    AdvancedSpoofingResult result = {false, "Sensor", "magnetometer", "",
                             std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z), ""};
     
     auto& adb = ADBManager::getInstance();
@@ -469,7 +469,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofMagnetometer(float x, float y, flo
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofProximity(bool present) {
-    AdvancedSpoofingResult result = {"Sensor", "proximity", "", present ? "near" : "far", ""};
+    AdvancedSpoofingResult result = {false, "Sensor", "proximity", "", present ? "near" : "far", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -483,7 +483,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofProximity(bool present) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofLightSensor(float lux) {
-    AdvancedSpoofingResult result = {"Sensor", "light", "", std::to_string(lux) + " lux", ""};
+    AdvancedSpoofingResult result = {false, "Sensor", "light", "", std::to_string(lux) + " lux", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -497,7 +497,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofLightSensor(float lux) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableSensorSpoofing() {
-    AdvancedSpoofingResult result = {"Sensor", "sensor_spoofing", "", "enabled", ""};
+    AdvancedSpoofingResult result = {false, "Sensor", "sensor_spoofing", "", "enabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -513,7 +513,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableSensorSpoofing() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::disableSensorSpoofing() {
-    AdvancedSpoofingResult result = {"Sensor", "sensor_spoofing", "", "disabled", ""};
+    AdvancedSpoofingResult result = {false, "Sensor", "sensor_spoofing", "", "disabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -529,7 +529,7 @@ AdvancedSpoofingResult AdvancedSpoofing::disableSensorSpoofing() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofUserAgent(const std::string& userAgent) {
-    AdvancedSpoofingResult result = {"UserAgent", "default_ua", "", userAgent, ""};
+    AdvancedSpoofingResult result = {false, "UserAgent", "default_ua", "", userAgent, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -576,7 +576,7 @@ std::string AdvancedSpoofing::generateRandomUserAgent(const std::string& browser
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofWebRTCLocalIP(const std::string& ip) {
-    AdvancedSpoofingResult result = {"WebRTC", "webrtc.local.ip", "", ip, ""};
+    AdvancedSpoofingResult result = {false, "WebRTC", "webrtc.local.ip", "", ip, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -590,7 +590,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofWebRTCLocalIP(const std::string& i
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofWebRTCPublicIP(const std::string& ip) {
-    AdvancedSpoofingResult result = {"WebRTC", "webrtc.public.ip", "", ip, ""};
+    AdvancedSpoofingResult result = {false, "WebRTC", "webrtc.public.ip", "", ip, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -604,7 +604,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofWebRTCPublicIP(const std::string& 
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableWebRTCProxy() {
-    AdvancedSpoofingResult result = {"WebRTC", "webrtc.proxy", "", "enabled", ""};
+    AdvancedSpoofingResult result = {false, "WebRTC", "webrtc.proxy", "", "enabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -620,7 +620,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableWebRTCProxy() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::disableWebRTCProxy() {
-    AdvancedSpoofingResult result = {"WebRTC", "webrtc.proxy", "", "disabled", ""};
+    AdvancedSpoofingResult result = {false, "WebRTC", "webrtc.proxy", "", "disabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -636,7 +636,7 @@ AdvancedSpoofingResult AdvancedSpoofing::disableWebRTCProxy() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofWidevineLevel(int level) {
-    AdvancedSpoofingResult result = {"Widevine", "widevine.level", "", "L" + std::to_string(level), ""};
+    AdvancedSpoofingResult result = {false, "Widevine", "widevine.level", "", "L" + std::to_string(level), ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -661,7 +661,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofWidevineLevel(int level) {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofHDCPLevel(const std::string& level) {
-    AdvancedSpoofingResult result = {"Widevine", "hdcp.level", "", level, ""};
+    AdvancedSpoofingResult result = {false, "Widevine", "hdcp.level", "", level, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -677,7 +677,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofHDCPLevel(const std::string& level
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableDRMEmulation() {
-    AdvancedSpoofingResult result = {"DRM", "drm.emulation", "", "enabled", ""};
+    AdvancedSpoofingResult result = {false, "DRM", "drm.emulation", "", "enabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -693,7 +693,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableDRMEmulation() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::disableDRMEmulation() {
-    AdvancedSpoofingResult result = {"DRM", "drm.emulation", "", "disabled", ""};
+    AdvancedSpoofingResult result = {false, "DRM", "drm.emulation", "", "disabled", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -709,7 +709,7 @@ AdvancedSpoofingResult AdvancedSpoofing::disableDRMEmulation() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofSafetyNetResponse(const std::map<std::string, std::string>& response) {
-    AdvancedSpoofingResult result = {"SafetyNet", "safety.net.response", "", "custom", ""};
+    AdvancedSpoofingResult result = {false, "SafetyNet", "safety.net.response", "", "custom", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -730,7 +730,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofSafetyNetResponse(const std::map<s
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::spoofPlayIntegrityResult(const std::string& nonce, const std::string& result) {
-    AdvancedSpoofingResult result_ = {"PlayIntegrity", "play.integrity", "", result, ""};
+    AdvancedSpoofingResult result_ = {false, "PlayIntegrity", "play.integrity", "", result, ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -747,7 +747,7 @@ AdvancedSpoofingResult AdvancedSpoofing::spoofPlayIntegrityResult(const std::str
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableBasicIntegrity() {
-    AdvancedSpoofingResult result = {"PlayIntegrity", "basic.integrity", "", "true", ""};
+    AdvancedSpoofingResult result = {false, "PlayIntegrity", "basic.integrity", "", "true", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -761,7 +761,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableBasicIntegrity() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableDeviceIntegrity() {
-    AdvancedSpoofingResult result = {"PlayIntegrity", "device.integrity", "", "true", ""};
+    AdvancedSpoofingResult result = {false, "PlayIntegrity", "device.integrity", "", "true", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -778,7 +778,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableDeviceIntegrity() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::enableNoCtsMismatch() {
-    AdvancedSpoofingResult result = {"PlayIntegrity", "cts.mismatch", "", "false", ""};
+    AdvancedSpoofingResult result = {false, "PlayIntegrity", "cts.mismatch", "", "false", ""};
     
     auto& adb = ADBManager::getInstance();
     
@@ -795,7 +795,7 @@ AdvancedSpoofingResult AdvancedSpoofing::enableNoCtsMismatch() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::blockTracker(const std::string& trackerDomain) {
-    AdvancedSpoofingResult result = {"Tracker", "block." + trackerDomain, "", "blocked", ""};
+    AdvancedSpoofingResult result = {false, "Tracker", "block." + trackerDomain, "", "blocked", ""};
     
     m_blockedTrackers[trackerDomain] = "blocked";
     
@@ -806,7 +806,7 @@ AdvancedSpoofingResult AdvancedSpoofing::blockTracker(const std::string& tracker
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::unblockTracker(const std::string& trackerDomain) {
-    AdvancedSpoofingResult result = {"Tracker", "unblock." + trackerDomain, "", "unblocked", ""};
+    AdvancedSpoofingResult result = {false, "Tracker", "unblock." + trackerDomain, "", "unblocked", ""};
     
     m_blockedTrackers.erase(trackerDomain);
     
@@ -825,7 +825,7 @@ std::vector<std::string> AdvancedSpoofing::getBlockedTrackers() {
 }
 
 AdvancedSpoofingResult AdvancedSpoofing::loadBlocklist(const std::string& filepath) {
-    AdvancedSpoofingResult result = {"Tracker", "blocklist", "", filepath, ""};
+    AdvancedSpoofingResult result = {false, "Tracker", "blocklist", "", filepath, ""};
     
     Logger::getInstance().info("Loading tracker blocklist from: " + filepath);
     result.success = true;
