@@ -1,79 +1,93 @@
 # GitHub Actions CI/CD Setup Guide
 
-## Quick Setup (Done!)
+## ✅ Setup Complete!
 
-The workflow files are already created:
+Your CI workflow is configured at: `.github/workflows/ci.yml`
 
+---
+
+## 🖥️ Build Platforms
+
+| Platform | Compiler | Purpose |
+|----------|----------|---------|
+| Ubuntu 22.04 | GCC-11 | Linux production build + static analysis |
+| Windows 2022 | MSVC 14.37 | Windows Visual Studio build |
+| Windows (MinGW) | GCC-13 | Windows portable build |
+| macOS 14 | Apple Clang | macOS build |
+| Code Quality | - | cpplint, cmake-format, header guards |
+
+---
+
+## 🚀 How It Works
+
+### Automatic Triggers
 ```
-antidetect1/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml          ✅ Main CI pipeline
-│       ├── pr-checks.yml  ✅ PR-specific checks
-│       └── README.md       ✅ This guide
-```
-
-## Files Created
-
-### 1. `.github/workflows/ci.yml`
-Main CI pipeline that runs on every push and PR.
-
-**Jobs:**
-| Job | Platform | Purpose |
-|-----|----------|---------|
-| `analyze` | Ubuntu | Static analysis (clang-tidy, cppcheck) |
-| `build-linux` | Ubuntu 22.04 | GCC build |
-| `build-linux-clang` | Ubuntu 22.04 | Clang build |
-| `build-windows-msvc` | Windows 2022 | MSVC build |
-| `build-windows-mingw` | Windows 2022 | MinGW build |
-| `build-macos` | macOS 14 | macOS build |
-| `code-quality` | Ubuntu | Code statistics |
-| `security-scan` | Ubuntu | Security scanning |
-| `deploy` | Ubuntu | Release creation (main only) |
-
-### 2. `.github/workflows/pr-checks.yml`
-Lightweight checks for Pull Requests.
-
-**Jobs:**
-| Job | Purpose |
-|-----|---------|
-| `quick-checks` | File changes |
-| `compile-check` | Fast compilation |
-| `lint-check` | Code style |
-| `pr-size` | PR size |
-
-## How It Works
-
-### Push Triggers
-```
-Any push to any branch → ci.yml runs
+✅ Push to main/develop → CI runs
+✅ Pull Request → CI runs  
+✅ Version tag (v*) → CI runs
+✅ Manual (workflow_dispatch) → CI runs
 ```
 
-### PR Triggers
-```
-PR opened/updated → ci.yml + pr-checks.yml run
-```
+---
 
-## Verification
+## 📋 What Gets Tested
+
+1. **Compilation** - No errors or warnings
+2. **Static Analysis** - Cppcheck memory/UB issues
+3. **Code Quality** - cpplint, formatting, header guards
+4. **Multi-platform** - Linux, Windows (MSVC + MinGW), macOS
+
+---
+
+## 🔍 View Results
 
 1. Go to: https://github.com/mostakimnasim5/antidetect1/actions
-2. See workflows listed
-3. First run starts automatically
+2. Click on any workflow run
+3. Check build status per platform
+4. Download logs from **Artifacts** on failure
 
-## Expected Runtime
+---
+
+## ⏱️ Expected Runtime
 
 | Job | Time |
 |-----|------|
-| analyze | ~2 min |
-| build-linux | ~3 min |
-| build-windows-msvc | ~5 min |
-| build-macos | ~6 min |
+| Ubuntu GCC | ~3-5 min |
+| Windows MSVC | ~4-6 min |
+| Windows MinGW | ~3-5 min |
+| macOS | ~4-6 min |
+| Code Quality | ~1-2 min |
 | **Total** | ~15-20 min |
 
-## Artifacts
+---
 
-Build outputs saved as artifacts:
-- `linux-build` - Linux binaries
-- `windows-build-msvc` - Windows MSVC
-- `windows-build-mingw` - Windows MinGW
-- `macos-build` - macOS binaries
+## 📦 Artifacts (on failure)
+
+- `ubuntu-build-logs` - Linux compilation logs
+- `windows-build-logs` - MSVC logs
+- `mingw-build-logs` - MinGW logs
+- `cppcheck_report.txt` - Static analysis report
+
+---
+
+## 🔧 Customize
+
+### Skip CI for a commit
+```bash
+git commit -m "Fix typo [skip ci]"
+```
+
+### Add CI badge to README
+```markdown
+[![C++ CI](https://github.com/mostakimnasim5/antidetect1/actions/workflows/ci.yml/badge.svg)](https://github.com/mostakimnasim5/antidetect1/actions/workflows/ci.yml)
+```
+
+---
+
+## ❓ Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| OpenSSL not found | Check workflow installs libssl-dev |
+| MSVC fails | Update msvc_version to 14.37+ |
+| Timeout | Increase timeout in ctest step |
