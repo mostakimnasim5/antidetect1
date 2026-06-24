@@ -1,4 +1,5 @@
 #include "RealisticProfileGenerator.hpp"
+#include "IPTimezoneConverter.hpp"
 #include "DeviceIDGenerator.hpp"
 #include "CryptoEmulator.hpp"
 #include "Logger.hpp"
@@ -1325,6 +1326,67 @@ std::string RealisticProfileGenerator::generateBSSID(const std::string& brand) {
     ss << oui << ":" << generateHexDigits(2) << ":" 
        << generateHexDigits(2) << ":" << generateHexDigits(2);
     return ss.str();
+}
+
+
+// IP-Based Profile Generation (v1.8.1)
+ProfileGenerationResult RealisticProfileGenerator::generateProfileWithIP(
+    const std::string& manufacturer, 
+    const std::string& ipAddress) {
+    
+    IPTimezoneConverter::getInstance().initialize();
+    auto localeInfo = IPTimezoneConverter::getInstance().getLocaleFromIP(ipAddress);
+    
+    std::string lowerManu = manufacturer;
+    std::transform(lowerManu.begin(), lowerManu.end(), lowerManu.begin(), ::tolower);
+    
+    ProfileGenerationResult result;
+    
+    if (lowerManu == "samsung") {
+        result = generateSamsungProfile(localeInfo.countryCode);
+    } else if (lowerManu == "google") {
+        result = generateGoogleProfile(localeInfo.countryCode);
+    } else if (lowerManu == "xiaomi") {
+        result = generateXiaomiProfile(localeInfo.countryCode);
+    } else if (lowerManu == "oneplus") {
+        result = generateOnePlusProfile(localeInfo.countryCode);
+    } else {
+        result = generateRandomProfile(localeInfo.countryCode);
+    }
+    
+    if (result.success) {
+        result.profile.locale = localeInfo.locale;
+        result.profile.timezone = localeInfo.timezone;
+        result.profile.language = localeInfo.language;
+        result.profile.region = localeInfo.countryCode;
+        result.profile.countryName = localeInfo.countryName;
+        result.profile.carrierName = localeInfo.carrier;
+        
+        auto carrierData = CARRIER_DATABASE.find(localeInfo.countryCode);
+        if (carrierData != CARRIER_DATABASE.end()) {
+            if (carrierData->second.find("operators") != carrierData->second.end()) {
+                const auto& ops = carrierData->second.at("operators");
+                if (!ops.empty()) {
+                    std::uniform_int_distribution<> dis(0, static_cast<int>(ops.size()) - 1);
+                    std::string mccMnc = ops[dis(m_randomGenerator)].first;
+                    size_t dashPos = mccMnc.find("-");
+                    if (dashPos != std::string::npos) {
+                        result.profile.carrierMCC = mccMnc.substr(0, dashPos);
+                        result.profile.carrierMNC = mccMnc.substr(dashPos + 1);
+                    }
+                }
+            }
+        }
+        
+        result.profile.profileHash = generateProfileHash(result.profile);
+        Logger::getInstance().info("Profile for IP: " + ipAddress + " -> TZ: " + localeInfo.timezone);
+    }
+    
+    return result;
+}
+
+std::string RealisticProfileGenerator::getTimezoneFromIP(const std::string& ipAddress) {
+    return IPTimezoneConverter::getInstance().getTimezoneFromIP(ipAddress);
 }
 
 } // namespace AntiDetect

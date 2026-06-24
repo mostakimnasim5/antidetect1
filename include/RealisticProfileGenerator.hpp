@@ -116,6 +116,9 @@ struct DeviceProfile {
     std::string locale;
     std::string language;
     double latitude;
+    std::string countryName;    // Full country name
+    std::string carrierMCC;    // Mobile Country Code
+    std::string carrierMNC;     // Mobile Network Code
     double longitude;
     
     // DMI/SMBIOS
@@ -211,6 +214,10 @@ public:
     // Generate complete unique profile
     ProfileGenerationResult generateCompleteProfile(const std::string& manufacturer = "");
     ProfileGenerationResult generateSamsungProfile(const std::string& region = "");
+    ProfileGenerationResult generateSamsungProfile(const std::string& region, const std::string& ipAddress);
+    ProfileGenerationResult generateGoogleProfile(const std::string& region, const std::string& ipAddress);
+    ProfileGenerationResult generateProfileWithIP(const std::string& manufacturer, const std::string& ipAddress);
+    std::string getTimezoneFromIP(const std::string& ipAddress);
     ProfileGenerationResult generateGoogleProfile(const std::string& region = "");
     ProfileGenerationResult generateXiaomiProfile(const std::string& region = "");
     ProfileGenerationResult generateOnePlusProfile(const std::string& region = "");

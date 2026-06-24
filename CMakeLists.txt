@@ -80,6 +80,7 @@ set(CORE_HEADERS
     include/VirtualSecurityChip.hpp
     include/CryptoEmulator.hpp
     include/DeviceIDGenerator.hpp
+    include/IPTimezoneConverter.hpp
 )
 
 set(CORE_SOURCES
@@ -115,6 +116,7 @@ set(CORE_SOURCES
     src/VirtualSecurityChip.cpp
     src/CryptoEmulator.cpp
     src/DeviceIDGenerator.cpp
+    src/IPTimezoneConverter.cpp
 )
 
 # CLI executable
