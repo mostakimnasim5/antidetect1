@@ -77,6 +77,10 @@ set(CORE_HEADERS
     include/SMBIOSEmulator.hpp
     include/SensorEmulator.hpp
     include/BootloaderEmulator.hpp
+    include/hardware/AdvancedSensorSimulator.hpp
+    
+    # Browser Fingerprinting (NEW)
+    include/browser/BrowserFingerprinting.hpp
     
     # Network Virtualization
     include/NetworkVirtualizer.hpp
@@ -131,6 +135,10 @@ set(CORE_SOURCES
     src/SMBIOSEmulator.cpp
     src/SensorEmulator.cpp
     src/BootloaderEmulator.cpp
+    src/hardware/AdvancedSensorSimulator.cpp
+    
+    # Browser Fingerprinting (NEW)
+    src/browser/BrowserFingerprinting.cpp
     
     # Network Virtualization
     src/NetworkVirtualizer.cpp
