@@ -23,6 +23,7 @@ endif()
 # Find required packages
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(CURL QUIET)
 
 # Qt6 configuration (optional - for GUI)
 option(BUILD_GUI "Build Qt6 GUI application" ON)
@@ -93,6 +94,7 @@ set(CORE_HEADERS
     include/DNSResolver.hpp
     include/TCPFingerprintEmulator.hpp
     include/VPNController.hpp
+    include/network/ProxyConfig.hpp
     
     # Anti-Detection Suite (from AntiDetectPro)
     include/SafetyNetBypass.hpp
@@ -165,6 +167,7 @@ set(CORE_SOURCES
     src/DNSResolver.cpp
     src/TCPFingerprintEmulator.cpp
     src/VPNController.cpp
+    src/network/ProxyConfig.cpp
     
     # Anti-Detection Suite
     src/SafetyNetBypass.cpp
@@ -213,6 +216,7 @@ if(BUILD_CLI)
         Threads::Threads
         OpenSSL::SSL
         OpenSSL::Crypto
+        CURL::libcurl
     )
     
     target_compile_definitions(VirtualPhonePro_CLI PRIVATE VERSION="${PROJECT_VERSION}")
