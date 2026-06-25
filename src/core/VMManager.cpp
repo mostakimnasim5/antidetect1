@@ -3,6 +3,7 @@
  */
 
 #include "core/VMManager.hpp"
+#include "core/CryptoUtils.hpp"
 #include "hardware/HardwareEmulator.hpp"
 #include "network/NetworkVirtualizer.hpp"
 #include "anti_detect/AntiDetectionManager.hpp"
@@ -463,8 +464,8 @@ bool VMManager::launchVMProcess(VMInstance* instance) {
 
 void VMManager::vmWorker(VMInstance* instance) {
     while (instance->running) {
-        // Update resource usage
-        instance->cpuUsage = rand() % 100; // Placeholder
+        // Update resource usage using secure random
+        instance->cpuUsage = Crypto::SecureRandomGenerator().generateUint32() % 100;
         instance->memoryUsage = instance->config.memoryMB / 4; // Placeholder
         
         // Sleep for monitoring interval

@@ -3,6 +3,7 @@
  */
 
 #include "core/ProfileManager.hpp"
+#include "core/CryptoUtils.hpp"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -98,8 +99,8 @@ FingerprintConfig ProfileManager::generateRandomProfile(const std::string& regio
     
     profile.locale = "en_" + profile.countryCode;
     
-    // Sensor
-    profile.sensorModel = "BMI" + std::to_string(rand() % 200 + 100);
+    // Sensor using secure random
+    profile.sensorModel = "BMI" + std::to_string(Crypto::SecureRandomGenerator().generateUint32() % 200 + 100);
     
     return profile;
 }
@@ -163,6 +164,7 @@ FingerprintConfig ProfileManager::generateFromTemplate(const std::string& templa
 
 FingerprintConfig ProfileManager::randomizeFingerprint(const FingerprintConfig& base) {
     FingerprintConfig result = base;
+    Crypto::SecureRandomGenerator rng;
     
     // Randomize build ID
     result.buildId = generateUniqueBuildId(result.manufacturer);
@@ -173,10 +175,10 @@ FingerprintConfig ProfileManager::randomizeFingerprint(const FingerprintConfig& 
     // Randomize MAC
     result.macAddress = generateMACAddress();
     
-    // Randomize some numeric values slightly
-    result.screenWidth += (rand() % 100) - 50;
-    result.screenHeight += (rand() % 100) - 50;
-    result.screenDPI += (rand() % 20) - 10;
+    // Randomize some numeric values slightly using secure random
+    result.screenWidth += (rng.generateUint32() % 100) - 50;
+    result.screenHeight += (rng.generateUint32() % 100) - 50;
+    result.screenDPI += (rng.generateUint32() % 20) - 10;
     
     // Regenerate fingerprint
     result.fingerprint = generateUniqueFingerprint(result);
@@ -190,10 +192,10 @@ FingerprintConfig ProfileManager::applyRegionVariations(const FingerprintConfig&
     result.countryCode = region;
     result.locale = "en_" + region;
     
-    // Apply region-specific carrier
+    // Apply region-specific carrier using secure random
     auto carriers = m_database.getCarrierProfiles(region);
     if (!carriers.empty()) {
-        auto carrier = carriers[rand() % carriers.size()];
+        auto carrier = carriers[Crypto::SecureRandomGenerator().generateUint32() % carriers.size()];
         result.carrier = carrier.name;
     }
     
@@ -287,14 +289,17 @@ std::string ProfileManager::calculateFingerprintHash(const FingerprintConfig& pr
 }
 
 std::string ProfileManager::generateUniqueBuildId(const std::string& manufacturer) {
+    Crypto::SecureRandomGenerator rng;
     std::string prefix;
     if (manufacturer == "Samsung") prefix = "SP1A";
     else if (manufacturer == "Google") prefix = "TQ1A";
     else if (manufacturer == "Xiaomi") prefix = "V14";
     else prefix = "RP1A";
     
-    std::string date = std::to_string(2024) + std::to_string(rand() % 12 + 1).pad(2, '0');
-    std::string suffix = std::to_string(rand() % 9000 + 1000);
+    char dateBuf[5];
+    snprintf(dateBuf, sizeof(dateBuf), "%02d", (rng.generateUint32() % 12) + 1);
+    std::string date = std::to_string(2024) + dateBuf;
+    std::string suffix = std::to_string(rng.generateUint32() % 9000 + 1000);
     
     return prefix + "." + date + suffix;
 }
@@ -309,25 +314,28 @@ std::string ProfileManager::generateUniqueFingerprint(const FingerprintConfig& c
 }
 
 std::string ProfileManager::generateBootloader(const std::string& model) {
+    Crypto::SecureRandomGenerator rng;
     std::string prefix = model.substr(0, 4);
-    std::string version = std::to_string(rand() % 10 + 1);
-    std::string letter = std::string(1, 'A' + (rand() % 26));
+    std::string version = std::to_string(rng.generateUint32() % 10 + 1);
+    std::string letter = std::string(1, 'A' + (rng.generateUint32() % 26));
     
     return prefix + "U" + version + letter;
 }
 
 std::string ProfileManager::generateSerialNumber() {
+    Crypto::SecureRandomGenerator rng;
     std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     std::string serial;
     
     for (int i = 0; i < 12; i++) {
-        serial += chars[rand() % chars.length()];
+        serial += chars[rng.generateUint32() % chars.length()];
     }
     
     return serial;
 }
 
 std::string ProfileManager::generateMACAddress(const std::string& prefix) {
+    Crypto::SecureRandomGenerator rng;
     std::string mac;
     
     if (prefix == "Samsung") {
@@ -340,31 +348,32 @@ std::string ProfileManager::generateMACAddress(const std::string& prefix) {
         mac = "00:1A:2B";
     }
     
-    // Add random bytes
+    // Add random bytes using secure random
     for (int i = 0; i < 3; i++) {
-        mac += ":" + std::format("{:02X}", rand() % 256);
+        mac += ":" + std::format("{:02X}", rng.generateUint32() % 256);
     }
     
     return mac;
 }
 
 std::map<std::string, std::string> ProfileManager::generateSensorData() {
+    Crypto::SecureRandomGenerator rng;
     std::map<std::string, std::string> sensors;
     
-    // Accelerometer
-    sensors["accelerometer"] = std::to_string((rand() % 200 - 100) / 100.0) + "," +
-                               std::to_string((rand() % 200 - 100) / 100.0) + "," +
-                               std::to_string(9.8 + (rand() % 20 - 10) / 100.0);
+    // Accelerometer using secure random
+    sensors["accelerometer"] = std::to_string((rng.generateUint32() % 200 - 100) / 100.0) + "," +
+                               std::to_string((rng.generateUint32() % 200 - 100) / 100.0) + "," +
+                               std::to_string(9.8 + (rng.generateUint32() % 20 - 10) / 100.0);
     
     // Gyroscope
-    sensors["gyroscope"] = std::to_string((rand() % 100 - 50) / 100.0) + "," +
-                           std::to_string((rand() % 100 - 50) / 100.0) + "," +
-                           std::to_string((rand() % 100 - 50) / 100.0);
+    sensors["gyroscope"] = std::to_string((rng.generateUint32() % 100 - 50) / 100.0) + "," +
+                           std::to_string((rng.generateUint32() % 100 - 50) / 100.0) + "," +
+                           std::to_string((rng.generateUint32() % 100 - 50) / 100.0);
     
     // Magnetometer
-    sensors["magnetometer"] = std::to_string((rand() % 600 - 300) / 10.0) + "," +
-                               std::to_string((rand() % 600 - 300) / 10.0) + "," +
-                               std::to_string((rand() % 600 - 300) / 10.0);
+    sensors["magnetometer"] = std::to_string((rng.generateUint32() % 600 - 300) / 10.0) + "," +
+                               std::to_string((rng.generateUint32() % 600 - 300) / 10.0) + "," +
+                               std::to_string((rng.generateUint32() % 600 - 300) / 10.0);
     
     return sensors;
 }

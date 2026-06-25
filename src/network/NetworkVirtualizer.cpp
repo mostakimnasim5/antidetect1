@@ -3,6 +3,7 @@
  */
 
 #include "network/NetworkVirtualizer.hpp"
+#include "core/CryptoUtils.hpp"
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -123,8 +124,8 @@ std::string DNSResolver::resolve(const std::string& hostname) {
         return it->second;
     }
     
-    // Return mock IP for demo
-    return "142.250.185." + std::to_string(rand() % 256);
+    // Return mock IP using secure random
+    return "142.250.185." + std::to_string(Crypto::SecureRandomGenerator().generateUint32() % 256);
 }
 
 std::vector<std::string> DNSResolver::resolveAll(const std::string& hostname) {
@@ -595,7 +596,7 @@ bool VPNController::connect(const std::string& vmId, const std::string& server,
     conn.port = port;
     conn.connected = true;
     conn.connectedSince = time(nullptr);
-    conn.ip = "10.8.0." + std::to_string(rand() % 254 + 1);
+    conn.ip = "10.8.0." + std::to_string(Crypto::SecureRandomGenerator().generateUint32() % 254 + 1);
     
     m_connections[vmId] = conn;
     return true;
@@ -862,20 +863,15 @@ std::map<std::string, NetworkInterface> NetworkVirtualizer::getAllInterfaces() {
 }
 
 uint64_t NetworkVirtualizer::getBytesSent(const std::string& vmId) {
-    return rand() % 1000000000;
+    return Crypto::SecureRandomGenerator().generateUint64() % 1000000000;
 }
 
 uint64_t NetworkVirtualizer::getBytesReceived(const std::string& vmId) {
-    return rand() % 1000000000;
+    return Crypto::SecureRandomGenerator().generateUint64() % 1000000000;
 }
 
 std::string NetworkVirtualizer::generateRandomHex(int length) {
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (int i = 0; i < length; i++) {
-        ss << std::setw(2) << (int)(rand() % 256);
-    }
-    return ss.str();
+    return Crypto::SecureRandomGenerator().generateHexString(length);
 }
 
 std::string NetworkVirtualizer::calculateBroadcast(const std::string& ip, 

@@ -3,6 +3,7 @@
  */
 
 #include "hardware/HardwareEmulator.hpp"
+#include "core/CryptoUtils.hpp"
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -377,22 +378,26 @@ BootloaderEmulator::BootloaderEmulator() {}
 void BootloaderEmulator::setSamsungBootloader(const std::string& model) {
     std::string prefix = model.substr(0, 4);
     m_bootloader = prefix + "U1A1";
-    m_radio = prefix + ".C" + std::to_string(rand() % 10 + 1) + "FT";
+    Crypto::SecureRandomGenerator rng;
+    m_radio = prefix + ".C" + std::to_string(rng.generateUint32() % 10 + 1) + "FT";
 }
 
 void BootloaderEmulator::setGoogleBootloader() {
-    m_bootloader = "bootloader-" + std::to_string(rand() % 100 + 210) + ".0";
-    m_radio = "radio-" + std::to_string(rand() % 100 + 210) + ".0";
+    Crypto::SecureRandomGenerator rng;
+    m_bootloader = "bootloader-" + std::to_string(rng.generateUint32() % 100 + 210) + ".0";
+    m_radio = "radio-" + std::to_string(rng.generateUint32() % 100 + 210) + ".0";
 }
 
 void BootloaderEmulator::setXiaomiBootloader() {
-    m_bootloader = "U-boot-" + std::to_string(rand() % 100 + 20) + ".0";
-    m_radio = "MIX-" + std::to_string(rand() % 100 + 100) + "." + std::to_string(rand() % 10);
+    Crypto::SecureRandomGenerator rng;
+    m_bootloader = "U-boot-" + std::to_string(rng.generateUint32() % 100 + 20) + ".0";
+    m_radio = "MIX-" + std::to_string(rng.generateUint32() % 100 + 100) + "." + std::to_string(rng.generateUint32() % 10);
 }
 
 void BootloaderEmulator::setOnePlusBootloader() {
-    m_bootloader = "ONEPLUS" + std::to_string(rand() % 10000 + 1000);
-    m_radio = "MPSS." + std::to_string(rand() % 10) + "." + std::to_string(rand() % 100);
+    Crypto::SecureRandomGenerator rng;
+    m_bootloader = "ONEPLUS" + std::to_string(rng.generateUint32() % 10000 + 1000);
+    m_radio = "MPSS." + std::to_string(rng.generateUint32() % 10) + "." + std::to_string(rng.generateUint32() % 100);
 }
 
 void BootloaderEmulator::setCustomBootloader(const std::string& bootloader) {
@@ -408,13 +413,8 @@ std::string BootloaderEmulator::getRadioVersion() {
 }
 
 std::string BootloaderEmulator::generateBootSignature() {
-    // Generate random boot signature
-    const char* chars = "ABCDEF0123456789";
-    std::string sig;
-    for (int i = 0; i < 32; i++) {
-        sig += chars[rand() % 16];
-    }
-    return sig;
+    // Generate random boot signature using secure random
+    return Crypto::SecureRandomGenerator().generateHexString(64);
 }
 
 // ============================================

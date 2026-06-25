@@ -1,4 +1,5 @@
 #include "profiles/DeviceProfileDatabase.hpp"
+#include "core/CryptoUtils.hpp"
 
 namespace VirtualPhonePro {
 
@@ -66,7 +67,7 @@ std::vector<DeviceProfile> DeviceProfileDatabase::getByRegion(const std::string&
 
 std::optional<DeviceProfile> DeviceProfileDatabase::getRandom() const {
     if (m_profiles.empty()) return std::nullopt;
-    return m_profiles[rand() % m_profiles.size()];
+    return m_profiles[Crypto::SecureRandomGenerator().generateUint32() % m_profiles.size()];
 }
 
 std::vector<DeviceProfile> DeviceProfileDatabase::search(const std::string&) const { return m_profiles; }
