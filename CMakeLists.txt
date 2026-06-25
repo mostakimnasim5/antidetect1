@@ -94,7 +94,7 @@ set(CORE_HEADERS
     include/PlayIntegrityBypass.hpp
     include/VirtualizationHider.hpp
     include/TimingAttackPrevention.hpp
-    include/HardwareAttestationEmulator.hpp
+    include/security/attestation/HardwareAttestationEmulator.hpp
     include/DeviceFingerprintGenerator.hpp
     
     # Profile Generation (from AntiDetectPro)
@@ -152,7 +152,7 @@ set(CORE_SOURCES
     src/PlayIntegrityBypass.cpp
     src/VirtualizationHider.cpp
     src/TimingAttackPrevention.cpp
-    src/HardwareAttestationEmulator.cpp
+    src/security/attestation/HardwareAttestationEmulator.cpp
     src/DeviceFingerprintGenerator.cpp
     
     # Profile Generation
