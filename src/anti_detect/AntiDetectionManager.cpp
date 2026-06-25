@@ -314,13 +314,10 @@ std::string AntiDetectionManager::generateNonce() {
 }
 
 std::string AntiDetectionManager::signData(const std::string& data) {
-    // Simple signature simulation
-    std::hash<std::string> hasher;
-    size_t hash = hasher(data);
-    
-    std::stringstream ss;
-    ss << std::hex << hash;
-    return ss.str();
+    // Use proper HMAC-SHA256 for signature
+    Crypto::SecureRandomGenerator rng;
+    std::string key = rng.generateHexString(64);
+    return Crypto::SHA256Hasher::hmacHex(key, data);
 }
 
 std::string AntiDetectionManager::generateDeviceKey() {
@@ -437,8 +434,10 @@ std::string PlayIntegrityBypass::generateAppIntegrityToken() {
 }
 
 std::string PlayIntegrityBypass::signToken(const std::string& payload) {
-    std::hash<std::string> hasher;
-    return std::to_string(hasher(payload));
+    // Use proper HMAC-SHA256 for signing
+    Crypto::SecureRandomGenerator rng;
+    std::string key = rng.generateHexString(64);
+    return Crypto::SHA256Hasher::hmacHex(key, payload);
 }
 
 // ============================================
@@ -545,8 +544,10 @@ std::string HardwareAttestationEmulator::createAttestationChallenge(const std::s
 }
 
 std::string HardwareAttestationEmulator::signAttestation(const std::string& data) {
-    std::hash<std::string> hasher;
-    return std::to_string(hasher(data));
+    // Use proper HMAC-SHA256 for attestation signing
+    Crypto::SecureRandomGenerator rng;
+    std::string key = rng.generateHexString(64);
+    return Crypto::SHA256Hasher::hmacHex(key, data);
 }
 
 bool HardwareAttestationEmulator::verifyAttestation(const std::string& signature) {

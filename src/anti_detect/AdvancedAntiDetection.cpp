@@ -1,8 +1,11 @@
 /**
- * AdvancedAntiDetection - Ultra-Advanced Implementation
+ * AdvancedAntiDetection - Enterprise-Grade Ultra-Advanced Implementation
+ * 
+ * Uses cryptographically secure random generation and proper SHA-256 hashing.
  */
 
 #include "anti_detect/AdvancedAntiDetection.hpp"
+#include "core/CryptoUtils.hpp"
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -669,9 +672,8 @@ std::string AdvancedNetworkFingerprinting::computeJA3(const TLSFingerprint& tls)
     }
     data.pop_back();
     
-    // MD5 hash
-    std::hash<std::string> hasher;
-    return std::to_string(hasher(data));
+    // Use proper SHA-256 hash
+    return Crypto::SHA256Hasher::hashHex(data);
 }
 
 std::string AdvancedNetworkFingerprinting::computeJA4(const TLSFingerprint& tls) {
@@ -905,16 +907,8 @@ std::string AndroidVerifiedBootEmulator::getVerityTable() {
 
 std::string AndroidVerifiedBootEmulator::generateVerityHash(const std::string& partition) {
     std::string data = partition + "verified";
-    std::hash<std::string> hasher;
-    size_t hash = hasher(data);
-    
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (int i = 0; i < 8; i++) {
-        ss << std::setw(8) << (hash >> (i * 4)) & 0xFFFFFFFF;
-    }
-    
-    return ss.str();
+    // Use proper SHA-256 hash
+    return Crypto::SHA256Hasher::hashHex(data);
 }
 
 bool AndroidVerifiedBootEmulator::verifyDmVerity(const std::string& blockDevice) {
@@ -988,8 +982,8 @@ std::string AndroidVerifiedBootEmulator::generateBootSignature() {
 }
 
 std::string AndroidVerifiedBootEmulator::computeMerkleRoot(const std::string& data) {
-    std::hash<std::string> hasher;
-    return std::to_string(hasher(data));
+    // Use proper SHA-256 hash
+    return Crypto::SHA256Hasher::hashHex(data);
 }
 
 std::string AndroidVerifiedBootEmulator::generateRandomHash(int length) {
@@ -1271,10 +1265,8 @@ std::string AdvancedGraphicsAudioSpoofing::generateCanvasHash() {
 }
 
 std::string AdvancedGraphicsAudioSpoofing::hashCanvas(const std::string& data) {
-    std::hash<std::string> hasher;
-    std::stringstream ss;
-    ss << std::hex << hasher(data);
-    return ss.str();
+    // Use proper SHA-256 hash
+    return Crypto::SHA256Hasher::hashHex(data);
 }
 
 AudioFingerprint AdvancedGraphicsAudioSpoofing::generateAudioFingerprint(const std::string& deviceModel) {
