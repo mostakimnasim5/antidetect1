@@ -124,7 +124,7 @@ std::vector<int> BehavioralAnalysisPrevention::generateTypingPattern(const std::
         
         // Word boundary pause
         if (text[i] == ' ' || text[i] == '.') {
-            delays.push_back(200 + rand() % 200); // Longer pause
+            delays.push_back(200 + Crypto::SecureRandomGenerator().generateUint32() % 200);
         }
     }
     
@@ -214,21 +214,22 @@ bool BehavioralAnalysisPrevention::shouldRespondToNotification(int hour) {
     if (hour >= 8 && hour <= 12) responseChance = 80; // Morning
     else if (hour >= 19 && hour <= 22) responseChance = 90; // Evening
     
-    return (rand() % 100) < responseChance;
+    return (Crypto::SecureRandomGenerator().generateUint32() % 100) < responseChance;
 }
 
 int BehavioralAnalysisPrevention::generateRandomDelay(const std::string& actionType) {
-    if (actionType == "tap") return 20 + rand() % 50;
-    if (actionType == "swipe") return 50 + rand() % 100;
-    if (actionType == "long_press") return 100 + rand() % 200;
-    if (actionType == "scroll") return 30 + rand() % 70;
+    Crypto::SecureRandomGenerator rng;
+    if (actionType == "tap") return 20 + rng.generateUint32() % 50;
+    if (actionType == "swipe") return 50 + rng.generateUint32() % 100;
+    if (actionType == "long_press") return 100 + rng.generateUint32() % 200;
+    if (actionType == "scroll") return 30 + rng.generateUint32() % 70;
     
-    return 50 + rand() % 100;
+    return 50 + rng.generateUint32() % 100;
 }
 
 void BehavioralAnalysisPrevention::addRandomJitter(int baseDelay, int maxJitter) {
-    // Add ±jitter to base delay
-    int jitter = (rand() % (maxJitter * 2)) - maxJitter;
+    // Add ±jitter to base delay using secure random
+    int jitter = (Crypto::SecureRandomGenerator().generateUint32() % (maxJitter * 2)) - maxJitter;
 }
 
 void BehavioralAnalysisPrevention::setTypingPattern(const TypingPattern& pattern) {
@@ -356,16 +357,17 @@ int AdvancedHardwareEmulator::simulateCPULoad(int percentage, int durationMs) {
     
     // Update core loads
     int coresToUse = (load + 12) / 25;
+    Crypto::SecureRandomGenerator rng;
     for (int i = 0; i < m_cpuState.coreCount; i++) {
         if (i < coresToUse) {
-            m_cpuState.coreLoads[i] = std::min(100, load + (rand() % 20 - 10));
+            m_cpuState.coreLoads[i] = std::min(100, load + (rng.generateUint32() % 20 - 10));
         } else {
-            m_cpuState.coreLoads[i] = rand() % 10;
+            m_cpuState.coreLoads[i] = rng.generateUint32() % 10;
         }
     }
     
     // Update temperature based on load
-    m_cpuState.temperature = 30 + (load * 0.3f) + (rand() % 5);
+    m_cpuState.temperature = 30 + (load * 0.3f) + (rng.generateUint32() % 5);
     
     // Check throttling
     if (m_cpuState.temperature > 45) {
@@ -450,8 +452,8 @@ int AdvancedHardwareEmulator::simulateBatteryDrain(bool screenOn, int appLoad) {
         drain += m_batteryState.screenOffDrain;
     }
     
-    // Add natural variation
-    drain += (rand() % 20) - 10;
+    // Add natural variation using secure random
+    drain += (Crypto::SecureRandomGenerator().generateUint32() % 20) - 10;
     
     return drain;
 }
@@ -498,17 +500,18 @@ ThermalState AdvancedHardwareEmulator::getThermalState() {
 }
 
 void AdvancedHardwareEmulator::updateThermalState(int cpuLoad, int ambientTemp) {
-    // Calculate new temperatures
+    // Calculate new temperatures using secure random
+    Crypto::SecureRandomGenerator rng;
     int cpuContribution = cpuLoad * 0.3f;
     int ambientContribution = ambientTemp * 0.2f;
     
-    m_thermalState.cpuTemp = 30 + cpuContribution + (rand() % 5);
-    m_thermalState.batteryTemp = ambientTemp + 5 + (rand() % 3);
+    m_thermalState.cpuTemp = 30 + cpuContribution + (rng.generateUint32() % 5);
+    m_thermalState.batteryTemp = ambientTemp + 5 + (rng.generateUint32() % 3);
     m_thermalState.skinTemp = (m_thermalState.cpuTemp + m_thermalState.batteryTemp + ambientTemp) / 3;
     
     // Update thermal zones
     for (auto& zone : m_thermalState.thermalZones) {
-        zone.second = ambientTemp + (rand() % 20);
+        zone.second = ambientTemp + (rng.generateUint32() % 20);
     }
     
     // Check throttling

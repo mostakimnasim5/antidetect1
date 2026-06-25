@@ -183,14 +183,10 @@ bool AntiDetectionManager::emulateHardwareAttestation() {
 }
 
 std::string AntiDetectionManager::generateAttestationKey() {
-    // Generate fake attestation key
-    const char* chars = "ABCDEF0123456789";
-    std::string key;
-    for (int i = 0; i < 64; i++) {
-        key += chars[rand() % 16];
-    }
-    m_attestationKey = key;
-    return key;
+    // Use cryptographically secure random
+    Crypto::SecureRandomGenerator rng;
+    m_attestationKey = rng.generateHexString(128);
+    return m_attestationKey;
 }
 
 bool AntiDetectionManager::signAttestationData(const std::string& data) {
@@ -209,7 +205,8 @@ void AntiDetectionManager::disableTimingProtection() {
 uint64_t AntiDetectionManager::getSecureTimestamp() {
     uint64_t ts = time(nullptr) * 1000;
     if (m_timingProtectionEnabled && m_jitterPercentage > 0) {
-        ts += (rand() % (m_jitterPercentage * 1000)) - (m_jitterPercentage * 500);
+        Crypto::SecureRandomGenerator rng;
+        ts += (rng.generateUint32() % (m_jitterPercentage * 1000)) - (m_jitterPercentage * 500);
     }
     return ts;
 }
@@ -305,12 +302,9 @@ bool AntiDetectionManager::applyAllMeasures(const AntiDetectionConfig& config) {
 }
 
 std::string AntiDetectionManager::generateNonce() {
-    const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    std::string nonce;
-    for (int i = 0; i < 32; i++) {
-        nonce += chars[rand() % 64];
-    }
-    return nonce;
+    // Use cryptographically secure random
+    Crypto::SecureRandomGenerator rng;
+    return rng.generateBase64String(32);
 }
 
 std::string AntiDetectionManager::signData(const std::string& data) {
@@ -373,12 +367,9 @@ std::string SafetyNetBypass::generateTimestamp() {
 }
 
 std::string SafetyNetBypass::generateNonce() {
-    const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    std::string nonce;
-    for (int i = 0; i < 16; i++) {
-        nonce += chars[rand() % 64];
-    }
-    return nonce;
+    // Use cryptographically secure random
+    Crypto::SecureRandomGenerator rng;
+    return rng.generateBase64String(24);
 }
 
 // ============================================
@@ -421,12 +412,9 @@ void PlayIntegrityBypass::setAccountDetails(const std::string& level) {
 }
 
 std::string PlayIntegrityBypass::generateDeviceIntegrityToken() {
-    const char* chars = "ABCDEF0123456789";
-    std::string token;
-    for (int i = 0; i < 64; i++) {
-        token += chars[rand() % 16];
-    }
-    return token;
+    // Use cryptographically secure random
+    Crypto::SecureRandomGenerator rng;
+    return rng.generateHexString(128);
 }
 
 std::string PlayIntegrityBypass::generateAppIntegrityToken() {
@@ -564,12 +552,9 @@ bool HardwareAttestationEmulator::generateKeymasterResponse() {
 }
 
 std::string HardwareAttestationEmulator::generateDeviceIntegrityToken() {
-    const char* chars = "ABCDEF0123456789";
-    std::string token;
-    for (int i = 0; i < 64; i++) {
-        token += chars[rand() % 16];
-    }
-    return token;
+    // Use cryptographically secure random
+    Crypto::SecureRandomGenerator rng;
+    return rng.generateHexString(128);
 }
 
 // ============================================
