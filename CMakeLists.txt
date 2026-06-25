@@ -78,6 +78,8 @@ set(CORE_HEADERS
     include/SensorEmulator.hpp
     include/BootloaderEmulator.hpp
     include/hardware/AdvancedSensorSimulator.hpp
+    include/hardware/AdvancedBatterySimulator.hpp
+    include/hardware/touch/HyperRealisticTouchEmulator.hpp
     
     # Browser Fingerprinting (NEW)
     include/browser/BrowserFingerprinting.hpp
@@ -136,6 +138,8 @@ set(CORE_SOURCES
     src/SensorEmulator.cpp
     src/BootloaderEmulator.cpp
     src/hardware/AdvancedSensorSimulator.cpp
+    src/hardware/AdvancedBatterySimulator.cpp
+    src/hardware/touch/HyperRealisticTouchEmulator.cpp
     
     # Browser Fingerprinting (NEW)
     src/browser/BrowserFingerprinting.cpp
