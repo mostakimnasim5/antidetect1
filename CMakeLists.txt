@@ -102,6 +102,15 @@ set(CORE_HEADERS
     include/security/attestation/HardwareAttestationEmulator.hpp
     include/DeviceFingerprintGenerator.hpp
     
+    # Advanced Anti-Detection v2.4 (Detection-Proof Enhancement)
+    include/anti_detect/TrustZoneEmulator.hpp
+    include/anti_detect/ProcEmulator.hpp
+    include/anti_detect/SafetyNetEmulator.hpp
+    include/anti_detect/SELinuxEmulator.hpp
+    include/anti_detect/AntiDetectionManager.hpp
+    include/anti_detect/AdvancedAntiDetection.hpp
+    include/anti_detect/CompleteAntiDetection.hpp
+    
     # Profile Generation (from AntiDetectPro)
     include/RealisticProfileGenerator.hpp
     include/DeviceProfileDatabase.hpp
@@ -164,6 +173,15 @@ set(CORE_SOURCES
     src/TimingAttackPrevention.cpp
     src/security/attestation/HardwareAttestationEmulator.cpp
     src/DeviceFingerprintGenerator.cpp
+    
+    # Advanced Anti-Detection v2.4 (Detection-Proof Enhancement)
+    src/anti_detect/TrustZoneEmulator.cpp
+    src/anti_detect/ProcEmulator.cpp
+    src/anti_detect/SafetyNetEmulator.cpp
+    src/anti_detect/SELinuxEmulator.cpp
+    src/anti_detect/AntiDetectionManager.cpp
+    src/anti_detect/AdvancedAntiDetection.cpp
+    src/anti_detect/CompleteAntiDetection.cpp
     
     # Profile Generation
     src/RealisticProfileGenerator.cpp
