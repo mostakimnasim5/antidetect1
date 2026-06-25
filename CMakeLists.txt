@@ -70,6 +70,9 @@ set(CORE_HEADERS
     include/StorageManager.hpp
     include/SnapshotManager.hpp
     
+    # Enterprise Cryptography
+    include/core/CryptoUtils.hpp
+    
     # Hardware Emulation
     include/HardwareEmulator.hpp
     include/CPUEmulator.hpp
@@ -129,6 +132,9 @@ set(CORE_SOURCES
     src/ResourceAllocator.cpp
     src/StorageManager.cpp
     src/SnapshotManager.cpp
+    
+    # Enterprise Cryptography
+    src/core/CryptoUtils.cpp
     
     # Hardware Emulation
     src/HardwareEmulator.cpp

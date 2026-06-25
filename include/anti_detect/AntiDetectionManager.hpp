@@ -1,14 +1,21 @@
 #pragma once
 
 /**
- * AntiDetectionManager - Complete Anti-Detection Suite
+ * AntiDetectionManager - Enterprise-Grade Anti-Detection Suite
  * 
- * Prevents all forms of virtualization and device detection.
+ * Prevents all forms of virtualization and device detection using
+ * cryptographically secure attestation and advanced timing protection.
  */
 
 #include "../VirtualPhonePro.hpp"
+#include "core/CryptoUtils.hpp"
 
 namespace VirtualPhonePro {
+
+// Forward declarations
+namespace Crypto {
+    class AttestationSigner;
+}
 
 // SafetyNet Attestation Response
 struct SafetyNetResponse {
@@ -16,6 +23,7 @@ struct SafetyNetResponse {
     bool ctsProfileMatch;
     std::string evaluationType;
     std::string advice;
+    std::string attestationToken;  // Full JWS token
     std::map<std::string, std::string> packageInfo;
 };
 
@@ -106,6 +114,9 @@ private:
     
     std::string m_attestationKey;
     std::mutex m_mutex;
+    
+    // Enterprise cryptographic attestation
+    Crypto::AttestationSigner* m_attestationSigner;
 };
 
 // SafetyNet Bypass Module

@@ -1,16 +1,20 @@
 #pragma once
 
 /**
- * BrowserFingerprinting - Complete Browser Fingerprint Simulation
+ * BrowserFingerprinting - Enterprise-Grade Browser Fingerprint Simulation
  * 
- * For web testing purposes - simulates realistic browser fingerprints
- * to test anti-fingerprinting measures and browser automation detection.
+ * Provides realistic browser fingerprint generation with perfect canvas,
+ * WebGL, and audio fingerprints that are indistinguishable from real devices.
  */
 
 #include "../VirtualPhonePro.hpp"
 #include <map>
 #include <vector>
 #include <variant>
+#include <mutex>
+#include <random>
+#include <complex>
+#include <cmath>
 
 namespace VirtualPhonePro {
 
@@ -22,20 +26,37 @@ struct CanvasFingerprint {
     std::vector<uint8_t> rawData;
     std::string renderer;
     std::string vendor;
+    std::string gpuMaskedVendor;
+    std::string gpuMaskedRenderer;
+    int width;
+    int height;
 };
 
 struct WebGLFingerprint {
     std::string vendor;
     std::string renderer;
     std::string version;
-    std::vector<std::string> extensions;
+    std::string version2;
     std::string shadingLanguageVersion;
+    std::string shadingLanguageVersion2;
+    std::string unmaskedVendor;
+    std::string unmaskedRenderer;
+    std::vector<std::string> extensions;
+    std::vector<std::string> extensions2;
     std::map<std::string, std::string> parameters;
+    std::map<std::string, std::string> parameters2;
+    int maxTextureSize;
+    int maxCubeMapTextureSize;
+    int maxRenderbufferSize;
 };
 
 struct AudioFingerprint {
     std::string hash;
-    std::vector<float> output;
+    std::string hash48kHz;
+    std::string hash96kHz;
+    std::vector<double> frequencyData;
+    std::vector<double> waveformData;
+    double sampleRate;
 };
 
 struct BrowserProfile {
@@ -59,6 +80,16 @@ struct BrowserProfile {
     std::vector<std::string> installedFonts;
     std::vector<std::string> plugins;
     std::map<std::string, std::string> permissions;
+    
+    // Unique identifiers
+    std::string clientId;
+    std::string sessionId;
+    std::string generatedTime;
+    
+    // Hardware info
+    std::string gpuVendor;
+    std::string gpuRenderer;
+    std::string cpuModel;
 };
 
 struct AutomationDetection {
@@ -84,9 +115,13 @@ public:
     void loadProfile(const BrowserProfile& profile);
     BrowserProfile getCurrentProfile();
     
+    // Enhanced fingerprinting
     CanvasFingerprint generateCanvasFingerprint(const std::string& text);
     WebGLFingerprint generateWebGLFingerprint();
+    WebGLFingerprint generateWebGL2Fingerprint();
     AudioFingerprint generateAudioFingerprint();
+    AudioFingerprint generateAudioFingerprint48kHz();
+    AudioFingerprint generateAudioFingerprint96kHz();
     
     std::vector<std::string> getInstalledFonts();
     std::map<std::string, std::string> getNavigatorProperties();
@@ -96,16 +131,31 @@ public:
     
     std::map<std::string, std::variant<int, float, bool>> getBatteryStatus();
     std::map<std::string, std::variant<std::string, int, bool>> getConnectionInfo();
-
+    
+    // Unique ID generation
+    std::string generateClientId();
+    std::string generateSessionId();
+    
 private:
     BrowserFingerprinting();
     ~BrowserFingerprinting();
     
     std::string generateUserAgent(BrowserType browser);
     std::string hashString(const std::string& input);
+    std::string hashBytes(const uint8_t* data, size_t length);
     std::vector<uint8_t> simulateCanvasRendering(const std::string& text);
+    std::vector<uint8_t> simulateGPUCanvasRendering(
+        const std::string& text,
+        const std::string& gpuVendor,
+        const std::string& gpuRenderer);
     std::vector<std::string> getChromeExtensions();
     std::vector<std::string> getFirefoxExtensions();
+    std::vector<std::string> getChromeExtensions2();
+    
+    // Audio processing
+    std::vector<double> processAudioSignal(int sampleRate, int duration);
+    double computeAudioFingerprint(const std::vector<double>& samples);
+    uint32_t crc32(const uint8_t* data, size_t length);
     
     BrowserProfile m_currentProfile;
     std::mutex m_mutex;
