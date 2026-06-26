@@ -77,6 +77,12 @@ set(CORE_HEADERS
     include/anti_detect/AntiDetectionManager.hpp
     include/anti_detect/AdvancedAntiDetection.hpp
     include/anti_detect/CompleteAntiDetection.hpp
+    include/anti_detect/HypervisorBypass.hpp
+    include/anti_detect/TLSFingerprint.hpp
+    include/anti_detect/NetworkStackSpoofer.hpp
+    include/anti_detect/SensorSpoofer.hpp
+    include/anti_detect/VirtualSecurityChip.hpp
+    include/anti_detect/PlayIntegrityBypass.hpp
     
     # Security
     include/security/attestation/HardwareAttestationEmulator.hpp
@@ -117,6 +123,12 @@ set(CORE_SOURCES
     src/anti_detect/AntiDetectionManager.cpp
     src/anti_detect/AdvancedAntiDetection.cpp
     src/anti_detect/CompleteAntiDetection.cpp
+    src/anti_detect/HypervisorBypass.cpp
+    src/anti_detect/TLSFingerprint.cpp
+    src/anti_detect/NetworkStackSpoofer.cpp
+    src/anti_detect/SensorSpoofer.cpp
+    src/anti_detect/VirtualSecurityChip.cpp
+    src/anti_detect/PlayIntegrityBypass.cpp
     
     # Security
     src/security/attestation/HardwareAttestationEmulator.cpp
