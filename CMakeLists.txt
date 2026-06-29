@@ -87,6 +87,11 @@ set(CORE_HEADERS
     
     # Security
     include/security/attestation/HardwareAttestationEmulator.hpp
+    
+    # Emulator GUI (Windows/Qt)
+    include/emulator/AndroidEmulator.hpp
+    include/emulator/MainWindow.hpp
+    include/emulator/AppStore.hpp
 )
 
 # ============================================
@@ -159,6 +164,37 @@ if(BUILD_CLI)
     target_compile_definitions(VirtualPhonePro_CLI PRIVATE VERSION="${PROJECT_VERSION}")
     
     install(TARGETS VirtualPhonePro_CLI DESTINATION bin)
+endif()
+
+# ============================================
+# GUI EXECUTABLE (Qt-based - Windows)
+# ============================================
+option(BUILD_GUI "Build Qt GUI application" OFF)
+
+if(BUILD_GUI AND WIN32)
+    # Find Qt6
+    find_package(Qt6 COMPONENTS Widgets Core Gui REQUIRED)
+    
+    add_executable(VirtualPhonePro_GUI WIN32
+        src/emulator/MainWindow.cpp
+        src/emulator/AppStore.cpp
+        ${CORE_SOURCES}
+        ${CORE_HEADERS}
+    )
+    
+    target_link_libraries(VirtualPhonePro_GUI
+        Qt6::Widgets
+        Qt6::Core
+        Qt6::Gui
+        Threads::Threads
+        OpenSSL::SSL
+        OpenSSL::Crypto
+        CURL::libcurl
+    )
+    
+    target_compile_definitions(VirtualPhonePro_GUI PRIVATE VERSION="${PROJECT_VERSION}")
+    
+    install(TARGETS VirtualPhonePro_GUI DESTINATION bin)
 endif()
 
 # ============================================
