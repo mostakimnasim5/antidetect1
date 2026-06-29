@@ -19,7 +19,10 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 }
 
 ProxyConfig::ProxyConfig() 
-    : m_enabled(false) {
+    : m_enabled(false), m_currentLanguage("en-US") {
+    
+    // Initialize country profiles
+    initializeCountryProfiles();
     
     // Initialize timezone database
     m_timezoneDatabase = {
@@ -630,6 +633,293 @@ bool TimezoneHelper::isDST(const std::string& timezone) {
         return it->second.daylightSaving;
     }
     return false;
+}
+
+// ============================================
+// SYNCHRONIZED IDENTITY IMPLEMENTATION
+// ============================================
+
+void ProxyConfig::initializeCountryProfiles() {
+    m_countries = {
+        // Bangladesh
+        {"BD", {"BD", "Bangladesh", "bn-BD", "Asia/Dhaka", "BDT", "bn_BD",
+                 20.5, 26.6, 88.0, 92.2,
+                 {"Grameenphone", "Robi", "Banglalion", "AirTel", "Teletalk"}}},
+        
+        // United States
+        {"US", {"US", "United States", "en-US", "America/New_York", "USD", "en_US",
+                 24.5, 49.5, -125.0, -66.9,
+                 {"AT&T", "Verizon", "T-Mobile", "Sprint", "MetroPCS"}}},
+        
+        // United Kingdom
+        {"UK", {"UK", "United Kingdom", "en-GB", "Europe/London", "GBP", "en_GB",
+                 49.9, 60.9, -8.6, 1.8,
+                 {"EE", "O2", "Vodafone", "Three", "Virgin Media"}}},
+        
+        // Canada
+        {"CA", {"CA", "Canada", "en-CA", "America/Toronto", "CAD", "en_CA",
+                 41.7, 83.1, -141.0, -52.6,
+                 {"Bell", "Rogers", "Telus", "Fido", "Koodo"}}},
+        
+        // Australia
+        {"AU", {"AU", "Australia", "en-AU", "Australia/Sydney", "AUD", "en_AU",
+                 -43.6, -10.6, 112.9, 153.6,
+                 {"Telstra", "Optus", "Vodafone", "TPG", "iiNet"}}},
+        
+        // India
+        {"IN", {"IN", "India", "hi-IN", "Asia/Kolkata", "INR", "hi_IN",
+                 6.7, 35.5, 68.1, 97.4,
+                 {"Jio", "Airtel", "Vi", "BSNL", "MTNL"}}},
+        
+        // Japan
+        {"JP", {"JP", "Japan", "ja-JP", "Asia/Tokyo", "JPY", "ja_JP",
+                 24.3, 45.5, 122.9, 153.9,
+                 {"NTT Docomo", "SoftBank", "KDDI", "Rakuten", "Y!mobile"}}},
+        
+        // Germany
+        {"DE", {"DE", "Germany", "de-DE", "Europe/Berlin", "EUR", "de_DE",
+                 47.3, 55.0, 5.9, 15.0,
+                 {"Deutsche Telekom", "Vodafone DE", "O2 DE", "1&1", "E-Plus"}}},
+        
+        // France
+        {"FR", {"FR", "France", "fr-FR", "Europe/Paris", "EUR", "fr_FR",
+                 41.3, 51.1, -5.1, 9.6,
+                 {"Orange", "SFR", "Bouygues", "Free Mobile", "La Poste"}}},
+        
+        // Singapore
+        {"SG", {"SG", "Singapore", "en-SG", "Asia/Singapore", "SGD", "en_SG",
+                 1.2, 1.5, 103.6, 104.0,
+                 {"Singtel", "StarHub", "M1", " Circles.Life", "TPG"}}},
+        
+        // UAE
+        {"AE", {"AE", "United Arab Emirates", "ar-AE", "Asia/Dubai", "AED", "ar_AE",
+                 22.6, 26.1, 51.5, 56.4,
+                 {"Etisalat", "du", "Virgin Mobile", "Switch", "Giffgaff"}}},
+        
+        // Malaysia
+        {"MY", {"MY", "Malaysia", "ms-MY", "Asia/Kuala_Lumpur", "MYR", "ms_MY",
+                 0.9, 7.4, 99.6, 119.3,
+                 {"Maxis", "Celcom", "DiGi", "U Mobile", "Unifi"}}},
+        
+        // Indonesia
+        {"ID", {"ID", "Indonesia", "id-ID", "Asia/Jakarta", "IDR", "id_ID",
+                 -11.0, 6.0, 95.0, 141.0,
+                 {"Telkomsel", "Indosat", "XL Axiata", "Three", "Smartfren"}}},
+        
+        // Thailand
+        {"TH", {"TH", "Thailand", "th-TH", "Asia/Bangkok", "THB", "th_TH",
+                 5.6, 20.5, 97.3, 105.6,
+                 {"AIS", "TrueMove", "dtac", "TOT", "CAT"}}},
+        
+        // Vietnam
+        {"VN", {"VN", "Vietnam", "vi-VN", "Asia/Ho_Chi_Minh", "VND", "vi_VN",
+                 8.4, 23.4, 102.1, 109.5,
+                 {"Viettel", "Vinaphone", "Mobifone", "Vietnamobile", "Gmobile"}}},
+        
+        // Philippines
+        {"PH", {"PH", "Philippines", "fil-PH", "Asia/Manila", "PHP", "fil_PH",
+                 4.4, 21.0, 116.4, 126.6,
+                 {"Globe", "Smart", "Sun Cellular", "DITO", "TNT"}}},
+        
+        // South Korea
+        {"KR", {"KR", "South Korea", "ko-KR", "Asia/Seoul", "KRW", "ko_KR",
+                 33.0, 38.9, 124.6, 131.0,
+                 {"SK Telecom", "KT", "LG U+", "MVNO", "T world"}}},
+        
+        // China
+        {"CN", {"CN", "China", "zh-CN", "Asia/Shanghai", "CNY", "zh_CN",
+                 18.2, 53.6, 73.5, 135.0,
+                 {"China Mobile", "China Unicom", "China Telecom", "China Broadcasting"}}},
+        
+        // Brazil
+        {"BR", {"BR", "Brazil", "pt-BR", "America/Sao_Paulo", "BRL", "pt_BR",
+                 -33.8, 5.3, -73.9, -34.8,
+                 {"Vivo", "Claro", "TIM", "Oi", "Nextel"}}},
+        
+        // Mexico
+        {"MX", {"MX", "Mexico", "es-MX", "America/Mexico_City", "MXN", "es_MX",
+                 14.5, 32.7, -118.4, -86.7,
+                 {"Telcel", "Movistar", "AT&T MX", "Unefon", "Virgin Mobile"}}},
+        
+        // Nigeria
+        {"NG", {"NG", "Nigeria", "en-NG", "Africa/Lagos", "NGN", "en_NG",
+                 4.2, 13.9, 2.7, 14.7,
+                 {"MTN", "Airtel", "Glo", "9mobile", "NCC"}}},
+    };
+}
+
+double CountryProfile::generateLatitude() const {
+    // Generate random lat within bounds
+    double range = latMax - latMin;
+    double lat = latMin + (range * Crypto::SecureRandomGenerator().generateDouble());
+    return lat;
+}
+
+double CountryProfile::generateLongitude() const {
+    double range = lonMax - lonMin;
+    double lon = lonMin + (range * Crypto::SecureRandomGenerator().generateDouble());
+    return lon;
+}
+
+std::string ProxyConfig::getLanguageForCountry(const std::string& countryCode) {
+    auto it = m_countries.find(countryCode);
+    if (it != m_countries.end()) {
+        return it->second.primaryLanguage;
+    }
+    return "en-US"; // Default
+}
+
+std::string ProxyConfig::getAndroidLocale(const std::string& countryCode) {
+    auto it = m_countries.find(countryCode);
+    if (it != m_countries.end()) {
+        return it->second.locale;
+    }
+    return "en_US";
+}
+
+void ProxyConfig::setLanguage(const std::string& language) {
+    m_currentLanguage = language;
+}
+
+std::string ProxyConfig::getLanguage() const {
+    return m_currentLanguage.empty() ? "en-US" : m_currentLanguage;
+}
+
+DeviceIdentity ProxyConfig::createIdentityWithProxy(const std::string& proxyIP) {
+    DeviceIdentity identity;
+    identity.ip = proxyIP;
+    
+    // Detect GeoIP from proxy
+    GeoIPInfo geo = detectFromIP(proxyIP);
+    
+    identity.countryCode = geo.countryCode;
+    identity.countryName = geo.countryName;
+    identity.city = geo.city;
+    identity.isp = geo.isp;
+    identity.timezone = geo.timezone;
+    identity.language = getLanguageForCountry(geo.countryCode);
+    identity.locale = getAndroidLocale(geo.countryCode);
+    
+    // Generate unique GPS within country bounds (NOT from IP to avoid correlation)
+    CountryProfile cp = getCountryProfile(geo.countryCode);
+    identity.latitude = cp.generateLatitude();
+    identity.longitude = cp.generateLongitude();
+    
+    // DNS based on country
+    if (geo.countryCode == "US") identity.dns = "8.8.8.8,8.8.4.4";
+    else if (geo.countryCode == "UK") identity.dns = "8.8.8.8,8.8.4.4";
+    else identity.dns = "8.8.8.8,8.8.4.4";
+    
+    return identity;
+}
+
+DeviceIdentity ProxyConfig::createUniqueIdentity(const std::string& countryCode) {
+    DeviceIdentity identity;
+    
+    // Generate unique root IP within country range
+    identity.ip = generateUniqueIP(countryCode);
+    
+    // Get country info
+    CountryProfile cp = getCountryProfile(countryCode);
+    
+    identity.countryCode = cp.countryCode;
+    identity.countryName = cp.countryName;
+    identity.city = ""; // Will be generated
+    identity.isp = cp.mobileCarriers[0];
+    identity.timezone = cp.timezone;
+    identity.language = cp.primaryLanguage;
+    identity.locale = cp.locale;
+    
+    // Generate UNIQUE GPS within country
+    identity.latitude = cp.generateLatitude();
+    identity.longitude = cp.generateLongitude();
+    
+    // DNS
+    identity.dns = "8.8.8.8,8.8.4.4";
+    
+    return identity;
+}
+
+std::string ProxyConfig::generateUniqueIP(const std::string& countryCode) {
+    std::string key = countryCode + "_ip";
+    
+    // If already used, generate new
+    while (m_usedIPs.count(key)) {
+        // Generate mobile carrier IP range
+        uint32_t baseIP = 0;
+        if (countryCode == "BD") baseIP = 0x67000000; // 103.x.x.x Bangladesh mobile
+        else if (countryCode == "US") baseIP = 0xC0A80000; // 192.x.x.x
+        else if (countryCode == "UK") baseIP = 0xC0A80000;
+        else if (countryCode == "IN") baseIP = 0x66000000; // 102.x.x.x
+        else if (countryCode == "JP") baseIP = 0xC0A80000;
+        else baseIP = 0xC0A80000;
+        
+        uint32_t ip = baseIP + (Crypto::SecureRandomGenerator().generateUint32() % 0xFFFF);
+        
+        std::ostringstream oss;
+        oss << ((ip >> 24) & 0xFF) << "."
+            << ((ip >> 16) & 0xFF) << "."
+            << ((ip >> 8) & 0xFF) << "."
+            << (ip & 0xFF);
+        
+        std::string newIP = oss.str();
+        key = countryCode + "_" + newIP;
+        
+        if (!m_usedIPs.count(newIP)) {
+            m_usedIPs.insert(newIP);
+            return newIP;
+        }
+    }
+    
+    m_usedIPs.insert(key);
+    return key;
+}
+
+GeoIPInfo ProxyConfig::generateUniqueGPS(const std::string& countryCode) {
+    GeoIPInfo geo;
+    
+    CountryProfile cp = getCountryProfile(countryCode);
+    
+    geo.latitude = cp.generateLatitude();
+    geo.longitude = cp.generateLongitude();
+    geo.countryCode = countryCode;
+    geo.countryName = cp.countryName;
+    geo.timezone = cp.timezone;
+    geo.currency = cp.currency;
+    geo.language = cp.primaryLanguage;
+    
+    // Generate unique coordinate key
+    std::ostringstream coordKey;
+    coordKey << std::fixed << std::setprecision(6) << geo.latitude << "," << geo.longitude;
+    
+    // Ensure uniqueness
+    while (m_usedCoordinates.count(coordKey.str())) {
+        geo.latitude = cp.generateLatitude();
+        geo.longitude = cp.generateLongitude();
+        coordKey.str("");
+        coordKey << std::fixed << std::setprecision(6) << geo.latitude << "," << geo.longitude;
+    }
+    
+    m_usedCoordinates.insert(coordKey.str());
+    
+    return geo;
+}
+
+std::vector<CountryProfile> ProxyConfig::getSupportedCountries() {
+    std::vector<CountryProfile> countries;
+    for (const auto& pair : m_countries) {
+        countries.push_back(pair.second);
+    }
+    return countries;
+}
+
+CountryProfile ProxyConfig::getCountryProfile(const std::string& countryCode) {
+    auto it = m_countries.find(countryCode);
+    if (it != m_countries.end()) {
+        return it->second;
+    }
+    // Default to US
+    return m_countries["US"];
 }
 
 } // namespace VirtualPhonePro

@@ -83,6 +83,7 @@ set(CORE_HEADERS
     include/anti_detect/SensorSpoofer.hpp
     include/anti_detect/VirtualSecurityChip.hpp
     include/anti_detect/PlayIntegrityBypass.hpp
+    include/anti_detect/MediaDeviceSpoofer.hpp
     
     # Security
     include/security/attestation/HardwareAttestationEmulator.hpp
@@ -129,6 +130,7 @@ set(CORE_SOURCES
     src/anti_detect/SensorSpoofer.cpp
     src/anti_detect/VirtualSecurityChip.cpp
     src/anti_detect/PlayIntegrityBypass.cpp
+    src/anti_detect/MediaDeviceSpoofer.cpp
     
     # Security
     src/security/attestation/HardwareAttestationEmulator.cpp
