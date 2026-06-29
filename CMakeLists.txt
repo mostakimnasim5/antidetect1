@@ -98,6 +98,9 @@ set(CORE_SOURCES
     src/core/VMManager.cpp
     src/core/ProfileManager.cpp
     src/core/CryptoUtils.cpp
+    src/core/ResourceAllocator.cpp
+    src/core/SnapshotManager.cpp
+    src/core/StorageManager.cpp
     
     # Hardware Emulation
     src/hardware/HardwareEmulator.cpp
