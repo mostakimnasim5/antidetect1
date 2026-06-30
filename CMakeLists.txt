@@ -100,6 +100,8 @@ set(CORE_HEADERS
     include/vmcontroller/ScrcpyManager.hpp
     include/vmcontroller/VMDisplayWidget.hpp
     include/vmcontroller/VMController.hpp
+    include/vmcontroller/AutoSetupManager.hpp
+    include/vmcontroller/SetupWizard.hpp
     include/emulator/ScrcpyMainWindow.hpp
 )
 
@@ -159,6 +161,8 @@ set(CORE_SOURCES
     src/vmcontroller/ScrcpyManager.cpp
     src/vmcontroller/VMDisplayWidget.cpp
     src/vmcontroller/VMController.cpp
+    src/vmcontroller/AutoSetupManager.cpp
+    src/vmcontroller/SetupWizard.cpp
     src/emulator/ScrcpyMainWindow.cpp
 )
 
@@ -233,6 +237,8 @@ if(BUILD_SCRCPY_GUI AND WIN32)
         src/vmcontroller/ScrcpyManager.cpp
         src/vmcontroller/VMDisplayWidget.cpp
         src/vmcontroller/VMController.cpp
+        src/vmcontroller/AutoSetupManager.cpp
+        src/vmcontroller/SetupWizard.cpp
         ${CORE_SOURCES}
         ${CORE_HEADERS}
     )
