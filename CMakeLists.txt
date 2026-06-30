@@ -92,6 +92,15 @@ set(CORE_HEADERS
     include/emulator/AndroidEmulator.hpp
     include/emulator/MainWindow.hpp
     include/emulator/AppStore.hpp
+    
+    # Scrcpy-based VM Controller (NEW)
+    include/vmcontroller/VirtualBoxController.hpp
+    include/vmcontroller/ADBSpoofer.hpp
+    include/vmcontroller/WindowEmbedder.hpp
+    include/vmcontroller/ScrcpyManager.hpp
+    include/vmcontroller/VMDisplayWidget.hpp
+    include/vmcontroller/VMController.hpp
+    include/emulator/ScrcpyMainWindow.hpp
 )
 
 # ============================================
@@ -142,6 +151,15 @@ set(CORE_SOURCES
     
     # Security
     src/security/attestation/HardwareAttestationEmulator.cpp
+    
+    # Scrcpy-based VM Controller Sources (NEW)
+    src/vmcontroller/VirtualBoxController.cpp
+    src/vmcontroller/ADBSpoofer.cpp
+    src/vmcontroller/WindowEmbedder.cpp
+    src/vmcontroller/ScrcpyManager.cpp
+    src/vmcontroller/VMDisplayWidget.cpp
+    src/vmcontroller/VMController.cpp
+    src/emulator/ScrcpyMainWindow.cpp
 )
 
 # ============================================
@@ -169,7 +187,7 @@ endif()
 # ============================================
 # GUI EXECUTABLE (Qt-based - Windows)
 # ============================================
-option(BUILD_GUI "Build Qt GUI application" OFF)
+option(BUILD_GUI "Build Qt GUI application" ON)
 
 if(BUILD_GUI AND WIN32)
     # Find Qt6
@@ -178,6 +196,7 @@ if(BUILD_GUI AND WIN32)
     add_executable(VirtualPhonePro_GUI WIN32
         src/emulator/MainWindow.cpp
         src/emulator/AppStore.cpp
+        src/emulator/ScrcpyMainWindow.cpp
         ${CORE_SOURCES}
         ${CORE_HEADERS}
     )
@@ -195,6 +214,42 @@ if(BUILD_GUI AND WIN32)
     target_compile_definitions(VirtualPhonePro_GUI PRIVATE VERSION="${PROJECT_VERSION}")
     
     install(TARGETS VirtualPhonePro_GUI DESTINATION bin)
+endif()
+
+# ============================================
+# SCRCPY-BASED GUI EXECUTABLE (NEW)
+# ============================================
+option(BUILD_SCRCPY_GUI "Build Scrcpy-based GUI application" ON)
+
+if(BUILD_SCRCPY_GUI AND WIN32)
+    # Find Qt6
+    find_package(Qt6 COMPONENTS Widgets Core Gui REQUIRED)
+    
+    add_executable(VirtualPhonePro_Scrcpy WIN32
+        src/emulator/ScrcpyMainWindow.cpp
+        src/vmcontroller/VirtualBoxController.cpp
+        src/vmcontroller/ADBSpoofer.cpp
+        src/vmcontroller/WindowEmbedder.cpp
+        src/vmcontroller/ScrcpyManager.cpp
+        src/vmcontroller/VMDisplayWidget.cpp
+        src/vmcontroller/VMController.cpp
+        ${CORE_SOURCES}
+        ${CORE_HEADERS}
+    )
+    
+    target_link_libraries(VirtualPhonePro_Scrcpy
+        Qt6::Widgets
+        Qt6::Core
+        Qt6::Gui
+        Threads::Threads
+        OpenSSL::SSL
+        OpenSSL::Crypto
+        CURL::libcurl
+    )
+    
+    target_compile_definitions(VirtualPhonePro_Scrcpy PRIVATE VERSION="${PROJECT_VERSION}")
+    
+    install(TARGETS VirtualPhonePro_Scrcpy DESTINATION bin)
 endif()
 
 # ============================================
