@@ -93,11 +93,10 @@ set(CORE_HEADERS
     include/emulator/MainWindow.hpp
     include/emulator/AppStore.hpp
     
-    # Scrcpy-based VM Controller (NEW)
-    include/vmcontroller/VirtualBoxController.hpp
-    include/vmcontroller/ADBSpoofer.hpp
+    # QEMU-based VM Controller (Replaces VirtualBox)
+    include/vmcontroller/QEMUController.hpp
+    include/vmcontroller/QEMUSpoofer.hpp
     include/vmcontroller/WindowEmbedder.hpp
-    include/vmcontroller/ScrcpyManager.hpp
     include/vmcontroller/VMDisplayWidget.hpp
     include/vmcontroller/VMController.hpp
     include/vmcontroller/AutoSetupManager.hpp
@@ -154,11 +153,10 @@ set(CORE_SOURCES
     # Security
     src/security/attestation/HardwareAttestationEmulator.cpp
     
-    # Scrcpy-based VM Controller Sources (NEW)
-    src/vmcontroller/VirtualBoxController.cpp
-    src/vmcontroller/ADBSpoofer.cpp
+    # QEMU-based VM Controller Sources
+    src/vmcontroller/QEMUController.cpp
+    src/vmcontroller/QEMUSpoofer.cpp
     src/vmcontroller/WindowEmbedder.cpp
-    src/vmcontroller/ScrcpyManager.cpp
     src/vmcontroller/VMDisplayWidget.cpp
     src/vmcontroller/VMController.cpp
     src/vmcontroller/AutoSetupManager.cpp
@@ -221,20 +219,19 @@ if(BUILD_GUI AND WIN32)
 endif()
 
 # ============================================
-# SCRCPY-BASED GUI EXECUTABLE (NEW)
+# QEMU-BASED GUI EXECUTABLE (Replaces VirtualBox)
 # ============================================
-option(BUILD_SCRCPY_GUI "Build Scrcpy-based GUI application" ON)
+option(BUILD_QEMU_GUI "Build QEMU-based GUI application" ON)
 
-if(BUILD_SCRCPY_GUI AND WIN32)
+if(BUILD_QEMU_GUI AND WIN32)
     # Find Qt6
     find_package(Qt6 COMPONENTS Widgets Core Gui REQUIRED)
     
-    add_executable(VirtualPhonePro_Scrcpy WIN32
+    add_executable(VirtualPhonePro_QEMU WIN32
         src/emulator/ScrcpyMainWindow.cpp
-        src/vmcontroller/VirtualBoxController.cpp
-        src/vmcontroller/ADBSpoofer.cpp
+        src/vmcontroller/QEMUController.cpp
+        src/vmcontroller/QEMUSpoofer.cpp
         src/vmcontroller/WindowEmbedder.cpp
-        src/vmcontroller/ScrcpyManager.cpp
         src/vmcontroller/VMDisplayWidget.cpp
         src/vmcontroller/VMController.cpp
         src/vmcontroller/AutoSetupManager.cpp
@@ -243,7 +240,7 @@ if(BUILD_SCRCPY_GUI AND WIN32)
         ${CORE_HEADERS}
     )
     
-    target_link_libraries(VirtualPhonePro_Scrcpy
+    target_link_libraries(VirtualPhonePro_QEMU
         Qt6::Widgets
         Qt6::Core
         Qt6::Gui
@@ -253,9 +250,9 @@ if(BUILD_SCRCPY_GUI AND WIN32)
         CURL::libcurl
     )
     
-    target_compile_definitions(VirtualPhonePro_Scrcpy PRIVATE VERSION="${PROJECT_VERSION}")
+    target_compile_definitions(VirtualPhonePro_QEMU PRIVATE VERSION="${PROJECT_VERSION}")
     
-    install(TARGETS VirtualPhonePro_Scrcpy DESTINATION bin)
+    install(TARGETS VirtualPhonePro_QEMU DESTINATION bin)
 endif()
 
 # ============================================
